@@ -1,0 +1,135 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Academy kitties </title>
+  <script src="../node_modules/jquery/dist/jquery.min.js"></script>
+  <script src="../node_modules/popper.js/dist/umd/popper-utils.min.js"></script>
+  <script src="../node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+  <!-- <script src="node_modules/web3/dist/web3.min.js"></script> -->
+  <!-- <script src="node_modules/moment/moment.js"></script> -->
+
+  <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="assets/css/mystyle.css">
+  <link rel="stylesheet" href="assets/css/cats.css">
+  <link rel="stylesheet" href="assets/css/colors.css">
+  <link rel="stylesheet" href="assets/css/factory.css">
+  <link rel="stylesheet" href="assets/css/frontend.css">
+</head>
+  <body>
+    <div class="container p-5" style="margin-top: 12vh;margin-bottom: 10vh;">
+        <div align="center">
+            <h1 class="c-white">Kitties-Factory</h1>
+            <p class="c-white">Create your custom Kitty</p>
+        </div>
+        <div class="row">
+            <div class="col-lg-4 catBox m-2 light-b-shadow">
+
+                <!-- cat -->
+                <div class="cat">       
+                    
+                    <div class="cat-head-container">
+                        <div class="cat-ears">
+                            <div class="cat-ear cat-left-ear cat-color-body">
+                                <div class="cat-inner-ear cat-color-ears"></div>
+                            </div>
+                            <div class="cat-ear cat-right-ear cat-color-body">
+                                <div class="cat-inner-ear cat-inner-ear-right cat-color-ears"></div>
+                            </div>
+                        </div>
+                        <div class="cat-head cat-color-body">
+                            
+                            <div class="cat-eyes">
+                                <div class="cat-eye cat-color-eyes">
+                                    <div class="cat-pupils"></div>
+                                </div>  
+                                <div class="cat-eye cat-color-eyes">
+                                    <div class="cat-pupils"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="cat-muzzle">                
+                                <div class="cat-nose"></div>
+                                <div class="cat-mouth cat-color-accent"></div>
+                                <div class="cat-mouth cat-mouth-right cat-color-accent"></div>
+                                <div class="cat-mouth cat-mouth-bottom cat-color-accent"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="cat-body-container">
+                        <div class="cat-body cat-color-body">
+                            <div class="cat-belly cat-color-accent"></div>
+                            
+                            <div class="cat-leg cat-color-body">
+                                <div class="cat-foot cat-color-accent"></div>
+                            </div>                     
+                            <div class="cat-leg cat-leg-right cat-color-body">
+                                <div class="cat-foot cat-color-accent"></div>
+                            </div>
+                        </div>
+
+                        <div class="cat-tail cat-color-body"></div>
+                    </div>
+                </div>
+                <br>
+                <div class="dnaDiv" id="catDNA">
+                    <b>
+                        DNA:
+                        <!-- Colors -->
+                         <span id="dnabody"></span>
+                         <span id="dnaaccent"></span>
+                         <span id="dnaeyes"></span>
+                         <span id="dnaears"></span>
+                        
+                         <!-- Cattributes -->
+                         <span id="dnashape"></span>
+                         <span id="dnadecoration"></span>
+                         <span id="dnadecorationMid"></span>
+                         <span id="dnadecorationSides"></span>
+                         <span id="dnadanimation"></span>
+                         <span id="dnaspecial"></span>
+                    </b>
+                </div>
+            </div>
+            <div class="col-lg-7 cattributes m-2 light-b-shadow">
+
+                <!-- Cat colors -->
+                <div id="catColors">
+                    <div class="form-group">
+                        <label for="formControlRange"><b>Head and body</b><span class="badge badge-dark ml-2" id="headcode"></span></label>
+                        <input type="range" min="10" max="98" class="form-control-range" id="bodyColor">
+                    </div>
+                    <div class="form-group">
+                        <label for="formControlRange"><b>Accent color</b><span class="badge badge-dark ml-2" id="accentcode"></span></label>
+                        <input type="range" min="10" max="98" class="form-control-range" id="accentColor">
+                    </div>
+                    <div class="form-group">
+                        <label for="formControlRange"><b>Eye color</b><span class="badge badge-dark ml-2" id="eyecode"></span></label>
+                        <input type="range" min="10" max="98" class="form-control-range" id="eyeColor">
+                    </div>
+                    <div class="form-group">
+                        <label for="formControlRange"><b>Ear color</b><span class="badge badge-dark ml-2" id="earcode"></span></label>
+                        <input type="range" min="10" max="98" class="form-control-range" id="earColor">
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+        <br>
+
+    </div>
+
+
+
+    <footer align="left">
+        <p>Ivan on Tech Academy Bootcamp July 2020</p>
+    </footer>
+
+  </body>
+  <script src="assets/js/colors.js"></script>
+  <script src="assets/js/catSettings.js"></script>
+  <script src="assets/js/catFactory.js"></script>
+
+</html>

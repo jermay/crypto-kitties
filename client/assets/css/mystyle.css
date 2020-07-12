@@ -1,0 +1,521 @@
+
+@font-face {
+  font-family: "Poppins";
+  src        : url("Poppins-Light.ttf");
+}
+
+body {
+  font-family: Poppins;
+  font-weight: 500;
+  letter-spacing: 1px; 
+}
+
+
+.navbar-light {
+  background: #ffffff;
+}
+
+.fit-content {
+  width: fit-content;
+}
+
+html {
+  overflow-x: hidden;  
+}
+
+.abs-center {
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  min-height     : 80vh;
+  text-align     : center;
+}
+
+p {
+  letter-spacing: 1px;
+}
+
+#message {
+  margin  : 10px;
+  position: fixed;
+  bottom  : 4rem;
+  z-index : 2000;
+  right   : 10px;
+}
+
+.pointer {
+
+  cursor: pointer;
+
+}
+
+/*  Alignment */
+
+.no-wrap {
+  flex-wrap: nowrap;
+}
+
+
+.item-c {
+  align-items: center;
+}
+
+
+.t-inline {
+  white-space: nowrap;
+}
+
+td,
+th {
+  vertical-align: text-top;
+}
+
+.va-0 {
+  vertical-align: unset;
+}
+
+
+.scale-2 {
+  transform: scale(1.6);
+}
+
+.table td,
+.table th {
+  border: none;
+}
+
+.hidden {
+  transition: all .2s ease-in-out;
+  display   : none;
+}
+
+.dflex {
+  display: flex;
+}
+
+.dblock {
+  display: block;
+}
+
+.show-block {
+  display: inline-block;
+}
+
+/* SIZING */
+
+.minw-05 {
+  width: 5%;
+}
+
+.minw-10 {
+  width: 10%;
+}
+
+.minw-20 {
+  width: 20%;
+}
+
+.minw-15 {
+  width: 15%;
+}
+
+.minw-30 {
+  width: 30%;
+}
+
+.minw-40 {
+  width: 40%;
+}
+
+.minw-50 {
+  width: 50%;
+}
+
+.minw-60 {
+  width: 60%;
+}
+
+.minw-70 {
+  width: 70%;
+}
+
+.minw-80 {
+  width: 80%;
+}
+
+.minw-90 {
+  width: 80%;
+}
+
+.minw-100 {
+  width: 100%;
+}
+
+.vh-100 {
+
+  min-height: 100vh;
+}
+
+.vh-10 {
+
+  min-height: 10vh;
+}
+
+.vh-15 {
+
+  min-height: 15vh;
+}
+
+
+/* BOXES */
+
+#results {
+
+  margin  : 10px;
+  position: fixed;
+  bottom  : 10px;
+  z-index : 2000;
+  right   : 10px;
+}
+
+
+/* TOOLTIP */
+.tooltip-btn {
+  padding-left    : 5px;
+  padding-right   : 5px;
+  padding-bottom  : 0px;
+  padding-top     : 0px;
+  color           : #721c24;
+  background-color: #f8d7da;
+  border-color    : #f5c6cb;
+}
+
+.tooltip-inner {
+  background: #cce5ff;
+  color     : #004085;
+  padding   : 10px;
+}
+
+.tooltip.show {
+
+  opacity: 1;
+}
+
+.arrow::before,
+.bs-tooltip-right .arrow::before,
+.bs-tooltip-left .arrow::before,
+.bs-tooltip-top .arrow::before {
+  border-top-color: #cce5ff;
+
+
+}
+
+/* opacity */
+
+.opacity-on {
+
+  opacity: 0;
+}
+
+.opacity-9 {
+
+  opacity: 0.9;
+
+}
+
+.opacity-8 {
+
+  opacity: 0.8;
+
+}
+
+.opacity-7 {
+
+  opacity: 0.7;
+
+}
+
+.opacity-6 {
+
+  opacity: 0.6;
+
+}
+
+/* TEXT ALIGMENT */
+
+
+.underline {
+
+  text-decoration: underline;
+
+}
+
+
+.ta-l {
+
+  text-align: left;
+}
+
+.ta-c {
+
+  text-align: center;
+
+}
+
+.ta-r {
+
+  text-align: right;
+
+}
+
+.tsp-1 {
+  letter-spacing: 1px;
+}
+
+
+.tsp-2 {
+  letter-spacing: 2px;
+}
+
+/* SHADOW*/
+
+
+.light-shadow {
+
+  text-shadow: 1px 2px 3px #8e8e8e;
+
+}
+
+.light-b-shadow {
+  box-shadow: 0px 5px 7px 0px #444444;
+}
+
+/*BORDER*/
+
+.none-border {
+  border: none;
+}
+
+.radius-50 {
+
+  border-radius: 50%;
+}
+
+.radius-10 {
+
+  border-radius: 10px;
+}
+
+
+/* TRANSITIONS */
+
+.trans-fast {
+  transition: all .75s ease;
+}
+
+.trans-normal {
+  transition: all 1s ease;
+}
+
+.trans-slow {
+  transition: all 1.5s ease;
+}
+
+/* Text size */
+
+h4 {
+  font-size: 1rem;
+}
+
+.fs-50 {
+  font-size: 50%;
+}
+
+
+/* Margin and padding */
+
+.m-0 {
+  margin: 0px;
+}
+
+.m-1 {
+  margin: 5px;
+}
+
+.mt-0 {
+  margin-top: 0px;
+}
+
+.mt-05 {
+  margin-top: 5px;
+}
+
+.mt-1 {
+  margin-top: 10px;
+}
+
+.mt-2 {
+  margin-top: 30px;
+}
+
+.mt-3 {
+  margin-top: 50px;
+}
+
+.mt-4 {
+  margin-top: 80px;
+}
+
+.mb-0 {
+  margin-bottom: 5px;
+}
+
+.mb-1 {
+  margin-bottom: 10px;
+}
+
+.mb-2 {
+  margin-bottom: 30px;
+}
+
+.mb-3 {
+  margin-bottom: 50px;
+}
+
+.mb-4 {
+  margin-bottom: 80px;
+}
+
+.ml-1 {
+  margin-left: 10px;
+}
+
+.ml-2 {
+  margin-left: 20px;
+}
+
+.ml-3 {
+  margin-left: 30px;
+}
+
+.ml-4 {
+  margin-left: 45px;
+}
+
+.mr-1 {
+  margin-right: 10px;
+}
+
+.mr-2 {
+  margin-right: 20px;
+}
+
+.mr-3 {
+  margin-right: 30px;
+}
+
+.mr-4 {
+  margin-right: 45px;
+}
+
+.p-1 {
+  padding: 1px;
+}
+
+.p-2 {
+  padding: 10px;
+}
+
+.p-3 {
+  padding: 15px;
+}
+
+.p-4 {
+  padding: 20px;
+}
+
+.p-5 {
+  padding: 25px;
+}
+
+.pt-0 {
+  padding-top: 0px;
+}
+
+.pt-05 {
+  padding-top: 5px;
+}
+
+.pt-1 {
+  padding-top: 10px;
+}
+
+.pt-2 {
+  padding-top: 20px;
+}
+
+.pt-3 {
+  padding-top: 30px;
+}
+
+.pt-4 {
+  padding-top: 40px;
+}
+
+.pt-5 {
+  padding-bottom: 50px;
+}
+
+.pb-1 {
+  padding-bottom: 10px;
+}
+
+.pb-2 {
+  padding-bottom: 20px;
+}
+
+.pb-3 {
+  padding-bottom: 30px;
+}
+
+.pb-4 {
+  padding-bottom: 40px;
+}
+
+.pb-5 {
+  padding-bottom: 50px;
+}
+
+/* EFFECTS ANIMATIONS */
+
+.reflex-box {
+
+  -webkit-box-reflect: below 5px -webkit-gradient(linear, left top, left bottom, from(transparent), color-stop(0%, transparent), to(rgba(250, 250, 250, 0.2)))
+}
+
+.grow {
+  transition: all .2s ease-in-out;
+}
+
+.grow:hover {
+  transform: scale(1.1);
+}
+
+.fadeoutleft {
+  opacity  : 0;
+  overflow : hidden;
+  transform: translateX(-90%);
+
+}
+
+.myfadeOut {
+  opacity   : 0;
+  transition: all 0.5s ease-in-out;
+}
+
+.fadeinright {
+  opacity  : 0;
+  overflow : hidden;
+  transform: translateX(90%);
+
+}

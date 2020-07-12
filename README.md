@@ -16,6 +16,27 @@ https://guide.cryptokitties.co/guide/cat-features/genes
 * Eye Color
 * Fur
 
+Academy Kitties DNA:
+
+16 digit uint
+
+Colors
+00-01: Body Color (0-99)
+02-03: Mouth, tail color (0-99)
+04-05: Eye color (0-99)
+06-07: Ear color (0-99)
+
+Cattributes
+08: Eye shape (0-9)
+09: Decorative pattern (0-9)
+10-11: Decorative pattern color (0-99)
+12-13: Decorative pattern color 2 (0-99)
+14: Animation
+15: ? my own custom cattribute (0-9)
+
+Bootcamp template
+https://github.com/Ivan-on-Tech-Academy/academy-kitties-template/tree/master
+
 Cooldown
 
 https://guide.cryptokitties.co/guide/cat-features/cooldown-speed
