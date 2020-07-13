@@ -7,7 +7,7 @@ var defaultDNA = {
     "eyeColor" : 91,
     "earColor" : 42,
     //Cattributes
-    "eyesShape" : 1,
+    "eyeShape" : 7,
     "decorationPattern" : 1,
     "decorationMidcolor" : 13,
     "decorationSidescolor" : 13,
@@ -22,12 +22,12 @@ $( document ).ready(function() {
   $('#dnaeyes').html(defaultDNA.eyeColor);
   $('#dnaears').html(defaultDNA.earColor);
     
-//   $('#dnashape').html(defaultDNA.eyesShape)
-//   $('#dnadecoration').html(defaultDNA.decorationPattern)
-//   $('#dnadecorationMid').html(defaultDNA.decorationMidcolor)
-//   $('#dnadecorationSides').html(defaultDNA.decorationSidescolor)
-//   $('#dnaanimation').html(defaultDNA.animation)
-//   $('#dnaspecial').html(defaultDNA.lastNum)
+  $('#dnashape').html(defaultDNA.eyeShape);
+  $('#dnadecoration').html(defaultDNA.decorationPattern);
+  $('#dnadecorationMid').html(defaultDNA.decorationMidcolor);
+  $('#dnadecorationSides').html(defaultDNA.decorationSidescolor);
+  $('#dnaanimation').html(defaultDNA.animation);
+  $('#dnaspecial').html(defaultDNA.lastNum);
 
   renderCat(defaultDNA)
 });
@@ -60,6 +60,9 @@ function renderCat(dna){
 
     earColor(colors[dna.earColor],dna.earColor);
     $('#earColor').val(dna.earColor);
+
+    eyeVariation(dna.eyeShape);
+    $('#eyeShape').val(dna.eyeShape);
 }
 
 // Changing cat colors
@@ -81,4 +84,9 @@ $('#eyeColor').change(()=>{
 $('#earColor').change(()=>{
   var colorVal = $('#earColor').val();
   earColor(colors[colorVal],colorVal);
+});
+
+$('#eyeShape').change(()=>{
+  var val = $('#eyeShape').val();
+  eyeVariation(+val);
 });

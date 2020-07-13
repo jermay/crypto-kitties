@@ -215,3 +215,33 @@
 .cat-foot-right {
     left: 180px;
 }
+
+.cat-eyes-angry {
+    position: absolute;
+    z-index: 4;
+    width: 146px;
+    height: 39px;
+    left: 83px;
+    top: 94px;
+    border-radius: 50%;
+}
+
+.cat-eyes-sad {
+    position: absolute;
+    z-index: 4;
+    width: 146px;
+    height: 40px;
+    left: 83px;
+    top: 69px;
+    border-radius: 50% 50% 0 0;
+}
+
+.cat-eyes-sleepy {
+    position: absolute;
+    z-index: 4;
+    width: 146px;
+    height: 37px;
+    left: 83px;
+    top: 100px;
+    border-radius: 50% 50% 0 0;
+}

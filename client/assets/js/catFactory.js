@@ -5,17 +5,17 @@ function getColor() {
     return randomColor
 }
 
-function genColors(){
+function genColors() {
     var colors = []
-    for(var i = 10; i < 99; i ++){
-      var color = getColor()
-      colors[i] = color
+    for (var i = 10; i < 99; i++) {
+        var color = getColor()
+        colors[i] = color
     }
     return colors
 }
 
 //This function code needs to modified so that it works with Your cat code.
-function bodyColor(color,code) {
+function bodyColor(color, code) {
     $('.cat-color-body').css('background', '#' + color);  //This changes the color of the cat
     $('#headcode').html('code: ' + code); //This updates text of the badge next to the slider
     $('#dnabody').html(code); //This updates the body color part of the DNA that is displayed below the cat
@@ -48,9 +48,45 @@ function eyeVariation(num) {
     $('#dnashape').html(num)
     switch (num) {
         case 1:
-            normalEyes()
-            $('#eyeName').html('Basic')
-            break
+            normalEyes(); //render eye shape
+            $('#eyeName').html('Basic'); // set the badge label
+            break;
+        case 2:
+            normalEyes(); // reset
+            $('#eyeName').html('Chill');
+            eyesType1(); // render
+            break;
+        case 3:
+            normalEyes(); // reset
+            $('#eyeName').html('Right');
+            eyesType2(); // render
+            break;
+        case 4:
+            normalEyes(); // reset
+            $('#eyeName').html('Left');
+            eyesType3(); // render
+            break;
+        case 5:
+            normalEyes(); // reset
+            $('#eyeName').html('Angry');
+            eyesType4(); // render
+            break;
+
+        case 6:
+            normalEyes(); // reset
+            $('#eyeName').html('Sad');
+            eyesType5(); // render
+            break;
+
+        case 7:
+            normalEyes(); // reset
+            $('#eyeName').html('Sleepy');
+            eyesType6(); // render
+            break;
+
+        default:
+            console.log('Invalid eye shape: ', num, typeof num);
+            break;
     }
 }
 
@@ -65,7 +101,47 @@ function decorationVariation(num) {
 }
 
 async function normalEyes() {
-    await $('.cat__eye').find('span').css('border', 'none')
+    $('.cat-temp').remove();
+    $('.cat-eye').find('.cat-pupils')
+        .css('left', '11px');
+    $('.cat-eyes').find('.cat-eye')
+        .css('border', '1px solid #4e4d4d');
+}
+
+async function eyesType1() {
+    $('.cat-eyes').find('.cat-eye')
+        .css('border-top', '7px solid #4e4d4d')
+        .css('border-bottom', '7px solid #4e4d4d');
+}
+
+async function eyesType2() {
+    $('.cat-eyes').find('.cat-eye')
+        .css('border-left', '7px solid #4e4d4d');
+}
+
+async function eyesType3() {
+    $('.cat-eyes').find('.cat-eye')
+        .css('border-right', '7px solid #4e4d4d');
+    $('.cat-eye').find('.cat-pupils')
+        .css('left', '6px');
+}
+
+async function eyesType4() {
+    let angryEyes = $('<div class="cat-eyes-angry cat-color cat-temp"></div>')
+        .css('background-color', '#' + colors[defaultDNA.bodyColor]);
+    $('.cat').append(angryEyes);
+}
+
+async function eyesType5() {
+    let angryEyes = $('<div class="cat-eyes-sad cat-color cat-temp"></div>')
+        .css('background-color', '#' + colors[defaultDNA.bodyColor]);
+    $('.cat').append(angryEyes);
+}
+
+async function eyesType6() {
+    let angryEyes = $('<div class="cat-eyes-sleepy cat-color cat-temp"></div>')
+        .css('background-color', '#' + colors[defaultDNA.bodyColor]);
+    $('.cat').append(angryEyes);
 }
 
 async function normaldecoration() {
