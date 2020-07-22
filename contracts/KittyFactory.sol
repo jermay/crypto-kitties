@@ -9,11 +9,12 @@ contract KittyFactory is Ownable {
     using SafeMath32 for uint32;
     using SafeMath16 for uint16;
 
-    event Birth(uint256 kittyId, string name, string dna);
+    event Birth(uint256 kittyId, string name, string dna, uint32 generation);
 
     struct Kitty {
         string name;
         string dna;
+        uint32 generation;
     }
 
     Kitty[] public kitties;
@@ -24,15 +25,16 @@ contract KittyFactory is Ownable {
     constructor() public {
         kitties.push(Kitty({
             name: 'unKitty',
-            dna: ''
+            dna: '',
+            generation: 0
         }));
     }
 
     function birth(string memory _name, string memory _dna) public {
-        Kitty memory kitty = Kitty(_name, _dna);
+        Kitty memory kitty = Kitty(_name, _dna, 0);
         uint256 kittyId = kitties.push(kitty) - 1;
         kittyToOwner[kittyId] = msg.sender;
         ownerKittyCount[msg.sender] = ownerKittyCount[msg.sender].add(1);
-        emit Birth(kittyId, _name, _dna);
+        emit Birth(kittyId, _name, _dna, 0);
     }
 }

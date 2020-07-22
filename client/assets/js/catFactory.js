@@ -45,49 +45,51 @@ function earColor(color, code) {
 //###################################################
 function eyeVariation(num) {
 
-    $('#dnashape').html(num)
+    $('#dnashape').html(num) // set DNA code
+    normalEyes(); // reset eye style
+    
+    let name = 'Unknown';
     switch (num) {
         case 1:
-            normalEyes(); //render eye shape
-            $('#eyeName').html('Basic'); // set the badge label
+            name = 'Basic'; // set the badge label
             break;
+
         case 2:
-            normalEyes(); // reset
-            $('#eyeName').html('Chill');
+            name = 'Chill';
             eyesType1(); // render
             break;
-        case 3:
-            normalEyes(); // reset
-            $('#eyeName').html('Right');
-            eyesType2(); // render
+
+        case 3:            
+            name = 'Right';
+            eyesType2();
             break;
-        case 4:
-            normalEyes(); // reset
-            $('#eyeName').html('Left');
-            eyesType3(); // render
+
+        case 4:            
+            name = 'Left';
+            eyesType3();
             break;
+
         case 5:
-            normalEyes(); // reset
-            $('#eyeName').html('Angry');
-            eyesType4(); // render
+            name = 'Angry';
+            eyesType4();
             break;
 
         case 6:
-            normalEyes(); // reset
-            $('#eyeName').html('Sad');
-            eyesType5(); // render
+            name = 'Sad';
+            eyesType5();
             break;
 
         case 7:
-            normalEyes(); // reset
-            $('#eyeName').html('Sleepy');
-            eyesType6(); // render
+            name = 'Sleepy';
+            eyesType6();
             break;
 
         default:
-            console.log('Invalid eye shape: ', num, typeof num);
+            console.log('Invalid eye shape: ', num);
             break;
     }
+
+    $('#eyeName').html(name);
 }
 
 function decorationVariation(num) {
