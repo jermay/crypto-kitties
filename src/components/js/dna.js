@@ -25,7 +25,7 @@ export class ColorCattribute extends Cattribute {
 
     // returns the hex color value
     getCssColor() {
-        return colors[this.getCattributeValue(this.name)];
+        return colors[this.value];
     }
 
 }

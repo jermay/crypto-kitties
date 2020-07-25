@@ -37,7 +37,8 @@
     "react-bootstrap": "^1.2.2",
     "react-dom": "^16.13.1",
     "react-scripts": "3.4.1",
-    "solc": "^0.5.12"
+    "solc": "^0.5.12",
+    "styled-components": "^5.1.1"
   },
   "devDependencies": {
     "chai": "*",
