@@ -1,6 +1,7 @@
 import React from 'react';
 import './css/factory.css';
 import './css/mystyle.css';
+import { Badge } from 'react-bootstrap';
 
 export default function CatSettings(props) {
   // console.log('catsettings props: ', props);
@@ -33,12 +34,12 @@ export default function CatSettings(props) {
       <div id="catColors">
         {
           props.dna.cattributes.map(cattribute => (
-            <div className="form-group" key={'dna-setting-' + cattribute.name}>
+            <div className="form-group" key={cattribute.name}>
               <label htmlFor="formControlRange">
                 <b>{cattribute.displayName}</b>
-                <span className="badge badge-dark ml-2" id="headcode">
+                <Badge variant="dark" className="ml-2" id="headcode">
                   {cattribute.value}
-                </span>
+                </Badge>
               </label>
               <input type="range" className="form-control-range"
                 id={cattribute.name}

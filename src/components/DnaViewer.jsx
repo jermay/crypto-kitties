@@ -1,17 +1,28 @@
 import React from 'react';
+import styled from 'styled-components';
+
+const Div = styled.div`
+    position: absolute;
+    left: 20px;
+    bottom: 5px;
+`;
+
+const Span = styled.span`
+    margin-left: 0.25rem;
+`;
 
 export default function DnaViewer(props) {
 
     return (
-        <div className="dnaDiv" id="catDNA">
+        <Div id="catDNA">
             <b>
                 DNA:
                 {
                     props.dna.cattributes.map(cattribute =>
-                        <span key={cattribute.name}>{cattribute.value}</span>
+                        <Span key={cattribute.name}>{cattribute.value}</Span>
                     )
                 }
             </b>
-        </div>
+        </Div>
     )
 }
