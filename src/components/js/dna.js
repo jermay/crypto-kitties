@@ -1,69 +1,116 @@
-import { interfaces } from "mocha";
+import { colors } from './colors';
 
-var defaultDNA = {
-    "bodyColor": 10,
-    "accentColor": 13,
-    "eyeColor": 91,
-    "earColor": 42,
-    //Cattributes
-    "eyeShape": 7,
-    "decorationPattern": 1,
-    "decorationMidcolor": 13,
-    "decorationSidescolor": 13,
-    "animation": 1,
-    "lastNum": 1
+export class Cattribute {
+    constructor(props) {
+        this.name = props.name;
+        this.displayName = props.displayName;
+        this.minValue = props.minValue;
+        this.maxValue = props.maxValue;
+        this.digits = props.digits;
+        this.defaultValue = props.defaultValue;
+        this.value = props.value || props.defaultValue;
+    }
+}
+
+export class ColorCattribute extends Cattribute {
+    constructor(props) {
+        super({
+            defaultValue: 10,
+            minValue: 10,
+            maxValue: 98,
+            digits: 2,
+            ...props
+        });
+    }
+
+    // returns the hex color value
+    getCssColor() {
+        return colors[this.getCattributeValue(this.name)];
+    }
+
 }
 
 export class KittyDNA {
 
-    _str = '';
+    // old DNA structure
+    // var defaultDNA = {
+    //     "bodyColor": 10,
+    //     "accentColor": 13,
+    //     "eyeColor": 91,
+    //     "earColor": 42,
+    //     //Cattributes
+    //     "eyeShape": 7,
+    //     "decorationPattern": 1,
+    //     "decorationMidcolor": 13,
+    //     "decorationSidescolor": 13,
+    //     "animation": 1,
+    //     "lastNum": 1
+    // }
 
-    attributes = {
-        // colors
-        'bodyColor': { indexStart: 0, indexEnd: 2 },
-        'accentColor': { indexStart: 2, indexEnd: 3 },
-        'eyeColor': { indexStart: 4, indexEnd: 5 },
-        'earColor': { indexStart: 6, indexEnd: 7 },
+    cattributes = [
+        new ColorCattribute({ name: 'bodyColor', displayName: 'Body Color', defaultValue: 10 }),
+        new ColorCattribute({ name: 'accentColor', displayName: 'Accent Color', defaultValue: 13 }),
+        new ColorCattribute({ name: 'eyeColor', displayName: 'Eye Color', defaultValue: 91 }),
+        new ColorCattribute({ name: 'earColor', displayName: 'Ear Color',  defaultValue: 42 }),
 
-        // Cattributes
-        'eyeShape': { indexStart: 8, indexEnd: 8 },
-        'decorationPattern': { indexStart: 9, indexEnd: 9 },
-        'decorationMidcolor': { indexStart: 10, indexEnd: 11 },
-        'decorationSidescolor': { indexStart: 12, indexEnd: 13 },
-        'animation': { indexStart: 14, indexEnd: 14 },
-        'lastNum': { indexStart: 15, indexEnd: 15 },
-    };
+        new Cattribute({ name: 'eyeShape', displayName: 'Eye Shape', minValue: 0, maxValue: 7, digits: 1, defaultValue: 7 }),
+        new Cattribute({ name: 'decorationPattern', displayName: 'Decoration Pattern', minValue: 0, maxValue: 7, digits: 1, defaultValue: 1 }),
+        new ColorCattribute({ name: 'decorationMidcolor', displayName: 'Decoration Mid Color', defaultValue: 13 }),
+        new ColorCattribute({ name: 'decorationSidescolor', displayName: 'Decoration Side Color', defaultValue: 13 }),
+        new Cattribute({ name: 'animation', displayName: 'Animation', minValue: 0, maxValue: 7, digits: 1, defaultValue: 1 }),
+        new Cattribute({ name: 'lastNum', displayName: '??', minValue: 0, maxValue: 7, digits: 1, defaultValue: 1 }),
+    ];
 
-    constructor(str) {
-        _str = str;
+    constructor(dna) {
+        this.dna = dna;
     }
 
-    getAttributeValue(attr) {
-        return +this._str.substring(attr.indexStart, attr.indexEnd);
+    get dna() {
+        return this.cattributes
+            .map(c => String(c.value).padStart(c.digits, '0'))
+            .join('');
     }
-
-    setDnaStringAttribute(attr, value) {
-        for (let i = attr.indexStart, j=0; i <= attr.indexEnd; i++, j++) {
-            this._str[i] = value[j];
+    set dna(_dna) {
+        if (!_dna) {
+            return;
         }
+
+        // slice off each cattribute from the DNA
+        let i = 0;
+        this.cattributes.forEach(cattribute => {
+            const value = _dna.substr(i, cattribute.digits);
+            cattribute.value = value;
+            i += cattribute.digits;
+        });
     }
 
-    // parse the DNA str
-
-    // getters
-    get bodyColor() {
-        return this.getAttributeValue(this.attributes.bodyColor);
-    }
-    set bodyColor(val) {
-        this.setDnaStringAttribute(this.attributes.bodyColor, val);
+    getCattribute(name) {
+        return this.cattributes.find(c => c.name === name);
     }
 
-    // setters that update the DNA str
-}
+    getCattributeValue(name) {
+        let cattribute = this.getCattribute(name);
+        if (cattribute) {
+            return cattribute.value;
+        }
+        console.error(`Unkown cattribute "${name}"`);
+        return undefined;
+    }
 
-export class DnaAttribute {
-    id;
-    name;
-    indexStart;
-    indexEnd;
+    setCattributeValue(name, value) {
+        let cattribute = this.getCattribute(name);
+        if (cattribute) {
+            cattribute.value = value;
+            return;
+        }
+
+        console.error(`Unkown cattribute "${name}"`);
+    }
+
+    clone() {
+        const dna = this.dna;
+        console.log('cloning DNA: ', dna)
+        return new KittyDNA(dna);
+    }
+
 }
