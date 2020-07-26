@@ -10,9 +10,22 @@ export class Cattribute {
         this.defaultValue = props.defaultValue;
         this.value = props.value || props.defaultValue;
     }
+
+    get strValue() {
+        return String(this.value).padStart(this.digits, '0');
+    }
 }
 
 export class ColorCattribute extends Cattribute {
+    static colorNames = {
+        bodyColor: 'bodyColor',
+        accentColor: 'accentColor',
+        eyeColor: 'eyeColor',
+        earColor: 'earColor',
+        decorationMidcolor: 'decorationMidcolor',
+        decorationSidescolor: 'decorationSidescolor'
+    }
+
     constructor(props) {
         super({
             defaultValue: 10,
@@ -25,7 +38,7 @@ export class ColorCattribute extends Cattribute {
 
     // returns the hex color value
     getCssColor() {
-        return colors[this.value];
+        return '#' + colors[this.value];
     }
 
 }
@@ -48,10 +61,10 @@ export class KittyDNA {
     // }
 
     cattributes = [
-        new ColorCattribute({ name: 'bodyColor', displayName: 'Body Color', defaultValue: 10 }),
-        new ColorCattribute({ name: 'accentColor', displayName: 'Accent Color', defaultValue: 13 }),
-        new ColorCattribute({ name: 'eyeColor', displayName: 'Eye Color', defaultValue: 91 }),
-        new ColorCattribute({ name: 'earColor', displayName: 'Ear Color',  defaultValue: 42 }),
+        new ColorCattribute({ name: ColorCattribute.colorNames.bodyColor, displayName: 'Body Color', defaultValue: 10 }),
+        new ColorCattribute({ name: ColorCattribute.colorNames.accentColor, displayName: 'Accent Color', defaultValue: 13 }),
+        new ColorCattribute({ name: ColorCattribute.colorNames.eyeColor, displayName: 'Eye Color', defaultValue: 91 }),
+        new ColorCattribute({ name: ColorCattribute.colorNames.earColor, displayName: 'Ear Color', defaultValue: 42 }),
 
         new Cattribute({ name: 'eyeShape', displayName: 'Eye Shape', minValue: 0, maxValue: 7, digits: 1, defaultValue: 7 }),
         new Cattribute({ name: 'decorationPattern', displayName: 'Decoration Pattern', minValue: 0, maxValue: 7, digits: 1, defaultValue: 1 }),
@@ -67,7 +80,7 @@ export class KittyDNA {
 
     get dna() {
         return this.cattributes
-            .map(c => String(c.value).padStart(c.digits, '0'))
+            .map(cattribute => cattribute.strValue)
             .join('');
     }
     set dna(_dna) {
@@ -109,7 +122,7 @@ export class KittyDNA {
 
     clone() {
         const dna = this.dna;
-        console.log('cloning DNA: ', dna)
+        // console.log('cloning DNA: ', dna);
         return new KittyDNA(dna);
     }
 

@@ -19,7 +19,7 @@ export default function DnaViewer(props) {
                 DNA:
                 {
                     props.dna.cattributes.map(cattribute =>
-                        <Span key={cattribute.name}>{cattribute.value}</Span>
+                        <Span key={cattribute.name}>{cattribute.strValue}</Span>
                     )
                 }
             </b>
