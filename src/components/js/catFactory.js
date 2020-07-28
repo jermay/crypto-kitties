@@ -27,6 +27,7 @@ export class CatPart {
         this.borderLeft = props.borderLeft;
         this.borderRadius = props.borderRadius;
 
+        this.background = props.background;
         this.transform = props.transform;
     }
 
@@ -198,12 +199,12 @@ export class CatEyePart extends CatPart {
             case 3:
                 this.borderLeft = `6px solid #4e4d4d`;
                 break;
-            
+
             // Look Left
             case 4:
                 this.borderRight = `6px solid #4e4d4d`;
                 break;
-        
+
             default:
                 break;
         }
@@ -239,7 +240,7 @@ export class CatPupilPart extends CatPart {
             case 4:
                 this.left = '7px';
                 break;
-        
+
             default:
                 break;
         }
@@ -428,6 +429,29 @@ export class CatBodyPart extends CatPart {
             ]
         });
         this.colorCattributeName = ColorCattribute.NAMES.bodyColor;
+        this.setDecorationPattern();
+    }
+
+    setDecorationPattern() {
+        const patternNum = this.dna
+            .getCattribute(Cattribute.NAMES.decorationPattern)
+            .value;
+        const decorationColor = this.dna
+            .getCattribute(ColorCattribute.NAMES.decorationMidcolor).getCssColor();
+        debugger;
+        switch (patternNum) {
+            case 1:
+                this.background = `repeating-linear-gradient(
+                    to bottom,
+                    ${this.color},
+                    ${this.color} 15px,
+                    ${decorationColor} 10px,
+                    ${decorationColor} 20px)`;
+                break;
+        
+            default:
+                break;
+        }
     }
 }
 
@@ -475,6 +499,29 @@ export class CatLegPart extends CatPart {
         }
 
         this.colorCattributeName = ColorCattribute.NAMES.bodyColor;
+        this.setDecorationPattern();
+    }
+
+    setDecorationPattern() {
+        const patternNum = this.dna
+            .getCattribute(Cattribute.NAMES.decorationPattern)
+            .value;
+        const decorationColor = this.dna
+            .getCattribute(ColorCattribute.NAMES.decorationMidcolor).getCssColor();
+        debugger;
+        switch (patternNum) {
+            case 1:
+                this.background = `repeating-linear-gradient(
+                    to bottom,
+                    ${this.color},
+                    ${this.color} 15px,
+                    ${decorationColor} 10px,
+                    ${decorationColor} 20px)`;
+                break;
+        
+            default:
+                break;
+        }
     }
 }
 

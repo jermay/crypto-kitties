@@ -80,8 +80,8 @@ export class KittyDNA {
         new ColorCattribute({ name: ColorCattribute.NAMES.eyeColor, displayName: 'Eye Color', defaultValue: 91 }),
         new ColorCattribute({ name: ColorCattribute.NAMES.earColor, displayName: 'Ear Color', defaultValue: 42 }),
 
-        new Cattribute({ name: Cattribute.NAMES.eyeShape, displayName: 'Eye Shape', minValue: 0, maxValue: 7, digits: 1, defaultValue: 7, valueNames: {'1':'Basic', '2':'Down', '3':'Right', '4':'Left', '5':'Angry', '6': 'Suprised', '7':'Sleepy'} }),
-        new Cattribute({ name: Cattribute.NAMES.decorationPattern, displayName: 'Decoration Pattern', minValue: 0, maxValue: 7, digits: 1, defaultValue: 1 }),
+        new Cattribute({ name: Cattribute.NAMES.eyeShape, displayName: 'Eye Shape', minValue: 1, maxValue: 7, digits: 1, defaultValue: 7, valueNames: {'1':'Basic', '2':'Down', '3':'Right', '4':'Left', '5':'Angry', '6': 'Suprised', '7':'Sleepy'} }),
+        new Cattribute({ name: Cattribute.NAMES.decorationPattern, displayName: 'Decoration Pattern', minValue: 0, maxValue: 1, digits: 1, defaultValue: 1, valueNames : {'0': 'None', '1': 'Stripes'} }),
         new ColorCattribute({ name: ColorCattribute.NAMES.decorationMidcolor, displayName: 'Decoration Mid Color', defaultValue: 13 }),
         new ColorCattribute({ name: ColorCattribute.NAMES.decorationSidescolor, displayName: 'Decoration Side Color', defaultValue: 13 }),
         new Cattribute({ name: Cattribute.NAMES.animation, displayName: 'Animation', minValue: 0, maxValue: 7, digits: 1, defaultValue: 1 }),
@@ -106,7 +106,7 @@ export class KittyDNA {
         let i = 0;
         this.cattributes.forEach(cattribute => {
             const value = _dna.substr(i, cattribute.digits);
-            cattribute.value = value;
+            cattribute.value = +value;
             i += cattribute.digits;
         });
     }

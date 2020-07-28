@@ -3,6 +3,7 @@ import styled from 'styled-components';
 
 const CatElement = styled.div`
     background-color: ${props => props.backgroundColor};
+    background: ${props => props.background};
     width: ${props => props.width};
     height: ${props => props.height};
     display: ${props => props.display};
@@ -37,6 +38,7 @@ export default function CatPartComp(props) {
 
             return <CatElement key={part.name} className={part.name}
                 backgroundColor={part.color}
+                background={part.background}
                 width={part.width}
                 height={part.height}
                 display={part.display}
