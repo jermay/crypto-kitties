@@ -1,8 +1,17 @@
 import { colors } from './colors';
 
 export class Cattribute {
+    static NAMES = {
+        eyeShape: 'eyeShape',
+        decorationPattern: 'decorationPattern',
+        decorationSidescolor: 'decorationSidescolor',
+        animation: 'animation',
+        lastNum: 'lastNum',
+    };
+
     constructor(props) {
         this.name = props.name;
+        this.valueNames = props.valueNames || {};
         this.displayName = props.displayName;
         this.minValue = props.minValue;
         this.maxValue = props.maxValue;
@@ -14,10 +23,15 @@ export class Cattribute {
     get strValue() {
         return String(this.value).padStart(this.digits, '0');
     }
+
+    get valueName() {
+        const val = this.strValue;
+        return this.valueNames[val] || val;;
+    }
 }
 
 export class ColorCattribute extends Cattribute {
-    static colorNames = {
+    static NAMES = {
         bodyColor: 'bodyColor',
         accentColor: 'accentColor',
         eyeColor: 'eyeColor',
@@ -61,17 +75,17 @@ export class KittyDNA {
     // }
 
     cattributes = [
-        new ColorCattribute({ name: ColorCattribute.colorNames.bodyColor, displayName: 'Body Color', defaultValue: 10 }),
-        new ColorCattribute({ name: ColorCattribute.colorNames.accentColor, displayName: 'Accent Color', defaultValue: 13 }),
-        new ColorCattribute({ name: ColorCattribute.colorNames.eyeColor, displayName: 'Eye Color', defaultValue: 91 }),
-        new ColorCattribute({ name: ColorCattribute.colorNames.earColor, displayName: 'Ear Color', defaultValue: 42 }),
+        new ColorCattribute({ name: ColorCattribute.NAMES.bodyColor, displayName: 'Body Color', defaultValue: 10 }),
+        new ColorCattribute({ name: ColorCattribute.NAMES.accentColor, displayName: 'Accent Color', defaultValue: 13 }),
+        new ColorCattribute({ name: ColorCattribute.NAMES.eyeColor, displayName: 'Eye Color', defaultValue: 91 }),
+        new ColorCattribute({ name: ColorCattribute.NAMES.earColor, displayName: 'Ear Color', defaultValue: 42 }),
 
-        new Cattribute({ name: 'eyeShape', displayName: 'Eye Shape', minValue: 0, maxValue: 7, digits: 1, defaultValue: 7 }),
-        new Cattribute({ name: 'decorationPattern', displayName: 'Decoration Pattern', minValue: 0, maxValue: 7, digits: 1, defaultValue: 1 }),
-        new ColorCattribute({ name: 'decorationMidcolor', displayName: 'Decoration Mid Color', defaultValue: 13 }),
-        new ColorCattribute({ name: 'decorationSidescolor', displayName: 'Decoration Side Color', defaultValue: 13 }),
-        new Cattribute({ name: 'animation', displayName: 'Animation', minValue: 0, maxValue: 7, digits: 1, defaultValue: 1 }),
-        new Cattribute({ name: 'lastNum', displayName: '??', minValue: 0, maxValue: 7, digits: 1, defaultValue: 1 }),
+        new Cattribute({ name: Cattribute.NAMES.eyeShape, displayName: 'Eye Shape', minValue: 0, maxValue: 7, digits: 1, defaultValue: 7, valueNames: {'1':'Basic', '2':'Down', '3':'Right', '4':'Left', '5':'Angry', '6': 'Suprised', '7':'Sleepy'} }),
+        new Cattribute({ name: Cattribute.NAMES.decorationPattern, displayName: 'Decoration Pattern', minValue: 0, maxValue: 7, digits: 1, defaultValue: 1 }),
+        new ColorCattribute({ name: ColorCattribute.NAMES.decorationMidcolor, displayName: 'Decoration Mid Color', defaultValue: 13 }),
+        new ColorCattribute({ name: ColorCattribute.NAMES.decorationSidescolor, displayName: 'Decoration Side Color', defaultValue: 13 }),
+        new Cattribute({ name: Cattribute.NAMES.animation, displayName: 'Animation', minValue: 0, maxValue: 7, digits: 1, defaultValue: 1 }),
+        new Cattribute({ name: Cattribute.NAMES.lastNum, displayName: '??', minValue: 0, maxValue: 7, digits: 1, defaultValue: 1 }),
     ];
 
     constructor(dna) {
@@ -122,7 +136,7 @@ export class KittyDNA {
 
     clone() {
         const dna = this.dna;
-        // console.log('cloning DNA: ', dna);
+        console.log('cloning DNA: ', dna);
         return new KittyDNA(dna);
     }
 

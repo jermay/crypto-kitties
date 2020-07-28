@@ -1,4 +1,4 @@
-import { ColorCattribute } from "./dna";
+import { ColorCattribute, Cattribute, KittyDNA } from "./dna";
 
 export class CatPart {
 
@@ -80,7 +80,7 @@ export class CatHeadPart extends CatPart {
             ]
         });
 
-        this.colorCattributeName = ColorCattribute.colorNames.bodyColor;
+        this.colorCattributeName = ColorCattribute.NAMES.bodyColor;
     }
 }
 
@@ -119,7 +119,7 @@ export class CatEarPart extends CatPart {
             this.transform = 'scale(1, -1)';
         }
 
-        this.colorCattributeName = ColorCattribute.colorNames.bodyColor;
+        this.colorCattributeName = ColorCattribute.NAMES.bodyColor;
     }
 }
 
@@ -143,7 +143,7 @@ export class CatInnerEarPart extends CatPart {
             this.left = '-10px';
         }
 
-        this.colorCattributeName = ColorCattribute.colorNames.earColor;
+        this.colorCattributeName = ColorCattribute.NAMES.earColor;
     }
 }
 
@@ -157,10 +157,10 @@ export class CatEyes extends CatPart {
             left: '20px',
             display: "flex",
             childParts: [
-                new CatEyePart({ dna: props.dna, type: 'left' }),                
+                new CatEyePart({ dna: props.dna, type: 'left' }),
                 new CatEyePart({ dna: props.dna, type: 'right' }),
-                new CatEyeLidPart({dna: props.dna, type: 'left'}),
-                new CatEyeLidPart({dna: props.dna, type: 'right'}),
+                new CatEyeLidPart({ dna: props.dna, type: 'left' }),
+                new CatEyeLidPart({ dna: props.dna, type: 'right' }),
             ]
         });
     }
@@ -182,7 +182,31 @@ export class CatEyePart extends CatPart {
             ]
         });
         this.type = props.type;
-        this.colorCattributeName = ColorCattribute.colorNames.eyeColor;
+        this.colorCattributeName = ColorCattribute.NAMES.eyeColor;
+        this.setEyeShape();
+    }
+
+    setEyeShape() {
+        let eyeShapeNum = this.dna.getCattribute(Cattribute.NAMES.eyeShape).value;
+        switch (eyeShapeNum) {
+            // Look Down
+            case 2:
+                this.borderTop = '7px solid';
+                break;
+
+            // Look Right
+            case 3:
+                this.borderLeft = `6px solid #4e4d4d`;
+                break;
+            
+            // Look Left
+            case 4:
+                this.borderRight = `6px solid #4e4d4d`;
+                break;
+        
+            default:
+                break;
+        }
     }
 }
 
@@ -200,10 +224,25 @@ export class CatPupilPart extends CatPart {
             left: '11px',
         });
         this.type = props.type;
+        this.setPupilPosition();
     }
 
     get color() {
         return '#4e4d4d'; // black
+    }
+
+    setPupilPosition() {
+        const eyeShape = this.dna
+            .getCattribute(Cattribute.NAMES.eyeShape)
+            .value;
+        switch (eyeShape) {
+            case 4:
+                this.left = '7px';
+                break;
+        
+            default:
+                break;
+        }
     }
 }
 
@@ -226,16 +265,51 @@ export class CatEyeLidPart extends CatPart {
             this.left = '82px';
         }
 
-        let bodyCattribute = this.dna.getCattribute(ColorCattribute.colorNames.bodyColor);
+        let bodyCattribute = this.dna.getCattribute(ColorCattribute.NAMES.bodyColor);
         this.EyeLidColor = bodyCattribute.getCssColor();
-        
-        const eyeLidBorder = `4px solid ${this.EyeLidColor}`;
-        this.borderTop = eyeLidBorder;
-        this.borderBottom = eyeLidBorder;
+
+        this.setLidPosition();
     }
 
     get color() {
         return 'transparent';
+    }
+
+    setLidPosition() {
+        let shapeCattribute = this.dna.getCattribute(Cattribute.NAMES.eyeShape);
+        let pos = {};
+        switch (shapeCattribute.value) {
+            // Down
+            case 2:
+                pos.top = 12;
+                pos.bottom = 4;
+                break;
+
+            // Angry
+            case 5:
+                pos.top = 21;
+                pos.bottom = 4;
+                break;
+
+            // Suprised
+            case 6:
+                pos.top = 0;
+                pos.bottom = 0;
+                break;
+
+            // Sleepy
+            case 7:
+                pos.top = 28;
+                pos.bottom = 7;
+                break;
+
+            default:
+                pos.top = 4;
+                pos.bottom = 4;
+                break;
+        }
+        this.borderTop = `${pos.top}px solid ${this.EyeLidColor}`;
+        this.borderBottom = `${pos.bottom}px solid ${this.EyeLidColor}`;
     }
 }
 
@@ -257,7 +331,7 @@ export class CatMuzzlePart extends CatPart {
                 new CatMouthPart({ dna: props.dna, type: 'bottom' }),
             ]
         });
-        this.colorCattributeName = ColorCattribute.colorNames.accentColor;
+        this.colorCattributeName = ColorCattribute.NAMES.accentColor;
     }
 }
 
@@ -314,7 +388,7 @@ export class CatMouthPart extends CatPart {
             this.height = '30px';
         }
 
-        this.colorCattributeName = ColorCattribute.colorNames.accentColor;
+        this.colorCattributeName = ColorCattribute.NAMES.accentColor;
     }
 }
 
@@ -353,7 +427,7 @@ export class CatBodyPart extends CatPart {
                 new CatLegPart({ dna: props.dna, type: 'right' }),
             ]
         });
-        this.colorCattributeName = ColorCattribute.colorNames.bodyColor;
+        this.colorCattributeName = ColorCattribute.NAMES.bodyColor;
     }
 }
 
@@ -372,7 +446,7 @@ export class CatBellyPart extends CatPart {
             border: '2px solid lightgray',
             borderBottom: '3px solid lightgray',
         });
-        this.colorCattributeName = ColorCattribute.colorNames.accentColor;
+        this.colorCattributeName = ColorCattribute.NAMES.accentColor;
     }
 }
 
@@ -400,7 +474,7 @@ export class CatLegPart extends CatPart {
             this.left = '167px';
         }
 
-        this.colorCattributeName = ColorCattribute.colorNames.bodyColor;
+        this.colorCattributeName = ColorCattribute.NAMES.bodyColor;
     }
 }
 
@@ -420,7 +494,7 @@ export class CatFootPart extends CatPart {
             childParts: []
         });
         this.type = props.type;
-        this.colorCattributeName = ColorCattribute.colorNames.accentColor;
+        this.colorCattributeName = ColorCattribute.NAMES.accentColor;
     }
 }
 
@@ -440,15 +514,16 @@ export class CatTailPart extends CatPart {
             border: '2px solid lightgray',
             childParts: []
         });
-        this.colorCattributeName = ColorCattribute.colorNames.bodyColor;
+        this.colorCattributeName = ColorCattribute.NAMES.bodyColor;
     }
 }
 
 export class CatModel {
 
-    constructor(props) {
-        this.dna = props.dna;
+    constructor(dna) {
+        this.dna = dna || new KittyDNA();
         this.parts = [];
+        console.log('CatModel::ctor: dna: ', this.dna.dna);
         this.buildCat();
     }
 
@@ -460,7 +535,14 @@ export class CatModel {
     }
 
     clone() {
-        return new CatModel({dna: this.dna.clone()});
+        console.log('clone > eyeShape: ', this.dna.getCattribute('eyeShape').valueName);
+        return new CatModel(this.dna.clone());
+    }
+
+    mewtate(cattributeName, value) {
+        const newDna = this.dna.clone();
+        newDna.setCattributeValue(cattributeName, value);
+        return new CatModel(newDna);
     }
 }
 

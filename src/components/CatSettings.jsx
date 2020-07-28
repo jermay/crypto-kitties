@@ -21,7 +21,7 @@ export default function CatSettings(props) {
               <label htmlFor="formControlRange">
                 <b>{cattribute.displayName}</b>
                 <Badge variant="dark" className="ml-2" id="headcode">
-                  {cattribute.value}
+                  {cattribute.valueName}
                 </Badge>
               </label>
               <input type="range" className="form-control-range"

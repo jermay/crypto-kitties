@@ -12,7 +12,6 @@ const Span = styled.span`
 `;
 
 export default function DnaViewer(props) {
-
     return (
         <Div id="catDNA">
             <b>
