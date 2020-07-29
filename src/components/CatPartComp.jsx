@@ -4,6 +4,9 @@ import styled from 'styled-components';
 const CatElement = styled.div`
     background-color: ${props => props.backgroundColor};
     background: ${props => props.background};
+    background-image: ${props => props.backgroundImage};
+    background-position: ${props => props.backgroundPosition};
+    background-size: ${props => props.backgroundSize};
     width: ${props => props.width};
     height: ${props => props.height};
     display: ${props => props.display};
@@ -39,6 +42,9 @@ export default function CatPartComp(props) {
             return <CatElement key={part.name} className={part.name}
                 backgroundColor={part.color}
                 background={part.background}
+                backgroundImage={part.backgroundImage}
+                backgroundPosition={part.backgroundPosition}
+                backgroundSize={part.backgroundSize}
                 width={part.width}
                 height={part.height}
                 display={part.display}

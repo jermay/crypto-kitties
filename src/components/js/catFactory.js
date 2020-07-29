@@ -28,6 +28,9 @@ export class CatPart {
         this.borderRadius = props.borderRadius;
 
         this.background = props.background;
+        this.backgroundImage = props.backgroundImage;
+        this.backgroundPosition = props.backgroundPosition;
+        this.backgroundSize = props.backgroundSize;
         this.transform = props.transform;
     }
 
@@ -45,6 +48,23 @@ export class CatPart {
             return;
         }
         console.error(`CatPart ${this.name} does not have a colorCattributeName!`);
+    }
+
+    /*
+     Effects
+    */
+    addSpots() {
+        const color1 = this.dna
+            .getCattribute(ColorCattribute.NAMES.decorationMidcolor)
+            .getCssColor();
+        const color2 = this.dna
+            .getCattribute(ColorCattribute.NAMES.decorationSidescolor)
+            .getCssColor();
+
+        this.backgroundImage = `radial-gradient(${color1} 10%, transparent 25%),
+        radial-gradient(${color2} 10%, transparent 20%)`;
+        this.backgroundPosition = '0 0, 25px 15px';
+        this.backgroundSize = '40px 50px';
     }
 }
 
@@ -440,6 +460,7 @@ export class CatBodyPart extends CatPart {
             .getCattribute(ColorCattribute.NAMES.decorationMidcolor).getCssColor();
         debugger;
         switch (patternNum) {
+            // Pin Stripes
             case 1:
                 this.background = `repeating-linear-gradient(
                     to bottom,
@@ -448,10 +469,63 @@ export class CatBodyPart extends CatPart {
                     ${decorationColor} 10px,
                     ${decorationColor} 20px)`;
                 break;
-        
+
+            // Triangle Stripes
+            case 2:
+                this.addTriangleStripes();
+                break;
+
+            // spots
+            case 3:
+                this.addSpots();
+                break;
+
             default:
                 break;
         }
+    }
+
+    addTriangleStripes() {
+        const stripes = [
+            new CatStripe({ dna: this.dna, type: 'left', angle: 28, top: -100, left: 20, colorType: 1 }),
+            new CatStripe({ dna: this.dna, type: 'left', angle: 8, top: -86, left: 2, colorType: 2 }),
+            new CatStripe({ dna: this.dna, type: 'left', angle: -19, top: -71, left: 3, colorType: 1 }),
+            new CatStripe({ dna: this.dna, type: 'right', angle: -24, top: -217, left: 194, colorType: 2 }),
+            new CatStripe({ dna: this.dna, type: 'right', angle: -4, top: -198, left: 211, colorType: 1 }),
+            new CatStripe({ dna: this.dna, type: 'right', angle: 31, top: -183, left: 204, colorType: 2 }),
+        ];
+        this.childParts = this.childParts.concat(stripes);
+    }
+}
+
+export class CatStripe extends CatPart {
+    constructor(props) {
+        super({
+            name: `catStripe${props.type}${props.angle || ''}`,
+            dna: props.dna,
+            width: '0',
+            height: '0',
+            borderRadius: '28%',
+            left: `${props.left || 0}px`,
+            top: `${props.top || 0}px`,
+            childParts: []
+        });
+
+        this.colorCattributeName = props.colorType === 1 ?
+            ColorCattribute.NAMES.decorationMidcolor
+            : ColorCattribute.NAMES.decorationSidescolor;
+
+        const height = `40px solid ${this.color}`;
+
+        if (props.type === 'left') {
+            this.borderLeft = height;
+        } else {
+            this.borderRight = height;
+        }
+        const bodyColor = this.dna.getCattribute(ColorCattribute.NAMES.bodyColor).getCssColor();
+        this.borderTop = `20px solid ${bodyColor}`;
+        this.borderBottom = `20px solid ${bodyColor}`;
+        this.transform = `rotate(${props.angle}deg)`;
     }
 }
 
@@ -508,8 +582,9 @@ export class CatLegPart extends CatPart {
             .value;
         const decorationColor = this.dna
             .getCattribute(ColorCattribute.NAMES.decorationMidcolor).getCssColor();
-        debugger;
+
         switch (patternNum) {
+            // Pin Stripes
             case 1:
                 this.background = `repeating-linear-gradient(
                     to bottom,
@@ -518,7 +593,12 @@ export class CatLegPart extends CatPart {
                     ${decorationColor} 10px,
                     ${decorationColor} 20px)`;
                 break;
-        
+
+            // Spots
+            case 3:
+                this.addSpots();
+                break;
+
             default:
                 break;
         }
