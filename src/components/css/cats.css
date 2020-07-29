@@ -1,3 +1,21 @@
+/* Animations */
+@keyframes headBackAndForth {
+    0% {transform: rotate(0);}
+    25% {transform: rotate(5deg);}
+    50% {transform: rotate(0);}
+    75% {transform: rotate(-5deg);}
+    100% {transform: rotate(0);}
+}
+
+@keyframes tailbackAndForth {
+    0% {transform: rotate(72deg);}
+    25% {transform: rotate(82deg);}
+    50% {transform: rotate(72deg);}
+    75% {transform: rotate(62deg);}
+    100% {transform: rotate(72deg);}
+}
+
+/*
 .cat-color-body {
     background-color: #ffd5a4;
 }
@@ -245,3 +263,4 @@
     top: 100px;
     border-radius: 50% 50% 0 0;
 }
+*/

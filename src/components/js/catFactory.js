@@ -31,7 +31,9 @@ export class CatPart {
         this.backgroundImage = props.backgroundImage;
         this.backgroundPosition = props.backgroundPosition;
         this.backgroundSize = props.backgroundSize;
+
         this.transform = props.transform;
+        this.animation = props.animation;
     }
 
     get color() {
@@ -80,6 +82,18 @@ export class CatHeadContainer extends CatPart {
                 new CatHeadPart({ dna: props.dna }),
             ]
         });
+        this.setAnimation();
+    }
+
+    setAnimation() {
+        const animationType = this.dna
+            .getCattribute(Cattribute.NAMES.animation)
+            .value;
+        switch (animationType) {
+            case 1:
+                this.animation = `headBackAndForth 5s linear infinite`;
+                break;
+        }
     }
 }
 
@@ -642,6 +656,18 @@ export class CatTailPart extends CatPart {
             childParts: []
         });
         this.colorCattributeName = ColorCattribute.NAMES.bodyColor;
+        this.setAnimation();
+    }
+
+    setAnimation() {
+        const animationType = this.dna
+            .getCattribute(Cattribute.NAMES.animation)
+            .value;
+        switch (animationType) {
+            case 2:
+                this.animation = 'tailbackAndForth 5s linear infinite';
+                break;
+        }
     }
 }
 

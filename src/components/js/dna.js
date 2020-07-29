@@ -84,7 +84,7 @@ export class KittyDNA {
         new Cattribute({ name: Cattribute.NAMES.decorationPattern, displayName: 'Decoration Pattern', minValue: 0, maxValue: 3, digits: 1, defaultValue: 2, valueNames : {'0': 'None', '1': 'Pin Stripes', '2': 'Triangle Stripes', '3': 'Spots'} }),
         new ColorCattribute({ name: ColorCattribute.NAMES.decorationMidcolor, displayName: 'Decoration Mid Color', defaultValue: 42 }),
         new ColorCattribute({ name: ColorCattribute.NAMES.decorationSidescolor, displayName: 'Decoration Side Color', defaultValue: 13 }),
-        new Cattribute({ name: Cattribute.NAMES.animation, displayName: 'Animation', minValue: 0, maxValue: 7, digits: 1, defaultValue: 1 }),
+        new Cattribute({ name: Cattribute.NAMES.animation, displayName: 'Animation', minValue: 0, maxValue: 2, digits: 1, defaultValue: 2, valueNames: {'0': 'None', '1': 'Head Back-And-Forth', '2': 'Tail Back-And-Forth'} }),
         new Cattribute({ name: Cattribute.NAMES.lastNum, displayName: '??', minValue: 0, maxValue: 7, digits: 1, defaultValue: 1 }),
     ];
 

@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import './css/cats.css';
 
 const CatElement = styled.div`
     background-color: ${props => props.backgroundColor};
@@ -22,6 +23,7 @@ const CatElement = styled.div`
     border-bottom: ${props => props.borderBottom};
     border-left: ${props => props.borderLeft};
     transform: ${props => props.transform};
+    animation: ${props => props.animation};
     z-index: ${props => props.zIndex};
 `;
 
@@ -60,6 +62,7 @@ export default function CatPartComp(props) {
                 borderBottom={part.borderBottom}
                 borderLeft={part.borderLeft}
                 transform={part.transform}
+                animation={part.animation}
                 zIndex={part.zIndex}
             >
                 {childCatParts}
