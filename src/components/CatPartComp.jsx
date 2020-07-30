@@ -22,6 +22,8 @@ const CatElement = styled.div`
     border-right: ${props => props.borderRight};
     border-bottom: ${props => props.borderBottom};
     border-left: ${props => props.borderLeft};
+    border-style: ${props => props.borderStyle};
+    border-color: ${props => props.borderColor};
     transform: ${props => props.transform};
     animation: ${props => props.animation};
     z-index: ${props => props.zIndex};
@@ -61,6 +63,8 @@ export default function CatPartComp(props) {
                 borderRight={part.borderRight}
                 borderBottom={part.borderBottom}
                 borderLeft={part.borderLeft}
+                borderStyle={part.borderStyle}
+                borderColor={part.borderColor}
                 transform={part.transform}
                 animation={part.animation}
                 zIndex={part.zIndex}

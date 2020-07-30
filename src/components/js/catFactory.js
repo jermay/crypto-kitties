@@ -26,6 +26,8 @@ export class CatPart {
         this.borderBottom = props.borderBottom;
         this.borderLeft = props.borderLeft;
         this.borderRadius = props.borderRadius;
+        this.borderStyle = props.borderStyle;
+        this.borderColor = props.borderColor;
 
         this.background = props.background;
         this.backgroundImage = props.backgroundImage;
@@ -91,7 +93,13 @@ export class CatHeadContainer extends CatPart {
             .value;
         switch (animationType) {
             case 1:
-                this.animation = `headBackAndForth 5s linear infinite`;
+                this.animation = 'headBackAndForth 5s linear infinite';
+                break;
+            case 3:
+            case 4:
+                this.animation = 'headBob 1s linear infinite';
+                break;
+            default:
                 break;
         }
     }
@@ -304,6 +312,7 @@ export class CatEyeLidPart extends CatPart {
         this.EyeLidColor = bodyCattribute.getCssColor();
 
         this.setLidPosition();
+        // this.setAnimation();
     }
 
     get color() {
@@ -343,8 +352,26 @@ export class CatEyeLidPart extends CatPart {
                 pos.bottom = 4;
                 break;
         }
-        this.borderTop = `${pos.top}px solid ${this.EyeLidColor}`;
-        this.borderBottom = `${pos.bottom}px solid ${this.EyeLidColor}`;
+        this.borderColor = this.EyeLidColor;
+        this.borderStyle = 'solid';
+        this.borderTop = `${pos.top}px`;
+        this.borderBottom = `${pos.bottom}px}`;
+    }
+
+    setAnimation() {
+        const animationType = this.dna
+            .getCattribute(Cattribute.NAMES.animation)
+            .value;
+        switch (animationType) {
+            //need to figure out how to do dynamically set
+            //this lid color in the keyframe
+            // case 3:
+            //     this.animation = 'sleepyEyeLids 10s linear infinite';
+            //     break;
+
+            default:
+                break;
+        }
     }
 }
 
@@ -472,7 +499,7 @@ export class CatBodyPart extends CatPart {
             .value;
         const decorationColor = this.dna
             .getCattribute(ColorCattribute.NAMES.decorationMidcolor).getCssColor();
-        debugger;
+
         switch (patternNum) {
             // Pin Stripes
             case 1:
@@ -665,7 +692,10 @@ export class CatTailPart extends CatPart {
             .value;
         switch (animationType) {
             case 2:
+            case 4:
                 this.animation = 'tailbackAndForth 5s linear infinite';
+                break;
+            default:
                 break;
         }
     }

@@ -7,12 +7,41 @@
     100% {transform: rotate(0);}
 }
 
+@keyframes headBob {
+    0% {transform: translate(0, 0)}
+    50% {transform: translate(0, 5px)}
+    100% {transform: translate(0, 0)}
+}
+
 @keyframes tailbackAndForth {
     0% {transform: rotate(72deg);}
     25% {transform: rotate(82deg);}
     50% {transform: rotate(72deg);}
     75% {transform: rotate(62deg);}
     100% {transform: rotate(72deg);}
+}
+
+@keyframes sleepyEyeLids {
+    0% {
+        border-top: 4px solid #ffcc80;
+        border-bottom: 4px solid #ffcc80;
+    }
+    25% {
+        border-top: 28px solid #ffcc80;
+        border-bottom: 7px solid #ffcc80;
+    }
+    50% {
+        border-top: 28px solid #ffcc80;
+        border-bottom: 14px solid #ffcc80;
+    }
+    75% {
+        border-top: 28px solid #ffcc80;
+        border-bottom: 14px solid #ffcc80;
+    }
+    100% {
+        border-top: 4px solid #ffcc80;
+        border-bottom: 4px solid #ffcc80;
+    }
 }
 
 /*
