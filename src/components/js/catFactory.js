@@ -460,6 +460,7 @@ export class CatBodyContainer extends CatPart {
             name: 'bodyContainer',
             dna: props.dna,
             position: 'relative',
+            height: '225px',
             zIndex: 1,
             childParts: [
                 new CatBodyPart({ dna: props.dna }),
@@ -726,6 +727,17 @@ export class CatModel {
         const newDna = this.dna.clone();
         newDna.setCattributeValue(cattributeName, value);
         return new CatModel(newDna);
+    }
+
+    static getRandom() {
+        console.log('Generating random cattribute values');
+        let dna = new KittyDNA();
+        dna.cattributes.forEach(cattribute => {
+            const newVal = Math.floor((Math.random() * (cattribute.maxValue - cattribute.minValue))) + cattribute.minValue;
+            // console.log('newValue: ', newVal, 'old: ', cattribute);
+            cattribute.value = newVal;
+        });
+        return new CatModel(dna);
     }
 }
 

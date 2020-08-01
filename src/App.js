@@ -20,10 +20,24 @@ export default function App() {
 
         setCat(oldState => {
             console.log('setCatModel called mewtating a new state..');
-            let newModel = oldState.model.mewtate(cattributeName, value);            
+            let newModel = oldState.model.mewtate(cattributeName, value);
             return { model: newModel };
         });
     }
+
+    const handleSetDefaultKitty = () => {
+        const defaultCat = new CatModel();
+        setCat({ model: defaultCat });
+    };
+
+    const handleSetRandomKitty = () => {
+        const randomCat = CatModel.getRandom();
+        setCat({ model: randomCat });
+    }
+
+    const handleCreateKitty = () => {
+        console.log('Create kitty (not implemented)');
+    };
 
     return (
         <div>
@@ -31,7 +45,12 @@ export default function App() {
                 <AppHeader />
                 <Row>
                     <CatBox cat={cat.model} />
-                    <CatFactory dna={cat.model.dna} handleDnaChange={handleDnaChange} />
+                    <CatFactory
+                        dna={cat.model.dna}
+                        handleDnaChange={handleDnaChange}
+                        handleSetDefaultKitty={handleSetDefaultKitty}
+                        handleSetRandomKitty={handleSetRandomKitty}
+                        handleCreateKitty={handleCreateKitty} />
                 </Row>
                 <AppFooter />
             </Container>
