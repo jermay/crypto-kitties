@@ -4,8 +4,8 @@ import { Container, Row } from 'react-bootstrap';
 import AppHeader from './components/AppHeader';
 import AppFooter from './components/AppFooter';
 import CatBox from './components/CatBox';
-import CatSettings from './components/CatSettings'
 import { CatModel } from './components/js/catFactory';
+import CatFactory from './components/CatFactory';
 
 const initialCatModel = new CatModel();
 
@@ -31,7 +31,7 @@ export default function App() {
                 <AppHeader />
                 <Row>
                     <CatBox cat={cat.model} />
-                    <CatSettings dna={cat.model.dna} handleDnaChange={handleDnaChange} />
+                    <CatFactory dna={cat.model.dna} handleDnaChange={handleDnaChange} />
                 </Row>
                 <AppFooter />
             </Container>

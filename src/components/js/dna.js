@@ -9,6 +9,11 @@ export class Cattribute {
         lastNum: 'lastNum',
     };
 
+    static TYPES = {
+        basic: 'basic',
+        cattribute: 'cattribute'
+    }
+
     constructor(props) {
         this.name = props.name;
         this.valueNames = props.valueNames || {};
@@ -18,6 +23,7 @@ export class Cattribute {
         this.digits = props.digits;
         this.defaultValue = props.defaultValue;
         this.value = props.value || props.defaultValue;
+        this.type = props.type || 'cattribute';
     }
 
     get strValue() {
@@ -75,10 +81,10 @@ export class KittyDNA {
     // }
 
     cattributes = [
-        new ColorCattribute({ name: ColorCattribute.NAMES.bodyColor, displayName: 'Body Color', defaultValue: 10 }),
-        new ColorCattribute({ name: ColorCattribute.NAMES.accentColor, displayName: 'Accent Color', defaultValue: 13 }),
-        new ColorCattribute({ name: ColorCattribute.NAMES.eyeColor, displayName: 'Eye Color', defaultValue: 91 }),
-        new ColorCattribute({ name: ColorCattribute.NAMES.earColor, displayName: 'Ear Color', defaultValue: 42 }),
+        new ColorCattribute({ name: ColorCattribute.NAMES.bodyColor, displayName: 'Body Color', type: Cattribute.TYPES.basic, defaultValue: 10 }),
+        new ColorCattribute({ name: ColorCattribute.NAMES.accentColor, displayName: 'Accent Color', type: Cattribute.TYPES.basic, defaultValue: 13 }),
+        new ColorCattribute({ name: ColorCattribute.NAMES.eyeColor, displayName: 'Eye Color', type: Cattribute.TYPES.basic, defaultValue: 91 }),
+        new ColorCattribute({ name: ColorCattribute.NAMES.earColor, displayName: 'Ear Color', type: Cattribute.TYPES.basic, defaultValue: 42 }),
 
         new Cattribute({ name: Cattribute.NAMES.eyeShape, displayName: 'Eye Shape', minValue: 1, maxValue: 7, digits: 1, defaultValue: 2, valueNames: {'1':'Basic', '2':'Down', '3':'Right', '4':'Left', '5':'Angry', '6': 'Suprised', '7':'Sleepy'} }),
         new Cattribute({ name: Cattribute.NAMES.decorationPattern, displayName: 'Decoration Pattern', minValue: 0, maxValue: 3, digits: 1, defaultValue: 2, valueNames : {'0': 'None', '1': 'Pin Stripes', '2': 'Triangle Stripes', '3': 'Spots'} }),

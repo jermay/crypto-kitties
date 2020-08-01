@@ -5,7 +5,6 @@ import Cat from './Cat';
 import DnaViewer from './DnaViewer';
 import styled from 'styled-components';
 
-
 const Box = styled(Col)`
     background-color: #e2efff;
     border-radius: 10px;
