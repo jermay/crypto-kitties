@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import './css/cats.css';
 
+// it would probably be cleaner to use inline style
 const CatElement = styled.div`
     background-color: ${props => props.backgroundColor};
     background: ${props => props.background};
@@ -30,7 +31,6 @@ const CatElement = styled.div`
 `;
 
 export default function CatPartComp(props) {
-    // console.log('props', props);
     if (!props.parts) {
         return null;
     }

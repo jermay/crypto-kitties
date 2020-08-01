@@ -1,4 +1,3 @@
-
 exports.colors = [
     "ae494f",
     "9a3031",
