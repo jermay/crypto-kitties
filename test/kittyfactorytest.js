@@ -2,6 +2,7 @@ var expect = require('chai').expect;
 const BN = web3.utils.BN
 const truffleAssert = require('truffle-assertions');
 
+const TestKittyFactory = artifacts.require("TestKittyFactory");
 const KittyFactory = artifacts.require("KittyFactory");
 
 
@@ -10,24 +11,13 @@ contract('KittyFactory', async (accounts) => {
     let testAccount;
 
     beforeEach(async () => {
-        kittyFactory = await KittyFactory.new();
+        kittyFactory = await TestKittyFactory.new();
         testAccount = accounts[1];
     });
 
     it('should be created', async () => {
         const instance = await KittyFactory.deployed();
         expect(instance).to.exist;
-    });
-
-    describe('init', () => {
-        it('should be created with the un-kitty so valid kitties have an id > 0', async () => {
-            const unKitty = {
-                name: 'unKitty',
-                dna: ''
-            };
-            result = await kittyFactory.kitties(0);
-            expect(result).to.contain(unKitty);
-        });
     });
 
     describe('birth', () => {
@@ -47,19 +37,19 @@ contract('KittyFactory', async (accounts) => {
         });
 
         it('should store the new kitty', async () => {
-            result = await kittyFactory.kitties(1);            
+            result = await kittyFactory.getKitty(1);            
             expect(result.name).to.equal(expKitty.name);
             expect(result.dna).to.equal(expKitty.dna);
             expect(result.generation.toString(10), 'generation').to.equal(expKitty.generation.toString(10));
         });
 
         it('should record the ownership of the new kitty', async () => {
-            const kittyOwer = await kittyFactory.kittyToOwner(1);
+            const kittyOwer = await kittyFactory.ownerOf(1);
             expect(kittyOwer).to.equal(testAccount);
         });
 
         it('should update the owner count', async () => {
-            const result = await kittyFactory.ownerKittyCount(testAccount);
+            const result = await kittyFactory.balanceOf(testAccount);
             expect(result.toString(10)).to.equal('1');
         });
 
