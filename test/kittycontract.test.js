@@ -98,6 +98,14 @@ contract('KittyContract', (accounts) => {
             expect(newOwnerCount.toString(10)).to.equal('1');
         });
 
+        it('should emit a Transfer event', async ()=>{
+            const result = await contract.transfer(
+                newOwner, kittyId, {from: kittyOwner});
+            truffleAssert.eventEmitted(
+                result, 'Transfer');
+                
+        });
+
         it('should REVERT if the sender does NOT own the kitty', async ()=>{
             await truffleAssert.fails(
                 contract.transfer(newOwner, kittyId, {from: newOwner}),
@@ -115,8 +123,6 @@ contract('KittyContract', (accounts) => {
 
         it('should REVERT if the "to" address is the contract address', async ()=>{
             const contractAddress = contract.address;
-            console.log(contractAddress);
-
             await truffleAssert.fails(
                 contract.transfer(contractAddress, kittyId, {from: kittyOwner}),
                 truffleAssert.ErrorType.REVERT

@@ -11,6 +11,16 @@ contract KittyContract is IERC721 {
         uint32 generation;
     }
 
+    /*
+    struct Kitty {
+        uint256 genes;
+        uint64 birthTime;
+        uint32 mumId;
+        uint32 dadId;
+        uint32 generation;
+    }
+    */
+
     Kitty[] internal kitties;
     string _tokenName = "Kitty Token";
     string _tokenSymbol = "CAT";
@@ -95,11 +105,21 @@ contract KittyContract is IERC721 {
         require(to != address(0), "to zero address");
         require(to != address(this), "to contract address");
 
+        _transfer(msg.sender, to, tokenId);
+    }
+
+    function _transfer(address _from, address _to, uint256 _tokenId) internal {
         // assign new owner
-        kittyToOwner[tokenId] = to;
+        kittyToOwner[_tokenId] = _to;
 
         //update token counts
-        ownerKittyCount[msg.sender] = ownerKittyCount[msg.sender].sub(1);
-        ownerKittyCount[to] = ownerKittyCount[to].add(1);
+        ownerKittyCount[_to] = ownerKittyCount[_to].add(1);
+
+        if (_from != address(0)) {
+            ownerKittyCount[_from] = ownerKittyCount[_from].sub(1);
+        }
+
+        // emit Transfer event
+        emit Transfer(_from, _to, _tokenId);
     }
 }
