@@ -13,12 +13,19 @@ contract TestKittyContract is KittyContract {
     }
 
     function addKitty(
-        address _owner,
-        string memory _name,
-        string memory _dna,
-        uint16 _generation
+        uint256 _mumId,
+        uint256 _dadId,
+        uint256 _generation,
+        uint256 _genes,
+        address _owner
     ) public {
-        Kitty memory newKitty = Kitty(_name, _dna, _generation);
+        Kitty memory newKitty = Kitty({
+            genes: _genes,
+            birthTime: uint64(now),
+            mumId: uint32(_mumId),
+            dadId: uint32(_dadId),
+            generation: uint16(_generation)
+        });
         uint256 id = kitties.push(newKitty) - 1;
         kittyToOwner[id] = _owner;
         ownerKittyCount[_owner] += 1;

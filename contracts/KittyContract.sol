@@ -5,13 +5,12 @@ import "./IERC721.sol";
 contract KittyContract is IERC721 {
     using SafeMath for uint256;
 
-    struct Kitty {
+    /* struct Kitty {
         string name;
         string dna;
         uint32 generation;
-    }
+    }*/
 
-    /*
     struct Kitty {
         uint256 genes;
         uint64 birthTime;
@@ -19,7 +18,6 @@ contract KittyContract is IERC721 {
         uint32 dadId;
         uint32 generation;
     }
-    */
 
     Kitty[] internal kitties;
     string _tokenName = "Kitty Token";
@@ -29,23 +27,37 @@ contract KittyContract is IERC721 {
     mapping(address => uint256) internal ownerKittyCount;
 
     constructor() public {
-        kitties.push(Kitty({name: "unKitty", dna: "", generation: 0}));
+        kitties.push(Kitty({
+            genes: 0,
+            birthTime: 0,
+            mumId: 0,
+            dadId: 0,
+            generation: 0
+        }));
     }
 
     /**
-     * @dev Returns the Kitty afor the given kittyId
+     * @dev Returns the Kitty for the given kittyId
      */
     function getKitty(uint256 kittyId)
         external
         view
         returns (
-            string memory name,
-            string memory dna,
+            uint256 genes,
+            uint64 birthTime,
+            uint32 mumId,
+            uint32 dadId,
             uint32 generation
         )
     {
-        Kitty memory kitty = kitties[kittyId];
-        return (kitty.name, kitty.dna, kitty.generation);
+        Kitty storage kitty = kitties[kittyId];
+        return (
+            kitty.genes,
+            kitty.birthTime,
+            kitty.mumId,
+            kitty.dadId,
+            kitty.generation
+        );
     }
 
     /**

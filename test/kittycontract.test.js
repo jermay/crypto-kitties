@@ -4,6 +4,7 @@ const truffleAssert = require('truffle-assertions');
 
 contract('KittyContract', (accounts) => {
 
+    const zeroAddress = '0x0000000000000000000000000000000000000000';
     let contract;
     let kittyOwner;
     beforeEach(async () => {
@@ -14,14 +15,17 @@ contract('KittyContract', (accounts) => {
     describe('init', () => {
         it('should be created with the un-kitty so valid kitties have an id > 0', async () => {
             const unKitty = {
-                name: 'unKitty',
-                dna: '',
-                generation: new BN('0')
+                mumId: new BN('0'),
+                dadId: new BN('0'),
+                generation: new BN('0'),
+                genes: new BN('0'),
+                owner: zeroAddress,
             };
             result = await contract.getKitty(0);
-            expect(result.name).to.equal(unKitty.name);
-            expect(result.dna).to.equal(unKitty.dna);
-            expect(result.generation.toString(10)).to.equal(unKitty.generation.toString(10));
+            expect(result.mumId.toString(10)).to.equal(unKitty.mumId.toString(10));
+            expect(result.dadId.toString(10)).to.equal(unKitty.dadId.toString(10));
+            expect(result.generation.toString(10), 'generation').to.equal(unKitty.generation.toString(10));
+            expect(result.genes.toString(10)).to.equal(unKitty.genes.toString(10));
         });
     });
 
@@ -38,11 +42,19 @@ contract('KittyContract', (accounts) => {
         it('should return the owner of a kitty', async () => {
             const kittyId = 1;
             const kitty = {
-                name: 'test',
-                dna: '1234',
-                generation: new BN('0')
+                mumId: new BN('1'),
+                dadId: new BN('2'),
+                generation: new BN('0'),
+                genes: new BN('1234567812345678'),
+                owner: kittyOwner,
             }
-            await contract.addKitty(kittyOwner, kitty.name, kitty.dna, kitty.generation);
+            await contract.addKitty(
+                kitty.mumId,
+                kitty.dadId,
+                kitty.generation,
+                kitty.genes,
+                kitty.owner,
+            );
 
             const result = await contract.ownerOf(kittyId);
             expect(result).to.equal(kittyOwner);
@@ -77,16 +89,23 @@ contract('KittyContract', (accounts) => {
             newOwner = accounts[2];
             kittyId = 1;
             kitty = {
-                name: 'test',
-                dna: '1234',
-                generation: new BN('0')
+                mumId: new BN('1'),
+                dadId: new BN('2'),
+                generation: new BN('0'),
+                genes: new BN('1234567812345678'),
+                owner: kittyOwner,
             }
             await contract.addKitty(
-                kittyOwner, kitty.name, kitty.dna, kitty.generation);
+                kitty.dadId,
+                kitty.mumId,
+                kitty.generation,
+                kitty.genes,
+                kitty.owner,
+            );
         });
 
         it('should change the ownership of the kitty to the new address', async () => {
-            await contract.transfer(newOwner, kittyId, {from: kittyOwner});
+            await contract.transfer(newOwner, kittyId, { from: kittyOwner });
 
             let actualNewOwner = await contract.ownerOf(kittyId);
             expect(actualNewOwner).to.equal(newOwner, 'owner');
@@ -98,33 +117,32 @@ contract('KittyContract', (accounts) => {
             expect(newOwnerCount.toString(10)).to.equal('1');
         });
 
-        it('should emit a Transfer event', async ()=>{
+        it('should emit a Transfer event', async () => {
             const result = await contract.transfer(
-                newOwner, kittyId, {from: kittyOwner});
+                newOwner, kittyId, { from: kittyOwner });
             truffleAssert.eventEmitted(
                 result, 'Transfer');
-                
+
         });
 
-        it('should REVERT if the sender does NOT own the kitty', async ()=>{
+        it('should REVERT if the sender does NOT own the kitty', async () => {
             await truffleAssert.fails(
-                contract.transfer(newOwner, kittyId, {from: newOwner}),
+                contract.transfer(newOwner, kittyId, { from: newOwner }),
                 truffleAssert.ErrorType.REVERT
             );
         });
 
-        it('should REVERT if the "to" address is zero', async ()=>{
-            const zeroAddress = '0x0000000000000000000000000000000000000000';
+        it('should REVERT if the "to" address is zero', async () => {
             await truffleAssert.fails(
-                contract.transfer(zeroAddress, kittyId, {from: kittyOwner}),
+                contract.transfer(zeroAddress, kittyId, { from: kittyOwner }),
                 truffleAssert.ErrorType.REVERT
             );
         });
 
-        it('should REVERT if the "to" address is the contract address', async ()=>{
+        it('should REVERT if the "to" address is the contract address', async () => {
             const contractAddress = contract.address;
             await truffleAssert.fails(
-                contract.transfer(contractAddress, kittyId, {from: kittyOwner}),
+                contract.transfer(contractAddress, kittyId, { from: kittyOwner }),
                 truffleAssert.ErrorType.REVERT
             );
         });

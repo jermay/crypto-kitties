@@ -7,24 +7,52 @@ import "./KittyContract.sol";
 contract KittyFactory is Ownable, KittyContract {
     using SafeMath32 for uint32;
 
-    event Birth(uint256 kittyId, string name, string dna, uint32 generation);
+    uint256 public constant CREATION_LIMIT_GEN0 = 10;
+    uint256 internal _gen0Counter;
 
-    // struct Kitty {
-    //     string name;
-    //     string dna;
-    //     uint32 generation;
-    // }
+    event Birth(
+        address owner,
+        uint256 kittyId,
+        uint256 mumId,
+        uint256 dadId,
+        uint256 genes
+    );
 
-    // Kitty[] public kitties;
+    function getGen0Count() public view returns (uint256) {
+        return _gen0Counter;
+    }
 
-    // mapping (uint256 => address) public kittyToOwner;
-    // mapping (address => uint) public ownerKittyCount;
+    function createKittyGen0(uint256 _genes)
+        public
+        onlyOwner
+        returns (uint256)
+    {
+        require(_gen0Counter < CREATION_LIMIT_GEN0, "gen0 limit exceeded");
 
-    function birth(string memory _name, string memory _dna) public {
-        Kitty memory kitty = Kitty(_name, _dna, 0);
-        uint256 kittyId = kitties.push(kitty) - 1;
-        kittyToOwner[kittyId] = msg.sender;
-        ownerKittyCount[msg.sender] = ownerKittyCount[msg.sender].add(1);
-        emit Birth(kittyId, _name, _dna, 0);
+        _gen0Counter = _gen0Counter.add(1);
+        return _createKitty(0, 0, 0, _genes, msg.sender);
+    }
+
+    function _createKitty(
+        uint256 _mumId,
+        uint256 _dadId,
+        uint256 _generation,
+        uint256 _genes,
+        address _owner
+    ) internal returns (uint256) {
+        Kitty memory kitty = Kitty({
+            genes: _genes,
+            birthTime: uint64(now),
+            mumId: uint32(_mumId),
+            dadId: uint32(_dadId),
+            generation: uint16(_generation)
+        });
+
+        uint256 newKittenId = kitties.push(kitty) - 1;
+        emit Birth(_owner, newKittenId, _mumId, _dadId, _genes);
+
+        _transfer(address(0), _owner, newKittenId);
+
+        return newKittenId;
     }
 }
