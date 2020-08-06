@@ -6,11 +6,14 @@ import AppFooter from './components/AppFooter';
 import CatBox from './components/CatBox';
 import { CatModel } from './components/js/catFactory';
 import CatFactory from './components/CatFactory';
+import { KittyService } from './components/js/kitty.service';
 
 const initialCatModel = new CatModel();
+const kittyService = new KittyService();
 
 export default function App() {
-    const [cat, setCat] = useState({ model: initialCatModel })
+    const [cat, setCat] = useState({ model: initialCatModel });
+    const service = kittyService;
 
     const handleDnaChange = (event) => {
         // set new dna value
@@ -36,7 +39,7 @@ export default function App() {
     }
 
     const handleCreateKitty = () => {
-        console.log('Create kitty (not implemented)');
+        service.createGen0Kitty(cat.model.dna.dna);
     };
 
     return (
