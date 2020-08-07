@@ -7,6 +7,7 @@ export class KittyService {
     user;
     _contract;
     kitties = [];
+    birthSubscriptions = [];
 
     constructor() {
         this.subscribeToEvents();
@@ -38,7 +39,11 @@ export class KittyService {
     }
 
     onBirth = (event) => {
-        console.log('Birth event: ', event);
+        let birth = event.returnValues;
+        console.log('Birth event: ', birth);
+
+        // emit event
+        this.birthSubscriptions.forEach(sub => sub(birth));
     }
 
     async createGen0Kitty(dna) {
