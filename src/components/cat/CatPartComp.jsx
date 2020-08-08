@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import './css/cats.css';
+import '../css/cats.css';
 
 // it would probably be cleaner to use inline style
 const CatElement = styled.div`

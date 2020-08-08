@@ -1,22 +1,21 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import { Tabs, Tab, Button, Col, Row } from 'react-bootstrap';
 
-import { KittyService } from './js/kitty.service';
-import { CatModel } from './js/catFactory';
-import { Cattribute } from './js/dna';
+import { CatModel } from '../js/catFactory';
+import { Cattribute } from '../js/dna';
 
 import CatSettings from './CatSettings';
-import CatBox from './CatBox';
+import CatBox from '../cat/CatBox';
 import BirthAlert from './BirthAlert';
 
 const initialCatModel = new CatModel();
-const kittyService = new KittyService();
 
-export default function CatFactory() {
+
+export default function CatFactory(props) {
    const [cat, setCat] = useState({ model: initialCatModel });
    const [birthEvent, setBirthEvent] = useState({});
    const [showBirthAlert, setShowBirthAlert] = useState(false)
-   const service = kittyService;
+   const service = props.service;
 
    useEffect(() => {
       service.birthSubscriptions.push(handleBirthEvent);
@@ -59,6 +58,11 @@ export default function CatFactory() {
    }
 
    return (
+      <React.Fragment>
+      <div align="center">
+         <h1>Kitties-Factory</h1>
+         <p>Create your custom Kitty</p>
+      </div>
       <Row>
          <Col lg={4}>
             <CatBox cat={cat.model} />
@@ -96,5 +100,6 @@ export default function CatFactory() {
             />
          </Col>
       </Row>
+      </React.Fragment>
    )
 }

@@ -1,8 +1,8 @@
 import React from 'react';
-import './css/mystyle.css';
 import { Badge, Col } from 'react-bootstrap';
 import styled from 'styled-components';
 
+import '../css/mystyle.css';
 
 const Cattributes = styled(Col)`
   padding: 25px;
