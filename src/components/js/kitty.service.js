@@ -3,9 +3,10 @@ import { abi } from './abi';
 
 export class KittyService {
     web3 = new Web3(Web3.givenProvider);
-    contractAddress = '0x9015C97293858AC547d51043907845BDafbbe6EC';
+    contractAddress = '0x4cbC3481fCf0124D56790c52c624a7Bae1AF6e7C';
     user;
     _contract;
+    _contractPromise;
     kitties = [];
     birthSubscriptions = [];
 
@@ -17,18 +18,23 @@ export class KittyService {
     async getContract() {
         if (this._contract) {
             return this._contract;
+        } else if (this._contractPromise) {
+            return this._contractPromise;
         }
 
-        const accounts = await window.ethereum.enable();
-        this._contract = new this.web3.eth.Contract(
-            abi,
-            this.contractAddress,
-            { from: accounts[0] }
-        );
-        this.user = accounts[0];
-        console.log('contract: ', this._contract);
+        this._contractPromise = window.ethereum.enable().then(accounts => {
+            this._contract = new this.web3.eth.Contract(
+                abi,
+                this.contractAddress,
+                { from: accounts[0] }
+            );
+            this.user = accounts[0];
+            console.log('user: ', this.user, 'contract: ', this._contract);
 
-        return this._contract;
+            return this._contract;
+        });
+
+        return this._contractPromise;
     }
 
     async subscribeToEvents() {
@@ -57,21 +63,18 @@ export class KittyService {
 
     async getKitty(id) {
         const instance = await this.getContract();
-        return instance.getKitty(id).call();
+        return instance.methods.getKitty(id).call();
     }
 
-    async getKitties() {
+    async getKitties() {        
         const instance = await this.getContract();
-        const numKitties = await instance.methods.getGen0Count().call();
-        console.log(`Loading ${numKitties} kitties...`);
+        const kittyIds = await instance.methods
+            .kittiesOf(this.user)
+            .call({ from: this.user });
 
-        let promises = [];
-        for (let i = 1; i <= numKitties; i++) {
-            promises.push(instance.methods.getKitty(i).call());
-        }
-
+        let promises = kittyIds.map(id => this.getKitty(id));
         this.kitties = await Promise.all(promises);
-        console.log('Kittes loaded: ', this.kitties);
+        console.log(`Kittes for ${this.user} loaded: `, this.kitties);
 
         return this.kitties;
     }
