@@ -14,7 +14,7 @@ const Box = styled(Col)`
 
 export default function CatBox(props) {
     return (
-        <Box lg={4} className="m-2 light-b-shadow">
+        <Box className="m-2 light-b-shadow">
             <Cat model={props.cat} />
             <DnaViewer dna={props.cat.dna} />
         </Box>
