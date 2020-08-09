@@ -708,7 +708,8 @@ export class CatModel {
         this.cat = cat;
         this.dna = new KittyDNA(cat.genes);
         this.parts = [];
-        console.log('CatModel::ctor: dna: ', this.dna.dna);
+
+        // console.log('CatModel::ctor: dna: ', this.dna.dna);
         this.buildCat();
     }
 
