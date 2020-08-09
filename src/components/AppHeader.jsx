@@ -11,6 +11,7 @@ export default function AppHeader() {
                     width="30" height="30" />
                 Academy Kitties
             </NavLink>
+            <NavLink to="/kitties" className="btn nav-link">My Kitties</NavLink>
             <NavLink to="/factory" className="btn nav-link">Factory</NavLink>
         </Nav>
     )
