@@ -74,6 +74,10 @@ export class KittyService {
 
         let promises = kittyIds.map(id => this.getKitty(id));
         this.kitties = await Promise.all(promises);
+
+        // TODO: return kittyId from the contract method
+        kittyIds.forEach((id, i) => this.kitties[i].kittyId = i);
+
         console.log(`Kittes for ${this.user} loaded: `, this.kitties);
 
         return this.kitties;

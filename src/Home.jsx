@@ -21,7 +21,7 @@ export default function Home() {
     const [featured, setFeatured] = useState({ cats: defaultFeatured });
 
     const featuredCats = featured.cats.map(genes => {
-        const cat = new CatModel(new KittyDNA(genes));
+        const cat = new CatModel({genes});
         return (
             <Div key={genes}>
                 <Cat model={cat} />

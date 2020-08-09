@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react'
 
 import CatBox from './CatBox';
 import { CatModel } from '../js/catFactory';
-import { Container, Row } from 'react-bootstrap';
-import { KittyDNA } from '../js/dna';
+import { Container } from 'react-bootstrap';
 
 
 export default function CatList(props) {
@@ -26,16 +25,15 @@ export default function CatList(props) {
     }
 
     const catBoxes = data.cats.map(kitty => {
-        let dna = new KittyDNA(kitty.genes)
-        let model = new CatModel(dna);
+        let model = new CatModel(kitty);
         return (
-            <CatBox key={kitty.genes} cat={model} />
+            <CatBox key={kitty.genes} model={model} />
         )
     })
 
     return (
         <Container>
-            <h1>Your Kitties</h1>
+            <h1>My Kitties</h1>
             <div className="d-flex flex-wrap">
                 {catBoxes}
             </div>

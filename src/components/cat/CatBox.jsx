@@ -4,6 +4,7 @@ import styled from 'styled-components';
 
 import Cat from './Cat';
 import DnaViewer from './DnaViewer';
+import CatFeatures from './CatFeatures';
 
 
 const Box = styled(Col)`
@@ -18,8 +19,9 @@ const Box = styled(Col)`
 export default function CatBox(props) {
     return (
         <Box className="m-2 light-b-shadow">
-            <Cat model={props.cat} />
-            <DnaViewer dna={props.cat.dna} />
+            <Cat model={props.model} />
+            <DnaViewer dna={props.model.dna} />
+            <CatFeatures cat={props.model.cat} dna={props.model.dna} />
         </Box>
     );
 }

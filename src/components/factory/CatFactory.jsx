@@ -65,7 +65,7 @@ export default function CatFactory(props) {
       </div>
       <Row>
          <Col lg={4}>
-            <CatBox cat={cat.model} />
+            <CatBox model={cat.model} />
          </Col>
          <Col lg={8}>
             <Tabs variant="pills" defaultActiveKey="CatColors" id="cat-factory">
