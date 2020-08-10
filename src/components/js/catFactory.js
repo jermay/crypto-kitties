@@ -704,10 +704,12 @@ export class CatTailPart extends CatPart {
 
 export class CatModel {
 
-    constructor(dna) {
-        this.dna = dna || new KittyDNA();
+    constructor(cat = {}) {
+        this.cat = cat;
+        this.dna = new KittyDNA(cat.genes);
         this.parts = [];
-        console.log('CatModel::ctor: dna: ', this.dna.dna);
+
+        // console.log('CatModel::ctor: dna: ', this.dna.dna);
         this.buildCat();
     }
 
@@ -719,24 +721,22 @@ export class CatModel {
     }
 
     clone() {
-        console.log('clone > eyeShape: ', this.dna.getCattribute('eyeShape').valueName);
-        return new CatModel(this.dna.clone());
+        return new CatModel({genes: this.dna.dna});
     }
 
     mewtate(cattributeName, value) {
         const newDna = this.dna.clone();
         newDna.setCattributeValue(cattributeName, value);
-        return new CatModel(newDna);
+        return new CatModel({genes: newDna.dna});
     }
 
     static getRandom() {
         console.log('Generating random cattribute values');
-        let dna = new KittyDNA();
-        dna.cattributes.forEach(cattribute => {
+        let random = new KittyDNA();
+        random.cattributes.forEach(cattribute => {
             const newVal = Math.floor((Math.random() * (cattribute.maxValue - cattribute.minValue))) + cattribute.minValue;
-            // console.log('newValue: ', newVal, 'old: ', cattribute);
             cattribute.value = newVal;
         });
-        return new CatModel(dna);
+        return new CatModel({genes: random.dna});
     }
 }

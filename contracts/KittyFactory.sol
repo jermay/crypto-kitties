@@ -18,6 +18,29 @@ contract KittyFactory is Ownable, KittyContract {
         uint256 genes
     );
 
+    function kittiesOf(address _owner) public view returns (uint256[] memory) {
+        // get the number of kittes owned by _owner
+        uint256 ownerCount = ownerKittyCount[_owner];
+        if (ownerCount == 0) {
+            return new uint256[](0);
+        }
+
+        // iterate through each kittyId until we find all the kitties
+        // owned by _owner
+        uint256[] memory ids = new uint256[](ownerCount);
+        uint256 i = 1;
+        uint256 count = 0;
+        while (count < ownerCount || i < kitties.length) {
+            if (kittyToOwner[i] == _owner) {
+                ids[count] = i;
+                count = count.add(1);
+            }
+            i = i.add(1);
+        }
+
+        return ids;
+    }
+
     function getGen0Count() public view returns (uint256) {
         return _gen0Counter;
     }

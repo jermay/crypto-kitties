@@ -1,6 +1,7 @@
 var expect = require('chai').expect;
 const BN = web3.utils.BN
 const truffleAssert = require('truffle-assertions');
+const { assert } = require('chai');
 
 const TestKittyFactory = artifacts.require("TestKittyFactory");
 const KittyFactory = artifacts.require("KittyFactory");
@@ -22,7 +23,31 @@ contract('KittyFactory', async (accounts) => {
         expect(instance).to.exist;
     });
 
-    describe('birth', () => {
+    async function addGen0Kitty(dna) {
+        return kittyFactory.createKittyGen0(
+            dna,
+            { from: contractOwner }
+        );
+    }
+
+    async function createKitty(kitty) {
+        return kittyFactory.createKitty(
+            kitty.mumId,
+            kitty.dadId,
+            kitty.generation,
+            kitty.genes,
+            kitty.owner
+        );
+    }
+
+    function expectKitty(kitty, expected) {
+        expect(kitty.mumId.toString(10)).to.equal(expected.mumId.toString(10));
+        expect(kitty.dadId.toString(10)).to.equal(expected.dadId.toString(10));
+        expect(kitty.genes.toString(10)).to.equal(expected.genes.toString(10));
+        expect(kitty.generation.toString(10)).to.equal(expected.generation.toString(10));
+    }
+
+    describe('Create Gen 0 Kitty', () => {
         let expKitty;
         let transaction;
         beforeEach(async () => {
@@ -33,15 +58,8 @@ contract('KittyFactory', async (accounts) => {
                 genes: new BN('1234567812345678'),
                 owner: contractOwner,
             }
-            await addGen0Kitty();
+            transaction = await addGen0Kitty(expKitty.genes);
         });
-
-        async function addGen0Kitty() {
-            transaction = await kittyFactory.createKittyGen0(
-                expKitty.genes,
-                { from: contractOwner }
-            );
-        }
 
         it('should store the new kitty', async () => {
             result = await kittyFactory.getKitty(1);
@@ -86,14 +104,59 @@ contract('KittyFactory', async (accounts) => {
         it('should REJECT if gen 0 counter would exceed the gen 0 creation limit', async () => {
             // make more kitties than the limit
             const makeKitties = async () => {
-                for (let i=0; i < 11; i++) {
-                    await addGen0Kitty();
+                for (let i = 0; i < 11; i++) {
+                    await addGen0Kitty(expKitty.genes);
                 }
             }
             await truffleAssert.fails(
                 makeKitties(),
                 truffleAssert.ErrorType.REVERT
             );
+        });
+    });
+
+    describe('Kittes of', () => {
+        let testKitties;
+        beforeEach(async () => {
+            testKitties = [
+                {
+                    mumId: new BN('0'),
+                    dadId: new BN('0'),
+                    generation: new BN('0'),
+                    genes: new BN('1111111111111111'),
+                    owner: contractOwner,
+                },
+                {
+                    mumId: new BN('0'),
+                    dadId: new BN('0'),
+                    generation: new BN('0'),
+                    genes: new BN('2222222222222222'),
+                    owner: testAccount,
+                },
+                {
+                    mumId: new BN('0'),
+                    dadId: new BN('0'),
+                    generation: new BN('0'),
+                    genes: new BN('3333333333333333'),
+                    owner: contractOwner,
+                },
+            ]
+            await Promise.all(testKitties.map(kitty => createKitty(kitty)));
+        });
+
+        it('should return all the kittyIds owned by the given address', async () =>{
+            exptectedIds = ['1', '3'];
+
+            result = await kittyFactory.kittiesOf(contractOwner);
+            
+            exptectedIds.forEach((_, i) =>
+                expect(result[i].toString(10)).to.equal(exptectedIds[i]));
+        });
+
+        it('should return an empty array if the owner has no kitties', async ()=>{
+            result = await kittyFactory.kittiesOf(accounts[2]);
+
+            expect(result.length).to.equal(0);
         });
     });
 });

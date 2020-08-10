@@ -1,22 +1,27 @@
 import React from 'react';
-import './css/cats.css';
 import { Col } from 'react-bootstrap';
+import styled from 'styled-components';
+
 import Cat from './Cat';
 import DnaViewer from './DnaViewer';
-import styled from 'styled-components';
+import CatFeatures from './CatFeatures';
+
 
 const Box = styled(Col)`
     background-color: #e2efff;
     border-radius: 10px;
     padding-top: 2rem;
     padding-bottom: 2rem;
+    min-width: 22rem;
+    max-width: 22rem;
 `;
 
 export default function CatBox(props) {
     return (
-        <Box lg={4} className="m-2 light-b-shadow">
-            <Cat model={props.cat} />
-            <DnaViewer dna={props.cat.dna} />
+        <Box className="m-2 light-b-shadow">
+            <Cat model={props.model} />
+            <DnaViewer dna={props.model.dna} />
+            <CatFeatures cat={props.model.cat} dna={props.model.dna} />
         </Box>
     );
 }
