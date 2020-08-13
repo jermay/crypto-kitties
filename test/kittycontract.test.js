@@ -140,9 +140,33 @@ contract('KittyContract', (accounts) => {
             );
         });
 
-        it('should NOT revert if the sender is NOT the owner but IS approved');
+        it('should NOT revert if the sender is NOT the owner but IS approved', async () => {
+            const approvedAddress = accounts[3];
+            addApproval(kitty, approvedAddress);
 
-        it('should NOT revert if the send is NOT the owner but IS an approved operator');
+            await truffleAssert.passes(
+                contract.transfer(
+                    approvedAddress,
+                    kitty.kittyId,
+                    { from: approvedAddress }
+                )
+            );
+        });
+
+        it('should NOT revert if the send is NOT the owner but IS an approved operator', async () => {
+            // grant operator approval
+            const operator = accounts[4];
+            await contract.setApprovalForAll(
+                operator, true, { from: kittyOwner });
+
+            await truffleAssert.passes(
+                contract.transfer(
+                    operator,
+                    kitty.kittyId,
+                    { from: operator }
+                )
+            );
+        });
 
         it('should REVERT if the "to" address is zero', async () => {
             await truffleAssert.fails(
@@ -160,7 +184,7 @@ contract('KittyContract', (accounts) => {
         });
     });
 
-    describe.only('approve', () => {
+    describe('approve', () => {
         let approvedAddr;
         beforeEach(async () => {
             await addKitty(kitty);
@@ -228,7 +252,7 @@ contract('KittyContract', (accounts) => {
         });
     });
 
-    describe.only('Get Approved', () => {
+    describe('Get Approved', () => {
         let approved;
         beforeEach(() => {
             approved = accounts[2];
@@ -259,7 +283,7 @@ contract('KittyContract', (accounts) => {
         });
     });
 
-    describe.only('Operator approval for all', () => {
+    describe('Operator approval for all', () => {
 
         it('should set and revoke operator approval for an address', async () => {
             // grant operator approval
@@ -315,6 +339,100 @@ contract('KittyContract', (accounts) => {
             expect(event.owner).to.equal(kittyOwner);
             expect(event.operator).to.equal(operator1);
             expect(event.approved).to.equal(true);
+        });
+    });
+
+    describe.only('transferFrom', () => {
+        beforeEach(async () => {
+            await addKitty(kitty);
+        });
+
+        it('when the sender is the owner it should transfer ownership', async () => {
+            await contract.transferFrom(
+                kitty.owner,
+                newOwner,
+                kitty.kittyId,
+                { from: kitty.owner }
+            );
+
+            const result = await contract.ownerOf(kitty.kittyId);
+            expect(result).to.equal(newOwner);
+        });
+
+        it('when the sender is approved it should transfer ownership', async () => {
+            const approved = accounts[2];
+            await addApproval(kitty, approved);
+
+            await truffleAssert.passes(
+                contract.transferFrom(
+                    kitty.owner,
+                    approved,
+                    kitty.kittyId,
+                    { from: approved }
+                )
+            );
+        });
+
+        it('when the sender is an approved operator it should transfer ownership', async () => {
+            const operator1 = accounts[4];
+            await contract.setApprovalForAll(
+                operator1, true, { from: kittyOwner });
+
+            await truffleAssert.passes(
+                contract.transferFrom(
+                    kitty.owner,
+                    operator1,
+                    kitty.kittyId,
+                    { from: operator1 }
+                )
+            );
+        });
+
+        it('should REVERT when the sender is not the owner, approved, or an approved operator', async () => {
+            const unapproved = accounts[3];
+
+            await truffleAssert.reverts(
+                contract.transferFrom(
+                    kitty.owner,
+                    unapproved,
+                    kitty.kittyId,
+                    { from: unapproved }
+                )
+            );
+        });
+
+        it('should REVERT if from address is not the owner', async () => {
+            await truffleAssert.reverts(
+                contract.transferFrom(
+                    newOwner,
+                    newOwner,
+                    kitty.kittyId,
+                    { from: kittyOwner }
+                )
+            );
+        });
+        
+        it('should REVERT if to address is the zero address', async () => {
+            await truffleAssert.reverts(
+                contract.transferFrom(
+                    kitty.owner,
+                    zeroAddress,
+                    kitty.kittyId,
+                    { from: kittyOwner }
+                )
+            );
+        });
+
+        it('should REVERT if tokenId is not valid', async () => {
+            const invalidTokenId = 1234;
+            await truffleAssert.reverts(                
+                contract.transferFrom(
+                    kitty.owner,
+                    newOwner,
+                    invalidTokenId,
+                    { from: kittyOwner }
+                )
+            );
         });
     });
 });
