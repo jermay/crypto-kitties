@@ -1,6 +1,7 @@
 pragma solidity ^0.5.12;
 import "./SafeMath.sol";
 import "./IERC721.sol";
+import "./IERC721Receiver.sol";
 
 contract KittyContract is IERC721 {
     using SafeMath for uint256;
@@ -16,6 +17,9 @@ contract KittyContract is IERC721 {
     Kitty[] internal kitties;
     string _tokenName = "Kitty Token";
     string _tokenSymbol = "CAT";
+    bytes4 internal constant MAGIC_ERC721_RECEIVED = bytes4(
+        keccak256("onERC721Received(address,address,uint256,bytes)")
+    );
 
     mapping(uint256 => address) internal kittyToOwner;
     mapping(address => uint256) internal ownerKittyCount;
@@ -118,17 +122,21 @@ contract KittyContract is IERC721 {
      *
      * - `tokenId` must exist.
      */
-    function ownerOf(uint256 tokenId)
+    function ownerOf(uint256 _tokenId)
         external
         view
-        validKittyId(tokenId)
+        validKittyId(_tokenId)
         returns (address owner)
     {
-        return kittyToOwner[tokenId];
+        return _ownerOf(_tokenId);
+    }
+
+    function _ownerOf(uint256 _tokenId) internal view returns (address owner) {
+        return kittyToOwner[_tokenId];
     }
 
     function isKittyOwner(uint256 _kittyId) public view returns (bool) {
-        return msg.sender == kittyToOwner[_kittyId];
+        return msg.sender == _ownerOf(_kittyId);
     }
 
     /** @dev Transfers `tokenId` token from `msg.sender` to `to`.
@@ -240,6 +248,47 @@ contract KittyContract is IERC721 {
         return _isApprovedForAll(kittyToOwner[_kittyId], msg.sender);
     }
 
+    function _safeTransfer(
+        address _from,
+        address _to,
+        uint256 _tokenId,
+        bytes memory _data
+    ) internal {
+        _transfer(_from, _to, _tokenId);
+        require(_checkERC721Support(_from, _to, _tokenId, _data));
+    }
+
+    function _checkERC721Support(
+        address _from,
+        address _to,
+        uint256 _tokenId,
+        bytes memory _data
+    ) internal returns (bool) {
+        if (!_isContract(_to)) {
+            return true;
+        }
+
+        //call onERC721Recieved in the _to contract
+        bytes4 result = IERC721Receiver(_to).onERC721Received(
+            msg.sender,
+            _from,
+            _tokenId,
+            _data
+        );
+
+        //check return value
+        return result == MAGIC_ERC721_RECEIVED;
+    }
+
+    function _isContract(address _to) internal view returns (bool) {
+        // wallets will not have any code but contract must have some code
+        uint32 size;
+        assembly {
+            size := extcodesize(_to)
+        }
+        return size > 0;
+    }
+
     /// @notice Transfers the ownership of an NFT from one address to another address
     /// @dev Throws unless `msg.sender` is the current owner, an authorized
     ///  operator, or the approved address for this NFT. Throws if `_from` is
@@ -251,13 +300,16 @@ contract KittyContract is IERC721 {
     /// @param _from The current owner of the NFT
     /// @param _to The new owner
     /// @param _tokenId The NFT to transfer
-    /// @param data Additional data with no specified format, sent in call to `_to`
+    /// @param _data Additional data with no specified format, sent in call to `_to`
     function safeTransferFrom(
         address _from,
         address _to,
         uint256 _tokenId,
-        bytes calldata data
-    ) external {}
+        bytes calldata _data
+    ) external onlyApproved(_tokenId) notZeroAddress(_to) {
+        require(_from == _ownerOf(_tokenId), "from address not kitty owner");
+        _safeTransfer(_from, _to, _tokenId, _data);
+    }
 
     /// @notice Transfers the ownership of an NFT from one address to another address
     /// @dev This works identically to the other function with an extra data parameter,
@@ -269,7 +321,10 @@ contract KittyContract is IERC721 {
         address _from,
         address _to,
         uint256 _tokenId
-    ) external {}
+    ) external onlyApproved(_tokenId) notZeroAddress(_to) {
+        require(_from == _ownerOf(_tokenId), "from address not kitty owner");
+        _safeTransfer(_from, _to, _tokenId, bytes(""));
+    }
 
     /// @notice Transfer ownership of an NFT -- THE CALLER IS RESPONSIBLE
     ///  TO CONFIRM THAT `_to` IS CAPABLE OF RECEIVING NFTS OR ELSE

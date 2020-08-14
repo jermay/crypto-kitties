@@ -1,4 +1,6 @@
 const TestKittyContract = artifacts.require("TestKittyContract");
+const TestERC721Receiver = artifacts.require("TestERC721Receiver");
+const TestBadNFTReceiver = artifacts.require("TestBadNFTReceiver");
 const BN = web3.utils.BN
 const truffleAssert = require('truffle-assertions');
 
@@ -48,7 +50,19 @@ contract('KittyContract', (accounts) => {
 
     async function addKittyAndApproval(kitty, approved) {
         await addKitty(kitty);
-        return addApproval(kitty, approved);
+        const result = await addApproval(kitty, approved);
+        return result;
+    }
+
+    function addOperator(kitty, operator) {
+        // grant operator approval
+        return contract.setApprovalForAll(
+            operator, true, { from: kitty.owner });
+    }
+
+    async function addKittyAndOperator(kitty, operator) {
+        await addKitty(kitty);
+        return addOperator(kitty, operator);
     }
 
     describe('init', () => {
@@ -342,7 +356,7 @@ contract('KittyContract', (accounts) => {
         });
     });
 
-    describe.only('transferFrom', () => {
+    describe('transferFrom', () => {
         beforeEach(async () => {
             await addKitty(kitty);
         });
@@ -411,7 +425,7 @@ contract('KittyContract', (accounts) => {
                 )
             );
         });
-        
+
         it('should REVERT if to address is the zero address', async () => {
             await truffleAssert.reverts(
                 contract.transferFrom(
@@ -425,12 +439,105 @@ contract('KittyContract', (accounts) => {
 
         it('should REVERT if tokenId is not valid', async () => {
             const invalidTokenId = 1234;
-            await truffleAssert.reverts(                
+            await truffleAssert.reverts(
                 contract.transferFrom(
                     kitty.owner,
                     newOwner,
                     invalidTokenId,
                     { from: kittyOwner }
+                )
+            );
+        });
+    });
+
+    describe('safeTransferFrom', () => {
+        beforeEach(async()=>{
+            await addKitty(kitty);
+        });
+
+        it('should transfer ownership when the sender is the owner', async () => {
+            await contract.safeTransferFrom(
+                kitty.owner,
+                newOwner,
+                kitty.kittyId,
+                { from: kitty.owner }
+            );
+
+            const result = await contract.ownerOf(kitty.kittyId);
+            expect(result).to.equal(newOwner);
+        });
+
+        it('should transfer when the sender is NOT the owner but IS approved', async () => {
+            let approved = accounts[3];
+            await addApproval(kitty, approved);
+
+            await contract.safeTransferFrom(
+                kitty.owner,
+                approved,
+                kitty.kittyId,
+                { from: approved }
+            );
+
+            const result = await contract.ownerOf(kitty.kittyId);
+            expect(result).to.equal(approved);
+
+        });
+
+        it('should REVERT when the sender is NOT the owner and NOT approved', async () => {
+            const unApproved = accounts[3];
+
+            await truffleAssert.reverts(
+                contract.safeTransferFrom(
+                    kitty.owner,
+                    unApproved,
+                    kitty.kittyId,
+                    { from: unApproved }
+                )
+            );
+        });
+
+        it('should REVERT if the from address is not the owner', async()=>{
+            await truffleAssert.reverts(
+                contract.safeTransferFrom(
+                    newOwner,
+                    newOwner,
+                    kitty.kittyId,
+                    { from: kitty.owner }
+                )
+            );
+        });
+
+        it('should REVERT if the to address is the zero address', async()=>{
+            await truffleAssert.reverts(
+                contract.safeTransferFrom(
+                    kitty.owner,
+                    zeroAddress,
+                    kitty.kittyId,
+                    { from: kitty.owner }
+                )
+            );
+        });
+
+        it('should transfer the when the recieiver is an ERC721 contract', async () => {
+            const erc721Receiver = await TestERC721Receiver.new();
+
+            await contract.safeTransferFrom(
+                kitty.owner,
+                erc721Receiver.address,
+                kitty.kittyId,
+                { from: kitty.owner }
+            );
+        });
+
+        it('should REVERT when the reciever contract is NOT ERC721 compliant', async () => {
+            const uncompliantContract = await TestBadNFTReceiver.new();
+
+            await truffleAssert.reverts(
+                contract.safeTransferFrom(
+                    kitty.owner,
+                    uncompliantContract.address,
+                    kitty.kittyId,
+                    { from: kitty.owner }
                 )
             );
         });
