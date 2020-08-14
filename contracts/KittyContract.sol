@@ -17,9 +17,12 @@ contract KittyContract is IERC721 {
     Kitty[] internal kitties;
     string _tokenName = "Kitty Token";
     string _tokenSymbol = "CAT";
+
     bytes4 internal constant MAGIC_ERC721_RECEIVED = bytes4(
         keccak256("onERC721Received(address,address,uint256,bytes)")
     );
+    bytes4 _INTERFACE_ID_ERC165 = 0x01ffc9a7;
+    bytes4 _INTERFACE_ID_ERC721 = 0x80ac58cd;
 
     mapping(uint256 => address) internal kittyToOwner;
     mapping(address => uint256) internal ownerKittyCount;
@@ -30,6 +33,15 @@ contract KittyContract is IERC721 {
         kitties.push(
             Kitty({genes: 0, birthTime: 0, mumId: 0, dadId: 0, generation: 0})
         );
+    }
+
+    function supportsInterface(bytes4 _interfaceId)
+        external
+        view
+        returns (bool)
+    {
+        return (_interfaceId == _INTERFACE_ID_ERC165 ||
+            _interfaceId == _INTERFACE_ID_ERC721);
     }
 
     /// @dev throws if @param _address is the zero address

@@ -451,7 +451,7 @@ contract('KittyContract', (accounts) => {
     });
 
     describe('safeTransferFrom', () => {
-        beforeEach(async()=>{
+        beforeEach(async () => {
             await addKitty(kitty);
         });
 
@@ -496,7 +496,7 @@ contract('KittyContract', (accounts) => {
             );
         });
 
-        it('should REVERT if the from address is not the owner', async()=>{
+        it('should REVERT if the from address is not the owner', async () => {
             await truffleAssert.reverts(
                 contract.safeTransferFrom(
                     newOwner,
@@ -507,7 +507,7 @@ contract('KittyContract', (accounts) => {
             );
         });
 
-        it('should REVERT if the to address is the zero address', async()=>{
+        it('should REVERT if the to address is the zero address', async () => {
             await truffleAssert.reverts(
                 contract.safeTransferFrom(
                     kitty.owner,
@@ -540,6 +540,23 @@ contract('KittyContract', (accounts) => {
                     { from: kitty.owner }
                 )
             );
+        });
+    });
+
+    describe('supports interface', () => {
+        const ERC165_ID = '0x01ffc9a7';
+        const ERC721_ID = '0x80ac58cd';
+
+        it('should return TRUE for ERC165', async () => {
+            const result = await contract.supportsInterface(ERC165_ID);
+
+            expect(result).to.equal(true);
+        });
+
+        it('should return TRUE for ERC721', async () => {
+            const result = await contract.supportsInterface(ERC721_ID);
+
+            expect(result).to.equal(true);
         });
     });
 });
