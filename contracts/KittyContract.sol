@@ -77,10 +77,11 @@ contract KittyContract is IERC721 {
     /**
      * @dev Returns the Kitty for the given kittyId
      */
-    function getKitty(uint256 kittyId)
+    function getKitty(uint256 _kittyId)
         external
         view
         returns (
+            uint256 kittyId,
             uint256 genes,
             uint64 birthTime,
             uint32 mumId,
@@ -88,8 +89,9 @@ contract KittyContract is IERC721 {
             uint32 generation
         )
     {
-        Kitty storage kitty = kitties[kittyId];
+        Kitty storage kitty = kitties[_kittyId];
         return (
+            _kittyId,
             kitty.genes,
             kitty.birthTime,
             kitty.mumId,

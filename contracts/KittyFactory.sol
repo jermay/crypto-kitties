@@ -78,4 +78,36 @@ contract KittyFactory is Ownable, KittyContract {
 
         return newKittenId;
     }
+
+    function breed(uint256 _dadId, uint256 _mumId)
+        public
+        onlyKittyOwner(_dadId)
+        onlyKittyOwner(_mumId)
+        returns (uint256)
+    {
+        Kitty storage dad = kitties[_dadId];
+        Kitty storage mum = kitties[_mumId];
+        uint256 newDna = _mixDna(dad.genes, mum.genes);
+
+        // generation is 1 higher than max of parents
+        uint256 newGeneration = mum.generation.add(1);
+        if (dad.generation > mum.generation) {
+            newGeneration = dad.generation.add(1);
+        }
+
+        return _createKitty(_mumId, _dadId, newGeneration, newDna, msg.sender);
+    }
+
+    function _mixDna(uint256 _dadDna, uint256 _mumDna)
+        internal
+        pure
+        returns (uint256)
+    {
+        // take the first 8 digits of dna from the dad
+        // and last 8 from the mum
+        uint256 firstHalf = _dadDna / 100000000;
+        uint256 secondHalf = _mumDna % 100000000;
+
+        return (firstHalf * 100000000) + secondHalf;
+    }
 }

@@ -144,19 +144,118 @@ contract('KittyFactory', async (accounts) => {
             await Promise.all(testKitties.map(kitty => createKitty(kitty)));
         });
 
-        it('should return all the kittyIds owned by the given address', async () =>{
+        it.only('should return all the kittyIds owned by the given address', async () => {
             exptectedIds = ['1', '3'];
 
-            result = await kittyFactory.kittiesOf(contractOwner);
-            
-            exptectedIds.forEach((_, i) =>
-                expect(result[i].toString(10)).to.equal(exptectedIds[i]));
+            results = await kittyFactory.kittiesOf(contractOwner);
+
+            expect(results.length).to.equal(exptectedIds.length);
+            results
+                .map(id => id.toString(10))
+                .forEach(id => expect(exptectedIds).to.contain(id));
         });
 
-        it('should return an empty array if the owner has no kitties', async ()=>{
+        it('should return an empty array if the owner has no kitties', async () => {
             result = await kittyFactory.kittiesOf(accounts[2]);
 
             expect(result.length).to.equal(0);
         });
     });
+
+    describe('breed', () => {
+        let dad;
+        let mum;
+        let expKitty;
+        let kittyOwner
+        beforeEach(async () => {
+            kittyOwner = accounts[1];
+            dad = {
+                kittyId: new BN('1'),
+                mumId: new BN('0'),
+                dadId: new BN('0'),
+                generation: new BN('0'),
+                genes: new BN('1112131415161718'),
+                owner: kittyOwner,
+            };
+            mum = {
+                kittyId: new BN('2'),
+                mumId: new BN('0'),
+                dadId: new BN('0'),
+                generation: new BN('0'),
+                genes: new BN('2122232425262728'),
+                owner: kittyOwner,
+            };
+            expKitty = {
+                kittyId: new BN('3'),
+                mumId: new BN('2'),
+                dadId: new BN('1'),
+                generation: new BN('1'),
+                genes: new BN('1112131425262728'),
+                owner: kittyOwner,
+            }
+        });
+
+        async function createParents() {
+            await createKitty(dad);
+            await createKitty(mum);
+        }
+
+        it('should create a new kitty assigned to the sender', async () => {
+            await createParents();
+
+            await kittyFactory
+                .breed(dad.kittyId, mum.kittyId, { from: kittyOwner });
+
+            const actualKitty = await kittyFactory.getKitty(expKitty.kittyId);
+
+            expect(actualKitty.kittyId.toString(10)).to.equal(expKitty.kittyId.toString(10));
+            expect(actualKitty.mumId.toString(10)).to.equal(expKitty.mumId.toString(10));
+            expect(actualKitty.dadId.toString(10)).to.equal(expKitty.dadId.toString(10));
+            expect(actualKitty.generation.toString(10)).to.equal(expKitty.generation.toString(10));
+
+            const actualOwner = await kittyFactory.ownerOf(expKitty.kittyId);
+            expect(actualOwner).to.equal(expKitty.owner);
+        });
+
+        it('should REVERT if the sender does not own the dad kitty', async () => {
+            dad.owner = accounts[3];
+            await createParents();
+
+            await truffleAssert.reverts(
+                kittyFactory
+                    .breed(dad.kittyId, mum.kittyId, { from: kittyOwner })
+            );
+        });
+
+        it('should REVERT if the sender does not own the mum kitty', async () => {
+            mum.owner = accounts[3];
+            await createParents();
+
+            await truffleAssert.reverts(
+                kittyFactory
+                    .breed(dad.kittyId, mum.kittyId, { from: kittyOwner })
+            );
+        });
+
+        describe('generation number', () => {
+
+            [
+                { name: 'same gen', mumGen: 0, dadGen: 0, kittyGen: 1 },
+                { name: 'mum younger', mumGen: 1, dadGen: 0, kittyGen: 2 },
+                { name: 'dad younger', mumGen: 1, dadGen: 3, kittyGen: 4 },
+            ].forEach(testCase => {
+                it(`should always be 1 higher than max of parents. Case: ${testCase.name} mum gen: ${testCase.mumGen} dad gen: ${testCase.dadGen}`, async () => {
+                    mum.generation = testCase.mumGen;
+                    dad.generation = testCase.dadGen;
+                    await createParents();
+
+                    await kittyFactory
+                        .breed(dad.kittyId, mum.kittyId, { from: kittyOwner });
+
+                    const actualKitty = await kittyFactory.getKitty(expKitty.kittyId);
+                    expect(actualKitty.generation.toString(10)).to.equal(testCase.kittyGen.toString());
+                });
+            });
+        });
+    })
 });
