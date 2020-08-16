@@ -2,49 +2,90 @@ import React from 'react'
 import { useState, useEffect } from 'react'
 import CatBox from '../cat/CatBox';
 import { CatModel } from '../js/catFactory';
-import { ButtonGroup, Button } from 'react-bootstrap';
-import styled from 'styled-components';
+import { ButtonGroup, Button, Spinner } from 'react-bootstrap';
 
 export default function BreedList(props) {
     const [list, setList] = useState([]);
     const [init, setInit] = useState(false);
+    const [pageNum, setPageNum] = useState(0);
+    const [kittyModel, setKittyModel] = useState({ value: null });
 
     useEffect(() => {
         if (!init) {
             props.service.getKitties()
                 .then(list => {
-                    setList(list);
+                    const items = list.map(item => {
+                        return new CatModel(item);
+                    })
+                    setKittyModel({value: items[0]});
+                    setList(items);                    
                 });
             setInit(true);
         }
-    }, [init, list, props.service])
+    }, [init, list, kittyModel, props.service])
 
-    const listItems = list.map(kitty => {
-        const model = new CatModel(kitty);
-        return (
-            <div key={kitty.genes}>
-                <div className="breed-list-item">
-                    <CatBox model={model}/>
-                </div>
-                <ButtonGroup>
-                    <Button
-                        variant="secondary"
-                        onClick={e => props.handleOnSetParent(model, 'mum')}>
-                        Set as Mum
-                    </Button>
-                    <Button
-                        variant="secondary"
-                        onClick={e => props.handleOnSetParent(model, 'dad')}>
-                        Set as Dad
-                    </Button>
-                </ButtonGroup>
-            </div>
-        )
-    });
+    // kitties still loading, show spinner
+    if (!list.length) {
+        return <Spinner animation="grow" variant="success" />
+    }
+
+
+    const prevDisabled = (pageNum === 0);
+    const nextDisabled = (pageNum === (list.length - 1));
+
+    const onPrevKittyClicked = () => {
+        if (prevDisabled) {
+            return;
+        }
+        const prev = pageNum - 1;
+        setPageNum(prev);
+        setKittyModel({value: list[prev]});
+    };
+
+    const onNextKittyClicked = () => {
+        if (pageNum === (list.length - 1)) {
+            return;
+        }
+        const next = pageNum + 1;
+        setPageNum(next);
+        setKittyModel({value: list[next]});
+    };
 
     return (
         <div>
-            {listItems}
+            <div className="d-flex flex-column align-items-center">
+                <ButtonGroup>
+                    <Button
+                        variant="secondary"
+                        size="sm"
+                        disabled={prevDisabled}
+                        onClick={onPrevKittyClicked}>
+                        Prev Kitty
+                    </Button>
+                    <Button
+                        variant="info"
+                        size="sm"
+                        onClick={e => props.handleOnSetParent(kittyModel.value, 'mum')}>
+                        Set as Mum
+                    </Button>
+                    <Button
+                        variant="info"
+                        size="sm"
+                        onClick={e => props.handleOnSetParent(kittyModel.value, 'dad')}>
+                        Set as Dad
+                    </Button>
+                    <Button
+                        variant="secondary"
+                        size="sm"
+                        disabled={nextDisabled}
+                        onClick={onNextKittyClicked}>
+                        Next Kitty
+                    </Button>
+                </ButtonGroup>
+                <div className="breed-list-item">
+                    <CatBox model={kittyModel.value} />
+                </div>
+            </div>
         </div>
     )
 }

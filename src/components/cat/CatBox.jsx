@@ -12,8 +12,8 @@ const Box = styled(Col)`
     border-radius: 10px;
     padding-top: 2rem;
     padding-bottom: 2rem;
-    min-width: 22rem;
-    max-width: 22rem;
+    min-width: 20rem;
+    max-width: 20rem;
 `;
 
 export default function CatBox(props) {
