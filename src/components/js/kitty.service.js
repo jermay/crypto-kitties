@@ -1,9 +1,11 @@
 import Web3 from "web3";
+import BN from 'bn.js';
 import { abi } from './abi';
+
 
 export class KittyService {
     web3 = new Web3(Web3.givenProvider);
-    contractAddress = '0x4cbC3481fCf0124D56790c52c624a7Bae1AF6e7C';
+    contractAddress = '0x91216e85928B02a631613C0b21c4f0a8b96c9347';
     user;
     _contract;
     _contractPromise;
@@ -66,7 +68,7 @@ export class KittyService {
         return instance.methods.getKitty(id).call();
     }
 
-    async getKitties() {        
+    async getKitties() {
         const instance = await this.getContract();
         const kittyIds = await instance.methods
             .kittiesOf(this.user)
@@ -75,11 +77,15 @@ export class KittyService {
         let promises = kittyIds.map(id => this.getKitty(id));
         this.kitties = await Promise.all(promises);
 
-        // TODO: return kittyId from the contract method
-        kittyIds.forEach((id, i) => this.kitties[i].kittyId = i);
-
         console.log(`Kittes for ${this.user} loaded: `, this.kitties);
 
         return this.kitties;
+    }
+
+    async breed(mumId, dadId) {
+        const instance = await this.getContract();
+        return instance.methods
+            .breed(dadId, mumId)
+            .send({ from: this.user });
     }
 }

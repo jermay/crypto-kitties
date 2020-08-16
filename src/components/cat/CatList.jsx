@@ -7,16 +7,18 @@ import { Container } from 'react-bootstrap';
 
 export default function CatList(props) {
     const [data, setData] = useState({ cats: [] });
+    const [init, setInit] = useState(false);
 
     useEffect(() => {
-        if (!data.cats.length) {
+        if (!init) {
             const getKittes = async () => {
                 const list = await props.service.getKitties();
                 setData({ cats: list });
             }
             getKittes();
+            setInit(true);
         }
-    }, [data, props.service])
+    }, [init, data, props.service])
 
     if (!data.cats.length) {
         return (
