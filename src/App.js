@@ -13,6 +13,7 @@ import AppFooter from './components/AppFooter';
 import CatFactory from './components/factory/CatFactory';
 import CatList from './components/cat/CatList';
 import Home from './Home';
+import BreedPage from './components/breed/BreedPage';
 
 const kittyService = new KittyService();
 
@@ -26,6 +27,9 @@ export default function App() {
                <Switch>
                   <Route exact path="/factory">
                      <CatFactory service={kittyService} />
+                  </Route>
+                  <Route exact path="/breed">
+                     <BreedPage service={kittyService} />
                   </Route>
                   <Route exact path="/kitties">
                      <CatList service={kittyService} />

@@ -12,6 +12,7 @@ export default function AppHeader() {
                 Academy Kitties
             </NavLink>
             <NavLink to="/kitties" className="btn nav-link">My Kitties</NavLink>
+            <NavLink to="/breed" className="btn nav-link">Breed</NavLink>
             <NavLink to="/factory" className="btn nav-link">Factory</NavLink>
         </Nav>
     )
