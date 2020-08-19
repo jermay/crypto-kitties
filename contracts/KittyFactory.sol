@@ -87,7 +87,7 @@ contract KittyFactory is Ownable, KittyContract {
     {
         Kitty storage dad = kitties[_dadId];
         Kitty storage mum = kitties[_mumId];
-        uint256 newDna = _mixDna(dad.genes, mum.genes);
+        uint256 newDna = _mixDna(dad.genes, mum.genes, now);
 
         // generation is 1 higher than max of parents
         uint256 newGeneration = mum.generation.add(1);
@@ -98,16 +98,57 @@ contract KittyFactory is Ownable, KittyContract {
         return _createKitty(_mumId, _dadId, newGeneration, newDna, msg.sender);
     }
 
-    function _mixDna(uint256 _dadDna, uint256 _mumDna)
+    event Test(uint256 index, uint256 i, string who, uint8 gene, uint256 dna);
+
+    function _mixDna(
+        uint256 _dadDna,
+        uint256 _mumDna,
+        uint256 _seed
+    )
         internal
         pure
         returns (uint256)
     {
-        // take the first 8 digits of dna from the dad
-        // and last 8 from the mum
-        uint256 firstHalf = _dadDna / 100000000;
-        uint256 secondHalf = _mumDna % 100000000;
+        uint256[8] memory geneArray;
+        uint8 random = uint8(_seed % 255); // 8 bit number
+        uint256 i = 1;
+        uint256 index = 7; // loop in reverse
 
-        return (firstHalf * 100000000) + secondHalf;
+        for (index = 8; index > 0; index--) {
+            /*
+            Use bitwise AND with a mask to extract each pair
+            00000001 = 1
+            00000010 = 2
+            00000100 = 4
+            etc
+            */
+            if (random & i == 0) {
+                // extract last 2 digits
+                geneArray[index-1] = uint8(_mumDna % 100);
+            } else {
+                geneArray[index-1] = uint8(_dadDna % 100);
+            }
+
+            if (i < 128) {
+                // cut off the last DNA pair so it's ready to extract
+                // in the next loop
+                _mumDna = _mumDna / 100;
+                _dadDna = _dadDna / 100;
+
+                // shift the mask to the left
+                i = i * 2;
+            }
+        }
+
+        // recombine DNA
+        uint256 newGenes = 0;
+        for (i = 0; i < 8; i++) {
+            newGenes = newGenes + geneArray[i];
+            if (i != 7) {
+                newGenes = newGenes * 100;
+            }
+        }
+
+        return newGenes;
     }
 }
