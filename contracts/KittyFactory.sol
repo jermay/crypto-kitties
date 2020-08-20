@@ -98,8 +98,6 @@ contract KittyFactory is Ownable, KittyContract {
         return _createKitty(_mumId, _dadId, newGeneration, newDna, msg.sender);
     }
 
-    event Test(uint256 index, uint256 i, string who, uint8 gene, uint256 dna);
-
     function _mixDna(
         uint256 _dadDna,
         uint256 _mumDna,
@@ -109,31 +107,37 @@ contract KittyFactory is Ownable, KittyContract {
         pure
         returns (uint256)
     {
-        uint256[8] memory geneArray;
-        uint8 random = uint8(_seed % 255); // 8 bit number
+        uint16 size = 10;
+        uint256[10] memory geneSizes = [uint256(2),2,2,2,1,1,2,2,1,1];
+        uint256 mod = 2 ** size - 1;
+        uint256[10] memory geneArray;
+        uint16 random = uint16(_seed % mod); // 8 bit number
         uint256 i = 1;
         uint256 index = 7; // loop in reverse
 
-        for (index = 8; index > 0; index--) {
+        // emit Test2(random);
+
+        for (index = size; index > 0; index--) {
             /*
-            Use bitwise AND with a mask to extract each pair
+            Use bitwise AND with a mask to choose gene
+            if 0 then Mum, if 1 then Dad
             00000001 = 1
             00000010 = 2
             00000100 = 4
             etc
             */
+            uint256 dnaMod = 10 ** geneSizes[index-1];
             if (random & i == 0) {
                 // extract last 2 digits
-                geneArray[index-1] = uint8(_mumDna % 100);
+                geneArray[index-1] = uint16(_mumDna % dnaMod);
             } else {
-                geneArray[index-1] = uint8(_dadDna % 100);
+                geneArray[index-1] = uint16(_dadDna % dnaMod);
             }
 
-            if (i < 128) {
-                // cut off the last DNA pair so it's ready to extract
-                // in the next loop
-                _mumDna = _mumDna / 100;
-                _dadDna = _dadDna / 100;
+            if (i <= mod) {
+                // cut off the last gene to expose the next gene at the end
+                _mumDna = _mumDna / dnaMod;
+                _dadDna = _dadDna / dnaMod;
 
                 // shift the mask to the left
                 i = i * 2;
@@ -142,10 +146,14 @@ contract KittyFactory is Ownable, KittyContract {
 
         // recombine DNA
         uint256 newGenes = 0;
-        for (i = 0; i < 8; i++) {
+        for (i = 0; i < size; i++) {
+            // add gene
             newGenes = newGenes + geneArray[i];
-            if (i != 7) {
-                newGenes = newGenes * 100;
+            
+            // shift dna LEFT to make room for next gene
+            if (i != size - 1) {
+                uint256 dnaMod = 10 ** geneSizes[i+1];
+                newGenes = newGenes * dnaMod;
             }
         }
 

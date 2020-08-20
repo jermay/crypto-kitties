@@ -170,14 +170,12 @@ contract('KittyFactory', async (accounts) => {
         const geneSizes = [2,2,2,2,1,1,2,2,1,1];
         let expDna;
         beforeEach(()=>{
-            // mumDna = '1122334456778890';
-            // dadDna = '9988776604332215';
-            mumDna = new BN('1122334455667788');
-            dadDna = new BN('8877665544332211');
-            seed = 425; // 1 1010 1010 in binary
+            mumDna = '1122334456778890';
+            dadDna = '9988776604332215';
+            seed = 1705; // % 1023 = 10 1010 1010 in binary
             
             // 1= dad, 0=mum
-            expDna = new BN('8822664444662288');
+            expDna = new BN('9922774406338810');
         });
 
         it('should mix the DNA according to the mask and seed',async()=>{
