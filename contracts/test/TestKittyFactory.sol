@@ -19,4 +19,12 @@ contract TestKittyFactory is KittyFactory {
     ) public returns (uint256) {
         _createKitty(_mumId, _dadId, _generation, _genes, _owner);
     }
+
+    function mixDna(uint256 _dadDna, uint256 _mumDna, uint256 _seed)
+        public
+        pure
+        returns (uint256)
+    {
+        return _mixDna(_dadDna, _mumDna, _seed);
+    }
 }

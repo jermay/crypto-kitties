@@ -144,7 +144,7 @@ contract('KittyFactory', async (accounts) => {
             await Promise.all(testKitties.map(kitty => createKitty(kitty)));
         });
 
-        it.only('should return all the kittyIds owned by the given address', async () => {
+        it('should return all the kittyIds owned by the given address', async () => {
             exptectedIds = ['1', '3'];
 
             results = await kittyFactory.kittiesOf(contractOwner);
@@ -156,9 +156,38 @@ contract('KittyFactory', async (accounts) => {
         });
 
         it('should return an empty array if the owner has no kitties', async () => {
+
             result = await kittyFactory.kittiesOf(accounts[2]);
 
             expect(result.length).to.equal(0);
+        });
+    });
+
+    describe('Mix DNA', ()=>{
+        let mumDna;
+        let dadDna
+        let masterSeed;
+        const geneSizes = [2,2,2,2,1,1,2,2,1,1];
+        const randomDnaThreshold = 7;
+        let expDna;
+        beforeEach(()=>{
+            mumDna = '1122334456778890';
+            dadDna = '9988776604332215';
+            masterSeed = 1705; // % 1023 = 10 1010 1010 in binary
+            // if the dnaSeed is 1 choose Dad gene, if 0 Mom gene
+            // if the randomSeed digit is higher then the RANDOM_DNA_THRESHOLD
+            // choose the random value instead of a parent gene
+            // randomSeed:    8  3  8  2 3 5  4  3 9 8
+            // randomValues: 62 77 47 79 1 3 48 49 2 8
+            //                *     *              * *
+            
+            expDna = new BN('6222474406338828');
+        });
+
+        it('should mix the DNA according to the mask and seed',async()=>{
+            const result = await kittyFactory.mixDna(dadDna, mumDna, masterSeed);
+
+            expect(result.toString(10)).to.equal(expDna.toString(10));
         });
     });
 
@@ -257,5 +286,5 @@ contract('KittyFactory', async (accounts) => {
                 });
             });
         });
-    })
+    });    
 });
