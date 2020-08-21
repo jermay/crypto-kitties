@@ -8,6 +8,9 @@ contract KittyFactory is Ownable, KittyContract {
     using SafeMath32 for uint32;
 
     uint256 public constant CREATION_LIMIT_GEN0 = 10;
+    uint256 public constant NUM_CATTRIBUTES = 10;
+    uint256 public constant DNA_LENGTH = 16;
+    uint256 public constant RANDOM_DNA_THRESHOLD = 7;
     uint256 internal _gen0Counter;
 
     event Birth(
@@ -102,61 +105,101 @@ contract KittyFactory is Ownable, KittyContract {
         uint256 _dadDna,
         uint256 _mumDna,
         uint256 _seed
-    )
-        internal
-        pure
-        returns (uint256)
-    {
-        uint16 size = 10;
-        uint256[10] memory geneSizes = [uint256(2),2,2,2,1,1,2,2,1,1];
-        uint256 mod = 2 ** size - 1;
+    ) internal pure returns (uint256) {
+        (
+            uint16 dnaSeed,
+            uint256 randomSeed,
+            uint256 randomValues
+        ) = _getSeedValues(_seed);
+        uint256[10] memory geneSizes = [uint256(2), 2, 2, 2, 1, 1, 2, 2, 1, 1];
         uint256[10] memory geneArray;
-        uint16 random = uint16(_seed % mod); // 8 bit number
-        uint256 i = 1;
-        uint256 index = 7; // loop in reverse
+        uint256 mask = 1;
+        uint256 i;
 
-        // emit Test2(random);
-
-        for (index = size; index > 0; index--) {
+        for (i = NUM_CATTRIBUTES; i > 0; i--) {
             /*
-            Use bitwise AND with a mask to choose gene
+            if the randomSeed digit is >= than the RANDOM_DNA_THRESHOLD
+            of 7 choose the random value instead of a parent gene
+
+            Use dnaSeed with bitwise AND (&) and a mask to choose parent gene
             if 0 then Mum, if 1 then Dad
+
+            randomSeed:    8  3  8  2 3 5  4  3 9 8
+            randomValues: 62 77 47 79 1 3 48 49 2 8
+                           *     *              * *
+
+            dnaSeed:       1  0  1  0 1 0  1  0 1 0
+            mumDna:       11 22 33 44 5 6 77 88 9 0
+            dadDna:       99 88 77 66 0 4 33 22 1 5
+                              M     M D M  D  M                         
+            
+            childDna:     62 22 47 44 0 6 33 88 2 8
+
+            mask:
             00000001 = 1
             00000010 = 2
             00000100 = 4
             etc
             */
-            uint256 dnaMod = 10 ** geneSizes[index-1];
-            if (random & i == 0) {
-                // extract last 2 digits
-                geneArray[index-1] = uint16(_mumDna % dnaMod);
+            uint256 randSeedValue = randomSeed % 10;
+            uint256 dnaMod = 10**geneSizes[i - 1];
+            if (randSeedValue >= RANDOM_DNA_THRESHOLD) {
+                // use random value
+                geneArray[i - 1] = uint16(randomValues % dnaMod);
+            } else if (dnaSeed & mask == 0) {
+                // use gene from Mum
+                geneArray[i - 1] = uint16(_mumDna % dnaMod);
             } else {
-                geneArray[index-1] = uint16(_dadDna % dnaMod);
+                // use gene from Dad
+                geneArray[i - 1] = uint16(_dadDna % dnaMod);
             }
 
-            if (i <= mod) {
-                // cut off the last gene to expose the next gene at the end
-                _mumDna = _mumDna / dnaMod;
-                _dadDna = _dadDna / dnaMod;
+            // slice off the last gene to expose the next gene            
+            _mumDna = _mumDna / dnaMod;
+            _dadDna = _dadDna / dnaMod;
+            randomValues = randomValues / dnaMod;
+            randomSeed = randomSeed / 10;
 
-                // shift the mask to the left
-                i = i * 2;
-            }
+            // shift the DNA mask LEFT by 1 bit
+            mask = mask * 2;
         }
 
         // recombine DNA
         uint256 newGenes = 0;
-        for (i = 0; i < size; i++) {
+        for (i = 0; i < NUM_CATTRIBUTES; i++) {
             // add gene
             newGenes = newGenes + geneArray[i];
-            
+
             // shift dna LEFT to make room for next gene
-            if (i != size - 1) {
-                uint256 dnaMod = 10 ** geneSizes[i+1];
+            if (i != NUM_CATTRIBUTES - 1) {
+                uint256 dnaMod = 10**geneSizes[i + 1];
                 newGenes = newGenes * dnaMod;
             }
         }
 
         return newGenes;
+    }
+
+    function _getSeedValues(uint256 _masterSeed)
+        internal
+        pure
+        returns (
+            uint16 dnaSeed,
+            uint256 randomSeed,
+            uint256 randomValues
+        )
+    {
+        uint256 mod = 2**NUM_CATTRIBUTES - 1;
+        dnaSeed = uint16(_masterSeed % mod);
+
+        uint256 randMod = 10**NUM_CATTRIBUTES;
+        randomSeed =
+            uint256(keccak256(abi.encodePacked(_masterSeed))) %
+            randMod;
+
+        uint256 valueMod = 10**DNA_LENGTH;
+        randomValues =
+            uint256(keccak256(abi.encodePacked(_masterSeed, DNA_LENGTH))) %
+            valueMod;
     }
 }

@@ -163,23 +163,29 @@ contract('KittyFactory', async (accounts) => {
         });
     });
 
-    describe.only('Mix DNA', ()=>{
+    describe('Mix DNA', ()=>{
         let mumDna;
         let dadDna
-        let seed;
+        let masterSeed;
         const geneSizes = [2,2,2,2,1,1,2,2,1,1];
+        const randomDnaThreshold = 7;
         let expDna;
         beforeEach(()=>{
             mumDna = '1122334456778890';
             dadDna = '9988776604332215';
-            seed = 1705; // % 1023 = 10 1010 1010 in binary
+            masterSeed = 1705; // % 1023 = 10 1010 1010 in binary
+            // if the dnaSeed is 1 choose Dad gene, if 0 Mom gene
+            // if the randomSeed digit is higher then the RANDOM_DNA_THRESHOLD
+            // choose the random value instead of a parent gene
+            // randomSeed:    8  3  8  2 3 5  4  3 9 8
+            // randomValues: 62 77 47 79 1 3 48 49 2 8
+            //                *     *              * *
             
-            // 1= dad, 0=mum
-            expDna = new BN('9922774406338810');
+            expDna = new BN('6222474406338828');
         });
 
         it('should mix the DNA according to the mask and seed',async()=>{
-            const result = await kittyFactory.mixDna(dadDna, mumDna, seed);
+            const result = await kittyFactory.mixDna(dadDna, mumDna, masterSeed);
 
             expect(result.toString(10)).to.equal(expDna.toString(10));
         });
