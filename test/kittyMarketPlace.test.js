@@ -131,13 +131,6 @@ contract('KittyMarketPlace', (accounts) => {
                 expectMarketEvent(
                     res, transTypes.create, kitty.owner, kitty.kittyId
                 );
-                // truffleAssert.eventEmitted(
-                //     res,
-                //     "MarketTransaction",
-                //     event => event.TxType === transTypes.create &&
-                //         event.owner === kitty.owner &&
-                //         event.tokenId.toString(10) === kitty.kittyId.toString(10)
-                // );
             });
 
             it('should REVERT if the sender is not the token owner', async () => {
@@ -205,13 +198,6 @@ contract('KittyMarketPlace', (accounts) => {
                 expectMarketEvent(
                     res, transTypes.remove, kitty.owner, kitty.kittyId
                 );
-                // truffleAssert.eventEmitted(
-                //     res,
-                //     "MarketTransaction",
-                //     event => event.TxType === transTypes.remove &&
-                //         event.owner === kitty.owner &&
-                //         event.tokenId.toString(10) === kitty.kittyId.toString(10)
-                // );
             });
 
             it('should REVERT if sender is not the seller', async () => {
