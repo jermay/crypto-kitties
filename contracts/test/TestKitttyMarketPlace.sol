@@ -2,6 +2,11 @@ pragma solidity ^0.5.12;
 import "../KittyMarketplace.sol";
 
 contract TestKittyMarketPlace is KittyMarketPlace {
+    constructor(address _kittyContractAddress)
+        public
+        KittyMarketPlace(_kittyContractAddress)
+    {}
+
     function getKittyContractAddress() public view returns (address addr) {
         return address(_kittyContract);
     }

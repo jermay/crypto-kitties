@@ -18,6 +18,10 @@ contract KittyMarketPlace is Ownable, IKittyMarketPlace {
     Offer[] offers;
     mapping(uint256 => Offer) tokenIdToOffer;
 
+    constructor(address _kittyContractAddress) public {
+        setKittyContract(_kittyContractAddress);
+    }
+
     modifier onlyTokenOwner(uint256 _tokenId) {
         require(
             msg.sender == _kittyContract.ownerOf(_tokenId),
@@ -39,10 +43,7 @@ contract KittyMarketPlace is Ownable, IKittyMarketPlace {
      * Set the current KittyContract address and initialize the instance of Kittycontract.
      * Requirement: Only the contract owner can call.
      */
-    function setKittyContract(address _kittyContractAddress)
-        external
-        onlyOwner
-    {
+    function setKittyContract(address _kittyContractAddress) public onlyOwner {
         _kittyContract = KittyFactory(_kittyContractAddress);
     }
 
@@ -77,6 +78,10 @@ contract KittyMarketPlace is Ownable, IKittyMarketPlace {
         view
         returns (uint256[] memory listOfOffers)
     {
+        if (offers.length == 0) {
+            return new uint256[](0);
+        }
+
         // count the number of active orders
         uint256 count = 0;
         for (uint256 i = 0; i < offers.length; i++) {
@@ -96,7 +101,7 @@ contract KittyMarketPlace is Ownable, IKittyMarketPlace {
                 j++;
             }
             if (j >= count) {
-                return listOfOffers;        
+                return listOfOffers;
             }
         }
 
@@ -120,11 +125,13 @@ contract KittyMarketPlace is Ownable, IKittyMarketPlace {
         );
         require(!hasActiveOffer(_tokenId), "duplicate offer");
 
-        Offer memory newOffer = Offer(msg.sender, _price, 0, _tokenId, true);
-        uint256 index = offers.push(newOffer) - 1;
-        offers[index].index = index;
+        uint256 index = offers.length;
+         offers.push(
+            Offer(msg.sender, _price, index, _tokenId, true)
+        );
 
-        tokenIdToOffer[_tokenId] = offers[index];
+        Offer storage newOffer = offers[index];
+        tokenIdToOffer[_tokenId] = newOffer;
 
         emit MarketTransaction("Create", msg.sender, _tokenId);
     }
@@ -145,8 +152,8 @@ contract KittyMarketPlace is Ownable, IKittyMarketPlace {
     }
 
     function _setOfferInactive(uint256 _tokenId) internal {
-        Offer storage offer = tokenIdToOffer[_tokenId];
-        offer.active = false;
+        offers[tokenIdToOffer[_tokenId].index].active = false;
+        delete tokenIdToOffer[_tokenId];
     }
 
     /**
@@ -157,16 +164,21 @@ contract KittyMarketPlace is Ownable, IKittyMarketPlace {
      * Requirement: There must be an active offer for _tokenId
      */
     function buyKitty(uint256 _tokenId) external payable activeOffer(_tokenId) {
-        Offer storage offer = tokenIdToOffer[_tokenId];
+        Offer memory offer = tokenIdToOffer[_tokenId];
         require(msg.value == offer.price, "payment must be exact");
 
+        // Important: remove offer BEFORE payment
+        // to prevent re-entry attack
+        _setOfferInactive(_tokenId);
+
         // tansfer funds from buyer to seller
-        offer.seller.transfer(msg.value);
+        // TODO: make payment PULL istead of push
+        if (offer.price > 0) {
+            offer.seller.transfer(offer.price);
+        }
 
         // tranfer kitty ownership
-        _kittyContract.safeTransferFrom(offer.seller, msg.sender, _tokenId);
-
-        _setOfferInactive(_tokenId);
+        _kittyContract.transferFrom(offer.seller, msg.sender, _tokenId);
 
         // emit event
         emit MarketTransaction("Buy", msg.sender, _tokenId);

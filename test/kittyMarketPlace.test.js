@@ -7,14 +7,14 @@ const KittyMarketPlace = artifacts.require("KittyMarketPlace");
 const TestKittyMarketPlace = artifacts.require("TestKittyMarketPlace");
 const TestKittyFactory = artifacts.require("TestKittyFactory");
 
-contract('KittyMarketPlace', (accounts) => {
+contract.only('KittyMarketPlace', (accounts) => {
     let kittyFactory;
     let kittyMarketPlace;
     const contractOwner = accounts[0];
 
     async function createContracts() {
         kittyFactory = await TestKittyFactory.new();
-        kittyMarketPlace = await TestKittyMarketPlace.new();
+        kittyMarketPlace = await TestKittyMarketPlace.new(kittyFactory.address);
     }
 
     async function initContracts() {
@@ -255,15 +255,19 @@ contract('KittyMarketPlace', (accounts) => {
             it('should emit a MarketTransaction event of type "Buy"', async () => {
                 const result = await buyKitty();
 
+                
+
                 expectMarketEvent(
                     result, transTypes.buy, buyer, kitty.kittyId
                 );
             });
 
             it('should REVERT if the value sent does not equal the selling price', async () => {
-                await truffleAssert.reverts(
+                await truffleAssert.fails(
                     kittyMarketPlace.buyKitty(
-                        kitty.kittyId, { from: buyer, value: 0 })
+                        kitty.kittyId, { from: buyer, value: 0 }),
+                    truffleAssert.ErrorType.REVERT,
+                    'payment must be exact'
                 );
             });
 
@@ -271,7 +275,11 @@ contract('KittyMarketPlace', (accounts) => {
                 await kittyMarketPlace.removeOffer(
                     kitty.kittyId, { from: kitty.owner });
 
-                await truffleAssert.reverts(buyKitty());
+                await truffleAssert.fails(
+                    buyKitty(),
+                    truffleAssert.ErrorType.REVERT,
+                    "offer not active"
+                );
             });
         });
 
