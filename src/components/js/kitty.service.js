@@ -1,10 +1,8 @@
-import Web3 from "web3";
-import BN from 'bn.js';
+// import BN from 'bn.js';
 import { abi } from './abi';
 
 
 export class KittyService {
-    web3 = new Web3(Web3.givenProvider);
     contractAddress = '0x91216e85928B02a631613C0b21c4f0a8b96c9347';
     user;
     _contract;
@@ -12,7 +10,9 @@ export class KittyService {
     kitties = [];
     birthSubscriptions = [];
 
-    constructor() {
+    constructor(web3) {
+        this.web3 = web3;
+
         this.subscribeToEvents();
         this.getKitties();
     }
@@ -24,7 +24,7 @@ export class KittyService {
             return this._contractPromise;
         }
 
-        this._contractPromise = window.ethereum.enable().then(accounts => {
+        this._contractPromise = this.web3.eth.getAccounts().then(accounts => {
             this._contract = new this.web3.eth.Contract(
                 abi,
                 this.contractAddress,
@@ -40,6 +40,11 @@ export class KittyService {
     }
 
     async subscribeToEvents() {
+        window.ethereum.on(
+            'accountsChanged',
+            accounts => this.user = accounts[0]
+        );
+        
         const instance = await this.getContract();
         instance.events.Birth()
             .on('data', this.onBirth)
@@ -87,5 +92,25 @@ export class KittyService {
         return instance.methods
             .breed(dadId, mumId)
             .send({ from: this.user });
+    }
+
+    async isApproved(address) {
+        const instance = await this.getContract();
+        return instance.methods
+            .isApprovedForAll(this.user, address)
+            .call({ from: this.user });
+    }
+
+    async approve(address) {
+        // set the market as an approved operator
+        const instance = await this.getContract();
+        return instance.methods
+            .setApprovalForAll(address, true)
+            .send({ from: this.user })
+            .then(() => true)
+            .catch(err => {
+                console.error(err);
+                return false;
+            });
     }
 }

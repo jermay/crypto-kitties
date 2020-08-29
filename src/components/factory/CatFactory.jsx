@@ -7,19 +7,23 @@ import { Cattribute } from '../js/dna';
 import CatSettings from './CatSettings';
 import CatBox from '../cat/CatBox';
 import BirthAlert from './BirthAlert';
+import { Service } from '../js/service';
 
 const initialCatModel = new CatModel();
 
 
-export default function CatFactory(props) {
+export default function CatFactory() {
+   const [init, setInit] = useState(false);
    const [cat, setCat] = useState({ model: initialCatModel });
    const [birthEvent, setBirthEvent] = useState({});
    const [showBirthAlert, setShowBirthAlert] = useState(false)
-   const service = props.service;
 
    useEffect(() => {
-      service.birthSubscriptions.push(handleBirthEvent);
-   }, [service.birthSubscriptions]);
+      if (!init) {
+         Service.kitty.birthSubscriptions.push(handleBirthEvent);
+         setInit(true);
+      }
+   }, [init]);
 
    const handleDnaChange = (event) => {
       // set new dna value
@@ -45,7 +49,7 @@ export default function CatFactory(props) {
    }
 
    const handleCreateKitty = () => {
-      service.createGen0Kitty(cat.model.dna.dna);
+      Service.kitty.createGen0Kitty(cat.model.dna.dna);
    };
 
    const handleBirthEvent = (event) => {
@@ -59,47 +63,47 @@ export default function CatFactory(props) {
 
    return (
       <React.Fragment>
-      <div align="center">
-         <h1>Kitties-Factory</h1>
-         <p>Create your custom Kitty</p>
-      </div>
-      <Row>
-         <Col lg={4}>
-            <CatBox model={cat.model} />
-         </Col>
-         <Col lg={8}>
-            <Tabs variant="pills" defaultActiveKey="CatColors" id="cat-factory">
-               <Tab eventKey="CatColors" title="Cat Colors">
-                  <CatSettings type={Cattribute.TYPES.basic} dna={cat.model.dna} handleDnaChange={handleDnaChange} />
-               </Tab>
-               <Tab eventKey="Cattributes" title="Cattributes">
-                  <CatSettings type={Cattribute.TYPES.cattribute} dna={cat.model.dna} handleDnaChange={handleDnaChange} />
-               </Tab>
-            </Tabs>
-            <div>
-               <Button variant="warning"
-                  className="m-2"
-                  onClick={handleSetDefaultKitty}>
-                  Default Kitty
+         <div align="center">
+            <h1>Kitties-Factory</h1>
+            <p>Create your custom Kitty</p>
+         </div>
+         <Row>
+            <Col lg={4}>
+               <CatBox model={cat.model} />
+            </Col>
+            <Col lg={8}>
+               <Tabs variant="pills" defaultActiveKey="CatColors" id="cat-factory">
+                  <Tab eventKey="CatColors" title="Cat Colors">
+                     <CatSettings type={Cattribute.TYPES.basic} dna={cat.model.dna} handleDnaChange={handleDnaChange} />
+                  </Tab>
+                  <Tab eventKey="Cattributes" title="Cattributes">
+                     <CatSettings type={Cattribute.TYPES.cattribute} dna={cat.model.dna} handleDnaChange={handleDnaChange} />
+                  </Tab>
+               </Tabs>
+               <div>
+                  <Button variant="warning"
+                     className="m-2"
+                     onClick={handleSetDefaultKitty}>
+                     Default Kitty
                </Button>
-               <Button variant="warning"
-                  className="m-2"
-                  onClick={handleSetRandomKitty}>
-                  Random Kitty
+                  <Button variant="warning"
+                     className="m-2"
+                     onClick={handleSetRandomKitty}>
+                     Random Kitty
                </Button>
-               <Button variant="warning"
-                  className="m-2"
-                  onClick={handleCreateKitty}>
-                  Create Kitty
+                  <Button variant="warning"
+                     className="m-2"
+                     onClick={handleCreateKitty}>
+                     Create Kitty
                </Button>
-            </div>
-            <BirthAlert
-               show={showBirthAlert}
-               event={birthEvent}
-               handleBirthEventClose={handleBirthEventClose}
-            />
-         </Col>
-      </Row>
+               </div>
+               <BirthAlert
+                  show={showBirthAlert}
+                  event={birthEvent}
+                  handleBirthEventClose={handleBirthEventClose}
+               />
+            </Col>
+         </Row>
       </React.Fragment>
    )
 }

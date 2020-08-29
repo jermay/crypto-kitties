@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import CatBox from '../cat/CatBox';
 import { CatModel } from '../js/catFactory';
 import { ButtonGroup, Button, Spinner } from 'react-bootstrap';
+import { Service } from '../js/service';
 
 export default function BreedList(props) {
     const [list, setList] = useState([]);
@@ -12,7 +13,7 @@ export default function BreedList(props) {
 
     useEffect(() => {
         if (!init) {
-            props.service.getKitties()
+            Service.kitty.getKitties()
                 .then(list => {
                     const items = list.map(item => {
                         return new CatModel(item);
@@ -22,7 +23,7 @@ export default function BreedList(props) {
                 });
             setInit(true);
         }
-    }, [init, list, kittyModel, props.service])
+    }, [init])
 
     // kitties still loading, show spinner
     if (!list.length) {
