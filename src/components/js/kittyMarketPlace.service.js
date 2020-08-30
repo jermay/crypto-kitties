@@ -123,10 +123,7 @@ export class KittyMarketPlaceService {
             .setOffer(priceInWei, kittyId)
             .send({ from: this.user })
             .then(() => true)
-            .catch(err => {
-                console.error(err);
-                return false;
-            });
+            .catch(this.handleErr);
     }
 
     async buyKitty(offer) {
@@ -136,10 +133,21 @@ export class KittyMarketPlaceService {
             .buyKitty(offer.tokenId)
             .send({ from: this.user, value: offer.price })
             .then(() => true)
-            .catch(err => {
-                console.error(err);
-                return false;
-            });
+            .catch(this.handleErr);
+    }
+
+    async removeOffer(tokenId) {
+        const instance = await this.getContract();
+        return instance.methods
+            .removeOffer(tokenId)
+            .send({ from: this.user })
+            .then(() => true)
+            .catch(this.handleErr);
+    }
+
+    handleErr(err) {
+        console.error(err);
+        return false;
     }
 
 }

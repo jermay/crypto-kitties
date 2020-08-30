@@ -61,7 +61,10 @@ export default function CatActions(props) {
             setSellStatus(SELL_STATUS.setPrice);
         } else {
             setSellStatus(SELL_STATUS.approvalRequired);
-            setMessage('In order to sell your kitties you need to give the Marketplace permission to transfer your kitties on your behalf. This is required so the buyer and sellers do not need to be online at the same time.');
+            setMessage({
+                text: 'In order to sell your kitties you need to give the Marketplace permission to transfer your kitties on your behalf. This is required so the buyer and sellers do not need to be online at the same time.',
+                type: 'info'
+            });
         }
         console.log(sellStatus);
     };
@@ -74,8 +77,7 @@ export default function CatActions(props) {
                 setMessage('');
             })
             .catch(err => {
-                setMessage('Oops...There was a problem with the approval. Try again.');
-                console.error(err);
+                displayError(err, 'Oops...There was a problem with the approval. Try again.');
             });
     }
 
@@ -97,13 +99,30 @@ export default function CatActions(props) {
             setMessage(emptyMessage);
         } else {
             setSellStatus(SELL_STATUS.setPrice);
-            setMessage({
-                text: 'Oops... something went wrong.',
-                type: 'warning'
-            });
+            displayError();
         }
 
         console.log(sellStatus);
+    };
+
+    const onCancelSaleClicked = async () => {
+        const res = await Service.market.removeOffer(kittyId);
+        if (res) {
+            setSellStatus(SELL_STATUS.notForSale);
+            setOffer(undefined);
+        } else {
+            displayError();
+        }
+    }
+
+    const displayError = (error, msg) => {
+        if (error) {
+            console.error(error);
+        }
+        setMessage({
+            text: msg || 'Oops... something went wrong.',
+            type: 'warning'
+        });
     };
 
     let sellDisplay = null;
@@ -146,7 +165,15 @@ export default function CatActions(props) {
         case SELL_STATUS.offerCreated:
             const priceInEth = Service.web3.utils.fromWei(offer.price, 'ether');
             sellDisplay =
-                <span>Selling For: {priceInEth.toString(10)} ETH</span>
+                <div>
+                    <span>Selling For: {priceInEth.toString(10)} ETH</span>
+                    <Button
+                        variant="primary"
+                        className="ml-2"
+                        onClick={onCancelSaleClicked}>
+                        Cancel
+                    </Button>
+                </div>
             break;
 
         default:
