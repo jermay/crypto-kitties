@@ -44,7 +44,7 @@ export class KittyService {
             'accountsChanged',
             accounts => this.user = accounts[0]
         );
-        
+
         const instance = await this.getContract();
         instance.events.Birth()
             .on('data', this.onBirth)
@@ -57,6 +57,13 @@ export class KittyService {
 
         // emit event
         this.birthSubscriptions.forEach(sub => sub(birth));
+    }
+
+    async isUserOwner() {
+        const instance = await this.getContract();
+        return instance.methods
+            .isOwner()
+            .call({ from: this.user });
     }
 
     async createGen0Kitty(dna) {

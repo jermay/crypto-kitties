@@ -1,4 +1,4 @@
-import BN from 'bn.js';
+// import BN from 'bn.js';
 import { abi } from './kittyMarketplace.abi';
 
 
@@ -44,7 +44,7 @@ export class KittyMarketPlaceService {
     async subscribeToEvents() {
         window.ethereum.on(
             'accountsChanged',
-            accounts => this.user = accounts[0]
+            this.onAccountChanged
         );
 
         const instance = await this.getContract();
@@ -59,6 +59,11 @@ export class KittyMarketPlaceService {
 
         // emit event
         this.marketSubscriptions.forEach(sub => sub(trans));
+    }
+
+    onAccountChanged = (accounts) => {
+        console.log('account changed: ', accounts);
+        this.user = accounts[0];
     }
 
     async getKitty(id) {
