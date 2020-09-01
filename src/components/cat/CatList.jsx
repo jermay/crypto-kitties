@@ -3,6 +3,8 @@ import React, { useState, useEffect } from 'react'
 import CatBox from './CatBox';
 import { CatModel } from '../js/catFactory';
 import { Container } from 'react-bootstrap';
+import { Service } from '../js/service';
+import CatActions from './CatActions';
 
 
 export default function CatList(props) {
@@ -12,24 +14,27 @@ export default function CatList(props) {
     useEffect(() => {
         if (!init) {
             const getKittes = async () => {
-                const list = await props.service.getKitties();
+                const list = await Service.kitty.getKitties();
                 setData({ cats: list });
             }
             getKittes();
             setInit(true);
         }
-    }, [init, data, props.service])
+    }, [init])
 
     if (!data.cats.length) {
         return (
-            <p>You have no kittes! Use the Factory to create one.</p>
+            <p>You have no kittes! Go to the Marketplace to find some!</p>
         )
     }
 
     const catBoxes = data.cats.map(kitty => {
         let model = new CatModel(kitty);
         return (
-            <CatBox key={kitty.genes} model={model} />
+            <div key={kitty.genes}>                
+                <CatBox model={model} />
+                <CatActions kittyId={model.cat.kittyId} />
+            </div>
         )
     })
 

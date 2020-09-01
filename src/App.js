@@ -7,15 +7,14 @@ import {
 } from "react-router-dom";
 import { Container } from 'react-bootstrap';
 
-import { KittyService } from './components/js/kitty.service';
 import AppHeader from './components/AppHeader';
 import AppFooter from './components/AppFooter';
 import CatFactory from './components/factory/CatFactory';
 import CatList from './components/cat/CatList';
 import Home from './Home';
 import BreedPage from './components/breed/BreedPage';
+import MarketPage from './components/market/MarketPage';
 
-const kittyService = new KittyService();
 
 export default function App() {
 
@@ -26,13 +25,16 @@ export default function App() {
                <AppHeader />
                <Switch>
                   <Route exact path="/factory">
-                     <CatFactory service={kittyService} />
+                     <CatFactory />
                   </Route>
                   <Route exact path="/breed">
-                     <BreedPage service={kittyService} />
+                     <BreedPage />
+                  </Route>
+                  <Route exact path="/market">
+                     <MarketPage />
                   </Route>
                   <Route exact path="/kitties">
-                     <CatList service={kittyService} />
+                     <CatList />
                   </Route>
                   <Route exact path="/">
                      <Home />

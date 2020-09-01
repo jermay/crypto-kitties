@@ -5,6 +5,7 @@ import CatBox from '../cat/CatBox';
 import { useState } from 'react';
 import styled from 'styled-components';
 import { CatModel } from '../js/catFactory';
+import { Service } from '../js/service';
 
 const PlaceHolder = styled.div`
     color: white;
@@ -30,7 +31,7 @@ export default function BreedPage(props) {
     const [kitten, setKitten] = useState(undefined);
 
     const onBirthEvent = async event => {
-        const kitten = await props.service.getKitty(event.kittyId);
+        const kitten = await Service.kitty.getKitty(event.kittyId);
         const newModel = new CatModel(kitten);
         setKitten(newModel);
         setProgress(BreedProgress.BIRTH);
@@ -38,7 +39,7 @@ export default function BreedPage(props) {
 
     useEffect(() => {
         if (!init) {
-            props.service.birthSubscriptions.push(onBirthEvent);
+            Service.kitty.birthSubscriptions.push(onBirthEvent);
             setInit(true);
         }
     }, [init]);
@@ -55,7 +56,7 @@ export default function BreedPage(props) {
         }
 
         if (Boolean(other)) {
-            if (kitty.cat.kittyId != other.cat.kittyId) {
+            if (kitty.cat.kittyId !== other.cat.kittyId) {
                 setProgress(BreedProgress.READY);
             } else {
                 setProgress(BreedProgress.ERROR_SAME_PARENT);
@@ -69,7 +70,7 @@ export default function BreedPage(props) {
             return;
         }
         console.log(`Breeding mum: ${mum.dna.dna} + dad: ${dad.dna.dna}...`);
-        props.service.breed(mum.cat.kittyId, dad.cat.kittyId);
+        Service.kitty.breed(mum.cat.kittyId, dad.cat.kittyId);
     }
 
     const onResetParents = ()=>{
@@ -142,9 +143,7 @@ export default function BreedPage(props) {
             <Row>
                 <Col sm={4} className="">
                     <h5 className="text-center">Available Kitties</h5>
-                    <BreedList
-                        service={props.service}
-                        handleOnSetParent={handleOnSetParent} />
+                    <BreedList handleOnSetParent={handleOnSetParent} />
                 </Col>
                 <Col sm={8} className="text-center">
                     <h5>Parents</h5>
