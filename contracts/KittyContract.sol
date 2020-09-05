@@ -9,9 +9,11 @@ contract KittyContract is IERC721 {
     struct Kitty {
         uint256 genes;
         uint64 birthTime;
+        uint64 cooldownEndTime;
         uint32 mumId;
         uint32 dadId;
-        uint32 generation;
+        uint16 generation;
+        uint16 cooldownIndex;
     }
 
     Kitty[] internal kitties;
@@ -31,7 +33,15 @@ contract KittyContract is IERC721 {
 
     constructor() public {
         kitties.push(
-            Kitty({genes: 0, birthTime: 0, mumId: 0, dadId: 0, generation: 0})
+            Kitty({
+                genes: 0,
+                birthTime: 0,
+                cooldownEndTime: 0,
+                mumId: 0,
+                dadId: 0,
+                generation: 0,
+                cooldownIndex: 0
+            })
         );
     }
 
@@ -84,19 +94,24 @@ contract KittyContract is IERC721 {
             uint256 kittyId,
             uint256 genes,
             uint64 birthTime,
+            uint64 cooldownEndTime,
             uint32 mumId,
             uint32 dadId,
-            uint32 generation
+            uint16 generation,
+            uint16 cooldownIndex
         )
+
     {
         Kitty storage kitty = kitties[_kittyId];
         return (
             _kittyId,
             kitty.genes,
             kitty.birthTime,
+            kitty.cooldownEndTime,
             kitty.mumId,
             kitty.dadId,
-            kitty.generation
+            kitty.generation,
+            kitty.cooldownIndex
         );
     }
 

@@ -27,4 +27,12 @@ contract TestKittyFactory is KittyFactory {
     {
         return _mixDna(_dadDna, _mumDna, _seed);
     }
+
+    function getNow() public view returns (uint256) {
+        return now;
+    }
+
+    function test_setKittyCooldownEnd(uint256 _kittyId, uint64 _unixTimeInSec) public {
+        kitties[_kittyId].cooldownEndTime = _unixTimeInSec;
+    }
 }
