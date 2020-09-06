@@ -20,6 +20,7 @@ contract('KittyContract', (accounts) => {
             dadId: new BN('3'),
             generation: new BN('4'),
             genes: new BN('1234567812345678'),
+            cooldownIndex: new BN('2'),
             owner: kittyOwner,
         }
         contract = await TestKittyContract.new();
@@ -32,10 +33,11 @@ contract('KittyContract', (accounts) => {
 
     function addKitty(kitty) {
         return contract.addKitty(
-            kitty.dadId,
             kitty.mumId,
+            kitty.dadId,            
             kitty.generation,
             kitty.genes,
+            kitty.cooldownIndex,
             kitty.owner,
         );
     }
@@ -68,16 +70,25 @@ contract('KittyContract', (accounts) => {
     describe('init', () => {
         it('should be created with the un-kitty so valid kitties have an id > 0', async () => {
             const unKitty = {
+                kittyId: new BN('0'),
+                birthTime: new BN('0'),
+                cooldownEndTime: new BN('0'),
                 mumId: new BN('0'),
                 dadId: new BN('0'),
                 generation: new BN('0'),
+                cooldownIndex: new BN('0'),
                 genes: new BN('0'),
                 owner: zeroAddress,
             };
             result = await contract.getKitty(0);
+            expect(result.kittyId.toString(10)).to.equal(unKitty.kittyId.toString(10));
+            expect(result.birthTime.toString(10)).to.equal(unKitty.birthTime.toString(10));
+            expect(result.cooldownEndTime.toString(10)).to.equal(unKitty.cooldownEndTime.toString(10));
+            expect(result.mumId.toString(10)).to.equal(unKitty.mumId.toString(10));
             expect(result.mumId.toString(10)).to.equal(unKitty.mumId.toString(10));
             expect(result.dadId.toString(10)).to.equal(unKitty.dadId.toString(10));
             expect(result.generation.toString(10), 'generation').to.equal(unKitty.generation.toString(10));
+            expect(result.cooldownIndex.toString(10), 'generation').to.equal(unKitty.cooldownIndex.toString(10));
             expect(result.genes.toString(10)).to.equal(unKitty.genes.toString(10));
         });
     });

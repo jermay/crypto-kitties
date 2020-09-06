@@ -6,6 +6,7 @@ import "./KittyContract.sol";
 
 contract KittyFactory is Ownable, KittyContract {
     using SafeMath32 for uint32;
+    using SafeMath16 for uint16;
 
     uint256 public constant CREATION_LIMIT_GEN0 = 10;
     uint256 public constant NUM_CATTRIBUTES = 10;
@@ -20,6 +21,29 @@ contract KittyFactory is Ownable, KittyContract {
         uint256 dadId,
         uint256 genes
     );
+
+    /// @dev A lookup table indicating the cooldown duration after any successful
+    ///  breeding action, called "pregnancy time" for matrons and "siring cooldown"
+    ///  for sires. Designed such that the cooldown roughly doubles each time a cat
+    ///  is bred, encouraging owners not to just keep breeding the same cat over
+    ///  and over again. Caps out at one week (a cat can breed an unbounded number
+    ///  of times, and the maximum cooldown is always seven days).
+    uint32[14] public cooldowns = [
+        uint32(1 minutes),
+        uint32(2 minutes),
+        uint32(5 minutes),
+        uint32(10 minutes),
+        uint32(30 minutes),
+        uint32(1 hours),
+        uint32(2 hours),
+        uint32(4 hours),
+        uint32(8 hours),
+        uint32(16 hours),
+        uint32(1 days),
+        uint32(2 days),
+        uint32(4 days),
+        uint32(7 days)
+    ];
 
     function kittiesOf(address _owner) public view returns (uint256[] memory) {
         // get the number of kittes owned by _owner
@@ -66,12 +90,21 @@ contract KittyFactory is Ownable, KittyContract {
         uint256 _genes,
         address _owner
     ) internal returns (uint256) {
+        // cooldownIndex should cap at 13
+        // otherwise it's half the generation
+        uint16 cooldown = uint16(_generation / 2);
+        if (cooldown >= cooldowns.length) {
+            cooldown = uint16(cooldowns.length - 1);
+        }
+
         Kitty memory kitty = Kitty({
             genes: _genes,
             birthTime: uint64(now),
+            cooldownEndTime: uint64(now),
             mumId: uint32(_mumId),
             dadId: uint32(_dadId),
-            generation: uint16(_generation)
+            generation: uint16(_generation),
+            cooldownIndex: cooldown
         });
 
         uint256 newKittenId = kitties.push(kitty) - 1;
@@ -88,17 +121,53 @@ contract KittyFactory is Ownable, KittyContract {
         onlyKittyOwner(_mumId)
         returns (uint256)
     {
+        require(readyToBreed(_dadId), "dad is on cooldown");
+        require(readyToBreed(_mumId), "mum is on cooldown");
+
         Kitty storage dad = kitties[_dadId];
         Kitty storage mum = kitties[_mumId];
-        uint256 newDna = _mixDna(dad.genes, mum.genes, now);
 
-        // generation is 1 higher than max of parents
-        uint256 newGeneration = mum.generation.add(1);
-        if (dad.generation > mum.generation) {
-            newGeneration = dad.generation.add(1);
-        }
+        // set parent cooldowns
+        _setBreedCooldownEnd(dad);
+        _setBreedCooldownEnd(mum);
+        _incrementBreedCooldownIndex(dad);
+        _incrementBreedCooldownIndex(mum);
+
+        // get kitten attributes
+        uint256 newDna = _mixDna(dad.genes, mum.genes, now);
+        uint256 newGeneration = _getKittenGeneration(dad, mum);
 
         return _createKitty(_mumId, _dadId, newGeneration, newDna, msg.sender);
+    }
+
+    function readyToBreed(uint256 _kittyId) public view returns (bool) {
+        return kitties[_kittyId].cooldownEndTime <= now;
+    }
+
+    function _setBreedCooldownEnd(Kitty storage _kitty) internal {
+        _kitty.cooldownEndTime = uint64(
+            now.add(cooldowns[_kitty.cooldownIndex])
+        );
+    }
+
+    function _incrementBreedCooldownIndex(Kitty storage _kitty) internal {
+        // only increment cooldown if not at the cap
+        if (_kitty.cooldownIndex < cooldowns.length - 1) {
+            _kitty.cooldownIndex = _kitty.cooldownIndex.add(1);
+        }
+    }
+
+    function _getKittenGeneration(Kitty storage _dad, Kitty storage _mum)
+        internal
+        view
+        returns (uint256)
+    {
+        // generation is 1 higher than max of parents
+        if (_dad.generation > _mum.generation) {
+            return _dad.generation.add(1);
+        }
+
+        return _mum.generation.add(1);
     }
 
     function _mixDna(
@@ -154,7 +223,7 @@ contract KittyFactory is Ownable, KittyContract {
                 geneArray[i - 1] = uint16(_dadDna % dnaMod);
             }
 
-            // slice off the last gene to expose the next gene            
+            // slice off the last gene to expose the next gene
             _mumDna = _mumDna / dnaMod;
             _dadDna = _dadDna / dnaMod;
             randomValues = randomValues / dnaMod;

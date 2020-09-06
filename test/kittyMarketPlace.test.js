@@ -7,7 +7,7 @@ const KittyMarketPlace = artifacts.require("KittyMarketPlace");
 const TestKittyMarketPlace = artifacts.require("TestKittyMarketPlace");
 const TestKittyFactory = artifacts.require("TestKittyFactory");
 
-contract.only('KittyMarketPlace', (accounts) => {
+contract('KittyMarketPlace', (accounts) => {
     let kittyFactory;
     let kittyMarketPlace;
     const contractOwner = accounts[0];
