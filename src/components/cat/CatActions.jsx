@@ -74,7 +74,7 @@ export default function CatActions(props) {
             .then(() => {
                 setIsApproved(true);
                 setSellStatus(SELL_STATUS.setPrice);
-                setMessage('');
+                setMessage(emptyMessage);
             })
             .catch(err => {
                 displayError(err, 'Oops...There was a problem with the approval. Try again.');

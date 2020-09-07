@@ -64,13 +64,20 @@ export default function BreedPage(props) {
         }
     };
 
-    const onBreedClicked = () => {
+    const onBreedClicked = async () => {
         if (!mum || !dad) {
             console.log('Need to select both pareents!');
             return;
         }
         console.log(`Breeding mum: ${mum.dna.dna} + dad: ${dad.dna.dna}...`);
-        Service.kitty.breed(mum.cat.kittyId, dad.cat.kittyId);
+        await Service.kitty.breed(mum.cat.kittyId, dad.cat.kittyId);
+        
+        // get updated cooldowns for parents
+        const mumUpdated = await Service.kitty.getKitty(mum.cat.kittyId);
+        setMum(new CatModel(mumUpdated));
+
+        const dadUpdated = await Service.kitty.getKitty(dad.cat.kittyId);
+        setDad(new CatModel(dadUpdated));
     }
 
     const onResetParents = ()=>{
@@ -90,7 +97,7 @@ export default function BreedPage(props) {
             {
                 data.model ? <CatBox model={data.model} /> :
                     <PlaceHolder className="bg-info">
-                        <span>Select {data.type}</span>
+                        <h1>?</h1>
                     </PlaceHolder>
             }
         </Col>
@@ -142,7 +149,7 @@ export default function BreedPage(props) {
             <h1 className="text-center">Breed Your Kitties</h1>
             <Row>
                 <Col sm={4} className="">
-                    <h5 className="text-center">Available Kitties</h5>
+                    <h5 className="text-center">Your Kitties</h5>
                     <BreedList handleOnSetParent={handleOnSetParent} />
                 </Col>
                 <Col sm={8} className="text-center">

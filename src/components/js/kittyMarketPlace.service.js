@@ -3,7 +3,7 @@ import { abi } from './kittyMarketplace.abi';
 
 
 export class KittyMarketPlaceService {
-    contractAddress = '0x4ef7A4f64aD2B8B6dFAb50B39aB3B1db5DD69A65';
+    contractAddress = '0x859bbA87fe43D28DcD084D736fC49674336FA8C0';
     user;
     _contract;
     _contractPromise;

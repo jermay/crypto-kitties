@@ -146,6 +146,51 @@ exports.abi =  [
     "type": "function"
   },
   {
+    "constant": true,
+    "inputs": [],
+    "name": "DNA_LENGTH",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "NUM_CATTRIBUTES",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "RANDOM_DNA_THRESHOLD",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "constant": false,
     "inputs": [
       {
@@ -180,6 +225,27 @@ exports.abi =  [
         "internalType": "uint256",
         "name": "balance",
         "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "cooldowns",
+    "outputs": [
+      {
+        "internalType": "uint32",
+        "name": "",
+        "type": "uint32"
       }
     ],
     "payable": false,
@@ -234,6 +300,11 @@ exports.abi =  [
         "type": "uint64"
       },
       {
+        "internalType": "uint64",
+        "name": "cooldownEndTime",
+        "type": "uint64"
+      },
+      {
         "internalType": "uint32",
         "name": "mumId",
         "type": "uint32"
@@ -244,9 +315,14 @@ exports.abi =  [
         "type": "uint32"
       },
       {
-        "internalType": "uint32",
+        "internalType": "uint16",
         "name": "generation",
-        "type": "uint32"
+        "type": "uint16"
+      },
+      {
+        "internalType": "uint16",
+        "name": "cooldownIndex",
+        "type": "uint16"
       }
     ],
     "payable": false,
@@ -705,6 +781,27 @@ exports.abi =  [
     ],
     "payable": false,
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_kittyId",
+        "type": "uint256"
+      }
+    ],
+    "name": "readyToBreed",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
     "type": "function"
   }
 ];

@@ -1,9 +1,11 @@
 // import BN from 'bn.js';
 import { abi } from './abi';
+// import moment from 'moment';
 
+import { kittyCooldowns } from './kittyConstants';
 
 export class KittyService {
-    contractAddress = '0x91216e85928B02a631613C0b21c4f0a8b96c9347';
+    contractAddress = '0xe8c56AFD6F8aaA4708533c122983Bf70c80E0AbF';
     user;
     _contract;
     _contractPromise;
@@ -77,7 +79,13 @@ export class KittyService {
 
     async getKitty(id) {
         const instance = await this.getContract();
-        return instance.methods.getKitty(id).call();
+        return instance.methods
+            .getKitty(id)
+            .call()
+            .then(kitty => {
+                kitty.cooldown = kittyCooldowns[kitty.cooldownIndex];
+                return kitty;
+            });
     }
 
     async getKitties() {

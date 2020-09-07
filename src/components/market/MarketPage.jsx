@@ -124,7 +124,7 @@ export default function MarketPage() {
                 {eventMessage.text}
             </Alert>
             {message}
-            <div>
+            <div className="d-flex flex-wrap">
                 {offerBoxes}
             </div>
         </div>
