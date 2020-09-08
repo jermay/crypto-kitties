@@ -1,8 +1,10 @@
 import React from 'react'
 import { useState, useEffect } from 'react'
+import moment from 'moment';
+
 import CatBox from '../cat/CatBox';
 import { CatModel } from '../js/catFactory';
-import { ButtonGroup, Button, Spinner } from 'react-bootstrap';
+import { ButtonGroup, Button, Spinner, Badge } from 'react-bootstrap';
 import { Service } from '../js/service';
 
 export default function BreedList(props) {
@@ -18,12 +20,34 @@ export default function BreedList(props) {
                     const items = list.map(item => {
                         return new CatModel(item);
                     })
-                    setKittyModel({value: items[0]});
-                    setList(items);                    
+                    setKittyModel({ value: items[0] });
+                    setList(items);
                 });
             setInit(true);
         }
     }, [init])
+
+    const isOnCoolDown = () => {
+        if (Boolean(kittyModel.value)) {
+            const now = moment();
+            const cooldownEnd = moment.unix(kittyModel.value.cat.cooldownEndTime);
+            return now.isBefore(cooldownEnd);
+        }
+
+        return false;
+    }
+
+    const [onCooldown, setOnCooldown] = useState(isOnCoolDown());
+    useEffect(() => {
+        setOnCooldown(isOnCoolDown());
+        let timer;
+        if (isOnCoolDown()) {
+            timer = setInterval(() => {
+                setOnCooldown(isOnCoolDown());
+            }, 1000);
+        }
+        return () => clearInterval(timer);
+    }, [isOnCoolDown, onCooldown, kittyModel])
 
     // kitties still loading, show spinner
     if (!list.length) {
@@ -40,7 +64,8 @@ export default function BreedList(props) {
         }
         const prev = pageNum - 1;
         setPageNum(prev);
-        setKittyModel({value: list[prev]});
+        setKittyModel({ value: list[prev] });
+        setOnCooldown(isOnCoolDown());
     };
 
     const onNextKittyClicked = () => {
@@ -49,7 +74,8 @@ export default function BreedList(props) {
         }
         const next = pageNum + 1;
         setPageNum(next);
-        setKittyModel({value: list[next]});
+        setKittyModel({ value: list[next] });
+        setOnCooldown(isOnCoolDown());
     };
 
     return (
@@ -66,12 +92,14 @@ export default function BreedList(props) {
                     <Button
                         variant="info"
                         size="sm"
+                        disabled={onCooldown}
                         onClick={e => props.handleOnSetParent(kittyModel.value, 'mum')}>
                         Set as Mum
                     </Button>
                     <Button
                         variant="info"
                         size="sm"
+                        disabled={onCooldown}
                         onClick={e => props.handleOnSetParent(kittyModel.value, 'dad')}>
                         Set as Dad
                     </Button>
@@ -83,6 +111,9 @@ export default function BreedList(props) {
                         Next Kitty
                     </Button>
                 </ButtonGroup>
+                {onCooldown ?
+                    <Badge variant="secondary" className="mt-1">Not Ready</Badge>
+                    : <Badge variant="success" className="mt-1">Ready</Badge>}
                 <div className="breed-list-item">
                     <CatBox model={kittyModel.value} />
                 </div>
