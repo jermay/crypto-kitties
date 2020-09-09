@@ -23,10 +23,10 @@ contract('KittyFactory', async (accounts) => {
         expect(instance).to.exist;
     });
 
-    async function addGen0Kitty(dna) {
+    async function addGen0Kitty(dna, _from = contractOwner) {
         return kittyFactory.createKittyGen0(
             dna,
-            { from: contractOwner }
+            { from: _from }
         );
     }
 
@@ -103,7 +103,7 @@ contract('KittyFactory', async (accounts) => {
             expect(result.toString(10)).to.equal('1');
         });
 
-        it('should REJECT if gen 0 counter would exceed the gen 0 creation limit', async () => {
+        it('should REVERT if gen 0 counter would exceed the gen 0 creation limit', async () => {
             // make more kitties than the limit
             const makeKitties = async () => {
                 for (let i = 0; i < 11; i++) {
@@ -114,6 +114,14 @@ contract('KittyFactory', async (accounts) => {
                 makeKitties(),
                 truffleAssert.ErrorType.REVERT
             );
+        });
+
+        it.only('should REVERT if the sender is NOT the owner', async () => {
+            await truffleAssert.reverts(
+                addGen0Kitty(expKitty.genes, testAccount),
+                truffleAssert.ErrorType.REVERT,
+                "owner"
+            )
         });
     });
 
