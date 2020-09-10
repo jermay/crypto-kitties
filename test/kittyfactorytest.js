@@ -10,12 +10,32 @@ const KittyFactory = artifacts.require("KittyFactory");
 contract('KittyFactory', async (accounts) => {
     let kittyFactory;
     let contractOwner;
+    let kittyOwner;
     let testAccount;
-
+    let dad, mum;
     beforeEach(async () => {
         kittyFactory = await TestKittyFactory.new();
         contractOwner = accounts[0];
-        testAccount = accounts[1];
+        kittyOwner = accounts[1]
+        testAccount = accounts[2];
+        dad = {
+            kittyId: new BN('1'),
+            mumId: new BN('0'),
+            dadId: new BN('0'),
+            generation: new BN('0'),
+            cooldownIndex: new BN('0'),
+            genes: new BN('1112131415161718'),
+            owner: kittyOwner,
+        };
+        mum = {
+            kittyId: new BN('2'),
+            mumId: new BN('0'),
+            dadId: new BN('0'),
+            generation: new BN('0'),
+            cooldownIndex: new BN('0'),
+            genes: new BN('2122232425262728'),
+            owner: kittyOwner,
+        };
     });
 
     it('should be created', async () => {
@@ -45,6 +65,17 @@ contract('KittyFactory', async (accounts) => {
         expect(kitty.dadId.toString(10)).to.equal(expected.dadId.toString(10));
         expect(kitty.genes.toString(10)).to.equal(expected.genes.toString(10));
         expect(kitty.generation.toString(10)).to.equal(expected.generation.toString(10));
+    }
+
+    async function createParents() {
+        await createKitty(dad);
+        await createKitty(mum);
+    }
+
+    async function createGenXParents(parentGen = 0) {
+        dad.generation = parentGen;
+        mum.generation = parentGen;
+        await createParents();
     }
 
     describe('Create Gen 0 Kitty', () => {
@@ -116,7 +147,7 @@ contract('KittyFactory', async (accounts) => {
             );
         });
 
-        it.only('should REVERT if the sender is NOT the owner', async () => {
+        it('should REVERT if the sender is NOT the owner', async () => {
             await truffleAssert.reverts(
                 addGen0Kitty(expKitty.genes, testAccount),
                 truffleAssert.ErrorType.REVERT,
@@ -202,30 +233,8 @@ contract('KittyFactory', async (accounts) => {
     });
 
     describe('breed', () => {
-        let dad;
-        let mum;
         let expKitty;
-        let kittyOwner
         beforeEach(async () => {
-            kittyOwner = accounts[1];
-            dad = {
-                kittyId: new BN('1'),
-                mumId: new BN('0'),
-                dadId: new BN('0'),
-                generation: new BN('0'),
-                cooldownIndex: new BN('0'),
-                genes: new BN('1112131415161718'),
-                owner: kittyOwner,
-            };
-            mum = {
-                kittyId: new BN('2'),
-                mumId: new BN('0'),
-                dadId: new BN('0'),
-                generation: new BN('0'),
-                cooldownIndex: new BN('0'),
-                genes: new BN('2122232425262728'),
-                owner: kittyOwner,
-            };
             expKitty = {
                 kittyId: new BN('3'),
                 mumId: new BN('2'),
@@ -236,17 +245,6 @@ contract('KittyFactory', async (accounts) => {
                 owner: kittyOwner,
             }
         });
-
-        async function createParents() {
-            await createKitty(dad);
-            await createKitty(mum);
-        }
-
-        async function createGenXParents(parentGen) {
-            dad.generation = parentGen;
-            mum.generation = parentGen;
-            await createParents();
-        }
 
         async function breedParents() {
             return kittyFactory
@@ -456,6 +454,61 @@ contract('KittyFactory', async (accounts) => {
                     );
                 });
             });
+        });
+    });
+
+    describe.only('sire approval', () => {
+        beforeEach(() => {
+            mum.owner = testAccount;
+        });
+
+        it('should set approval for the given dad and mom kitties', async () => {
+            await createGenXParents();
+
+            await kittyFactory.sireApprove(
+                dad.kittyId, mum.kittyId, true, { from: dad.owner });
+
+            const result = await kittyFactory.isApprovedForSiring(
+                dad.kittyId, mum.kittyId, { from: dad.owner });
+
+            expect(result).to.equal(true);
+        });
+
+        it('should set approval to false', async()=>{
+            await createGenXParents();
+
+            await kittyFactory.sireApprove(
+                dad.kittyId, mum.kittyId, false, { from: dad.owner });
+
+            const result = await kittyFactory.isApprovedForSiring(
+                dad.kittyId, mum.kittyId, { from: dad.owner });
+
+            expect(result).to.equal(false);
+        });
+
+        it('should REVERT if the sender does not own _dadId and is NOT approved', async () => {
+            await createGenXParents();
+
+            await truffleAssert.reverts(
+                kittyFactory.sireApprove(
+                    dad.kittyId, mum.kittyId, true, { from: mum.owner }),
+                truffleAssert.ErrorType.REVERT,
+                "approved"
+            );
+        });
+
+        it('should NOT revert if the sender does not own _dadId but IS approved', async () => {
+            await createGenXParents();
+            await kittyFactory.setApprovalForAll(
+                mum.owner, true, { from: dad.owner });
+
+            await kittyFactory.sireApprove(
+                dad.kittyId, mum.kittyId, true, { from: mum.owner });
+
+            const result = await kittyFactory.isApprovedForSiring(
+                dad.kittyId, mum.kittyId, { from: mum.owner });
+
+            expect(result).to.equal(true);
         });
     });
 });

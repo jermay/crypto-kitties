@@ -14,6 +14,9 @@ contract KittyFactory is Ownable, KittyContract {
     uint256 public constant RANDOM_DNA_THRESHOLD = 7;
     uint256 internal _gen0Counter;
 
+    // tracks approval for a kittyId in sire market offers
+    mapping(uint256 => address) sireAllowedToAddress;
+
     event Birth(
         address owner,
         uint256 kittyId,
@@ -270,5 +273,33 @@ contract KittyFactory is Ownable, KittyContract {
         randomValues =
             uint256(keccak256(abi.encodePacked(_masterSeed, DNA_LENGTH))) %
             valueMod;
+    }
+
+    function isApprovedForSiring(uint256 _dadId, uint256 _mumId)
+        public
+        view
+        returns (bool)
+    {
+        return sireAllowedToAddress[_dadId] == kittyToOwner[_mumId];
+    }
+
+    function sireApprove(
+        uint256 _dadId,
+        uint256 _mumId,
+        bool _isApproved
+    ) external onlyApproved(_dadId) {
+        _sireApprove(_dadId, _mumId, _isApproved);
+    }
+
+    function _sireApprove(
+        uint256 _dadId,
+        uint256 _mumId,
+        bool _isApproved
+    ) internal {
+        if (_isApproved) {
+            sireAllowedToAddress[_dadId] = kittyToOwner[_mumId];
+        } else {
+            delete sireAllowedToAddress[_dadId];
+        }
     }
 }
