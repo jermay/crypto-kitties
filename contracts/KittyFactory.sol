@@ -120,12 +120,9 @@ contract KittyFactory is Ownable, KittyContract {
 
     function breed(uint256 _dadId, uint256 _mumId)
         public
-        onlyKittyOwner(_dadId)
-        onlyKittyOwner(_mumId)
         returns (uint256)
     {
-        require(readyToBreed(_dadId), "dad is on cooldown");
-        require(readyToBreed(_mumId), "mum is on cooldown");
+        require(_eligibleToBreed(_dadId, _mumId), "kitties not eligible");
 
         Kitty storage dad = kitties[_dadId];
         Kitty storage mum = kitties[_mumId];
@@ -141,6 +138,23 @@ contract KittyFactory is Ownable, KittyContract {
         uint256 newGeneration = _getKittenGeneration(dad, mum);
 
         return _createKitty(_mumId, _dadId, newGeneration, newDna, msg.sender);
+    }
+
+    function _eligibleToBreed(uint256 _dadId, uint256 _mumId)
+        internal
+        view
+        returns (bool)
+    {
+        require(isKittyOwner(_mumId), "not owner of _mumId");
+        require(
+            isKittyOwner(_dadId) ||
+            isApprovedForSiring(_dadId, _mumId),
+            "not owner of _dadId or sire approved"
+        );
+        require(readyToBreed(_dadId), "dad on cooldown");
+        require(readyToBreed(_mumId), "mum on cooldown");
+
+        return true;
     }
 
     function readyToBreed(uint256 _kittyId) public view returns (bool) {

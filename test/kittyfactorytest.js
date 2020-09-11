@@ -294,6 +294,25 @@ contract('KittyFactory', async (accounts) => {
             );
         });
 
+        describe('when siring', () => {
+
+            it('should NOT revert if the sender does not own the dad kitty but is approved', async () => {
+                // sire approves mum
+                dad.owner = accounts[3];
+                await createParents();
+                await kittyFactory.sireApprove(
+                    dad.kittyId, mum.kittyId, true, { from: dad.owner });
+
+                const result = await kittyFactory
+                    .breed(dad.kittyId, mum.kittyId, { from: mum.owner });
+
+                await truffleAssert.eventEmitted(
+                    result,
+                    'Birth'
+                );
+            });
+        });
+
         describe('ready to breed', () => {
             it('should return TRUE if the cooldown end time is has passed', async () => {
                 await createKitty(dad);
@@ -457,7 +476,7 @@ contract('KittyFactory', async (accounts) => {
         });
     });
 
-    describe.only('sire approval', () => {
+    describe('sire approval', () => {
         beforeEach(() => {
             mum.owner = testAccount;
         });
@@ -474,7 +493,7 @@ contract('KittyFactory', async (accounts) => {
             expect(result).to.equal(true);
         });
 
-        it('should set approval to false', async()=>{
+        it('should set approval to false', async () => {
             await createGenXParents();
 
             await kittyFactory.sireApprove(
