@@ -197,8 +197,7 @@ contract('KittyFactory', async (accounts) => {
         });
 
         it('should return an empty array if the owner has no kitties', async () => {
-
-            result = await kittyFactory.kittiesOf(accounts[2]);
+            result = await kittyFactory.kittiesOf(accounts[9]);
 
             expect(result.length).to.equal(0);
         });
@@ -274,6 +273,21 @@ contract('KittyFactory', async (accounts) => {
             expect(actualOwner).to.equal(expKitty.owner);
         });
 
+        it('should emit a Birth event', async () => {
+            await createParents();
+
+            const result = await kittyFactory
+                .breed(dad.kittyId, mum.kittyId, { from: kittyOwner });
+
+            await truffleAssert.eventEmitted(
+                result,
+                'Birth',
+                event => event.owner === kittyOwner &&
+                    event.mumId.toString(10) === mum.kittyId.toString(10) &&
+                    event.dadId.toString(10) === dad.kittyId.toString(10)
+            );
+        })
+
         it('should REVERT if the sender does not own the dad kitty', async () => {
             dad.owner = accounts[3];
             await createParents();
@@ -296,13 +310,15 @@ contract('KittyFactory', async (accounts) => {
 
         describe('when siring', () => {
 
-            it('should NOT revert if the sender does not own the dad kitty but is approved', async () => {
+            beforeEach(async () => {
                 // sire approves mum
                 dad.owner = accounts[3];
                 await createParents();
                 await kittyFactory.sireApprove(
                     dad.kittyId, mum.kittyId, true, { from: dad.owner });
+            });
 
+            it('should NOT revert if the sender does not own the dad kitty but is approved', async () => {
                 const result = await kittyFactory
                     .breed(dad.kittyId, mum.kittyId, { from: mum.owner });
 
@@ -310,6 +326,17 @@ contract('KittyFactory', async (accounts) => {
                     result,
                     'Birth'
                 );
+            });
+
+            it('should reset the sire approval to false', async () => {
+                await kittyFactory
+                    .breed(dad.kittyId, mum.kittyId, { from: mum.owner });
+
+                const result = await kittyFactory.isApprovedForSiring(
+                    dad.kittyId, mum.kittyId
+                );
+
+                expect(result).to.equal(false);
             });
         });
 

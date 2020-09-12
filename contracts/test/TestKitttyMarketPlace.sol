@@ -11,13 +11,21 @@ contract TestKittyMarketPlace is KittyMarketPlace {
         return address(_kittyContract);
     }
 
-    function setOffer(
+    function test_createOffer(
         address payable _seller,
         uint256 _price,
         uint256 _tokenId,
+        bool _isSireOffer,
         bool _active
     ) public {
-        Offer memory newOffer = Offer(_seller, _price, 0, _tokenId, _active);
+        Offer memory newOffer = Offer(
+            _seller,
+            _price,
+            0,
+            _tokenId,
+            _isSireOffer,
+            _active
+        );
         uint256 index = offers.push(newOffer) - 1;
         offers[index].index = index;
 

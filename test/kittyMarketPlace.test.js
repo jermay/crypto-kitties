@@ -23,9 +23,28 @@ contract('KittyMarketPlace', (accounts) => {
             kittyFactory.address, { from: contractOwner });
     }
 
-    function setOffer(price, kitty) {
+    function setOffer(price, kitty, _from) {
+        _from = _from || kitty.owner;
         return kittyMarketPlace.setOffer(
-            price, kitty.kittyId, { from: kitty.owner });
+            price, kitty.kittyId, { from: _from });
+    }
+
+    function setSireOffer(price, kitty, _from) {
+        _from = _from || kitty.owner;
+        return kittyMarketPlace.setSireOffer(
+            price, kitty.kittyId, { from: _from });
+    }
+
+    function buyKitty(kitty, buyer, _value) {
+        return kittyMarketPlace.buyKitty(
+            kitty.kittyId, { from: buyer, value: _value });
+    }
+
+    // kitty, buyer, expPrice, matron
+    function buySireRites(sire, buyer, _value, matron) {
+        return kittyMarketPlace.buySireRites(
+            sire.kittyId, matron.kittyId, { from: buyer, value: _value }
+        );
     }
 
     function expectOffer(result, expected) {
@@ -70,8 +89,10 @@ contract('KittyMarketPlace', (accounts) => {
         let kittyOwner;
         const transTypes = {
             create: 'Create',
+            sireOffer: 'Sire Offer',
             remove: 'Remove',
-            buy: 'Buy'
+            buy: 'Buy',
+            sireRites: 'Sire Rites'
         };
 
         beforeEach(async () => {
@@ -89,91 +110,128 @@ contract('KittyMarketPlace', (accounts) => {
             await setOperator(kittyFactory, kittyOwner, kittyMarketPlace.address);
         });
 
-        function expectMarketEvent(result, type, sender, tokenId) {
+        function expectMarketEvent(result, txType, sender, tokenId) {
             truffleAssert.eventEmitted(
                 result,
                 "MarketTransaction",
-                event => event.TxType === type &&
+                event => event.TxType === txType &&
                     event.owner === sender &&
                     event.tokenId.toString(10) === tokenId.toString(10)
             );
         }
 
         describe('Set offer', () => {
-            it('should REVERT if the market contract is not an approved operator for the sender', async () => {
-                await kittyFactory.setApprovalForAll(
-                    kittyMarketPlace.address, false, { from: kittyOwner });
 
-                await truffleAssert.reverts(
-                    kittyMarketPlace.setOffer(
-                        new BN('1'), kitty.kittyId, { from: kittyOwner })
-                );
+            function testSetOffer(offerFn, transType) {
+                describe('common', () => {
+                    it('should REVERT if the market contract is not an approved operator for the sender', async () => {
+                        await kittyFactory.setApprovalForAll(
+                            kittyMarketPlace.address, false, { from: kittyOwner });
+
+                        await truffleAssert.reverts(
+                            offerFn(new BN('1'), kitty),
+                            truffleAssert.ErrorType.REVERT,
+                            "operator"
+                        );
+                    });
+
+                    it('should create a new offer for the token at the given price', async () => {
+                        const expOffer = {
+                            seller: kitty.owner,
+                            price: new BN('100'),
+                            index: new BN('0'),
+                            tokenId: kitty.kittyId,
+                            active: true
+                        };
+
+                        await offerFn(expOffer.price, kitty);
+
+                        const result = await kittyMarketPlace.getOffer(kitty.kittyId);
+                        expectOffer(result, expOffer);
+                    });
+
+                    it(`should emit a MarketTransaction event with type "${transType}"`, async () => {
+                        const res = await offerFn(new BN('200'), kitty);
+
+                        expectMarketEvent(
+                            res, transType, kitty.owner, kitty.kittyId
+                        );
+                    });
+
+                    it('should REVERT if the sender is not the token owner', async () => {
+                        const scammer = accounts[3];
+                        await kittyFactory.setApprovalForAll(
+                            kittyMarketPlace.address, true, { from: scammer });
+
+                        await truffleAssert.reverts(
+                            offerFn(new BN('1'), kitty, scammer),
+                            truffleAssert.ErrorType.REVERT,
+                            "owner"
+                        );
+                    });
+
+                    it('should REVERT if there is an existing offer for the token', async () => {
+                        await offerFn(new BN('200'), kitty);
+
+                        await truffleAssert.reverts(
+                            offerFn(new BN('300'), kitty),
+                            truffleAssert.ErrorType.REVERT,
+                            "duplicate"
+                        );
+                    });
+                });
+            }
+
+            describe('Sell', () => {
+                testSetOffer(setOffer, transTypes.create);
             });
 
-            it('should create a new offer for the token at the given price', async () => {
-                const expOffer = {
-                    seller: kitty.owner,
-                    price: new BN('100'),
-                    index: new BN('0'),
-                    tokenId: kitty.kittyId,
-                    active: true
-                };
+            describe('Sire', () => {
+                testSetOffer(setSireOffer, transTypes.sireOffer);
 
-                await setOffer(expOffer.price, kitty);
+                it('should REVERT if the sire is not ready to breed', async () => {
+                    const mom = {
+                        kittyId: new BN('2'),
+                        mumId: new BN('0'),
+                        dadId: new BN('0'),
+                        generation: new BN('0'),
+                        genes: new BN('2222567812345678'),
+                        owner: kittyOwner,
+                    }
+                    await createKitty(kittyFactory, mom);
+                    await kittyFactory.breed(
+                        kitty.kittyId, mom.kittyId, { from: kitty.owner });
 
-                const result = await kittyMarketPlace.getOffer(kitty.kittyId);
-                expectOffer(result, expOffer);
+                    await truffleAssert.reverts(
+                        setSireOffer(new BN('100'), kitty),
+                        truffleAssert.ErrorType.REVERT,
+                        'cooldown'
+                    );
+                });
             });
 
-            it('should emit a MarketTransaction event with type "Create"', async () => {
-                const res = await setOffer(new BN('200'), kitty);
+            describe('Get Offer', () => {
 
-                expectMarketEvent(
-                    res, transTypes.create, kitty.owner, kitty.kittyId
-                );
-            });
+                it('should get the offer for the token', async () => {
+                    const expOffer = {
+                        seller: kitty.owner,
+                        price: new BN('100'),
+                        index: new BN('0'),
+                        tokenId: kitty.kittyId,
+                        active: true
+                    };
 
-            it('should REVERT if the sender is not the token owner', async () => {
-                const scammer = accounts[3];
-                await kittyFactory.setApprovalForAll(
-                    kittyMarketPlace.address, true, { from: scammer });
+                    await setOffer(expOffer.price, kitty);
 
-                await truffleAssert.reverts(
-                    kittyMarketPlace.setOffer(
-                        new BN('1'), kitty.kittyId, { from: scammer })
-                );
-            });
+                    const result = await kittyMarketPlace.getOffer(kitty.kittyId);
+                    expectOffer(result, expOffer);
+                });
 
-            it('should REVERT if there is an existing offer for the token', async () => {
-                const res = await setOffer(new BN('200'), kitty);
-
-                await truffleAssert.reverts(
-                    setOffer(new BN('200'), kitty)
-                );
-            });
-        });
-
-        describe('Get Offer', () => {
-
-            it('should get the offer for the token', async () => {
-                const expOffer = {
-                    seller: kitty.owner,
-                    price: new BN('100'),
-                    index: new BN('0'),
-                    tokenId: kitty.kittyId,
-                    active: true
-                };
-
-                await setOffer(expOffer.price, kitty);
-
-                const result = await kittyMarketPlace.getOffer(kitty.kittyId);
-                expectOffer(result, expOffer);
-            });
-
-            it('should REVERT if there is no active offer for that token', async () => {
-                await truffleAssert.reverts(
-                    kittyMarketPlace.getOffer(kitty.kittyId)
-                );
+                it('should REVERT if there is no active offer for that token', async () => {
+                    await truffleAssert.reverts(
+                        kittyMarketPlace.getOffer(kitty.kittyId)
+                    );
+                });
             });
         });
 
@@ -209,132 +267,260 @@ contract('KittyMarketPlace', (accounts) => {
             });
         });
 
-        describe('Buy Kitty', () => {
+        describe('Execute offer', () => {
             let expPrice;
             let buyer = accounts[2];
             beforeEach(async () => {
                 expPrice = new BN('100000');
                 buyer = accounts[2];
-                await setOffer(expPrice, kitty);
             });
 
-            function buyKitty() {
-                return kittyMarketPlace.buyKitty(
-                    kitty.kittyId, { from: buyer, value: expPrice });
+            function testExecuteOffer(offerFn, exeOfferFn, txType, matron) {
+
+                describe('common', () => {
+
+                    beforeEach(async () => {
+                        await offerFn(expPrice, kitty);
+                    });
+
+                    it('should send funds to the seller', async () => {
+                        const buyerBalBefore = new BN(await web3.eth.getBalance(buyer));
+                        const sellerBalBefore = new BN(await web3.eth.getBalance(kitty.owner));
+
+                        await exeOfferFn(kitty, buyer, expPrice, matron);
+
+                        const buyerBalAfter = new BN(await web3.eth.getBalance(buyer));
+                        const expBuyerBal = buyerBalBefore.sub(expPrice);
+                        expect(buyerBalAfter.lte(expBuyerBal));
+
+                        const sellerBalAfter = new BN(await web3.eth.getBalance(kitty.owner));
+                        const expSellerBal = sellerBalBefore.add(expPrice);
+                        expect(sellerBalAfter.toString(10)).to.equal(expSellerBal.toString(10));
+                    });
+
+                    it('should set the offer as inactive', async () => {
+                        await exeOfferFn(kitty, buyer, expPrice, matron);
+
+                        const result = await kittyMarketPlace.hasActiveOffer(kitty.kittyId);
+                        expect(result).to.equal(false);
+                    });
+
+                    it(`should emit a MarketTransaction event of type "${txType}"`, async () => {
+                        const result = await exeOfferFn(kitty, buyer, expPrice, matron);
+
+                        expectMarketEvent(
+                            result, txType, buyer, kitty.kittyId
+                        );
+                    });
+
+                    it('should REVERT if the value sent does not equal the selling price', async () => {
+                        await truffleAssert.fails(
+                            exeOfferFn(kitty, buyer, 0, matron),
+                            truffleAssert.ErrorType.REVERT,
+                            'payment must be exact'
+                        );
+                    });
+
+                    it('should REVERT if the order is not active', async () => {
+                        await kittyMarketPlace.removeOffer(
+                            kitty.kittyId, { from: kitty.owner });
+
+                        await truffleAssert.fails(
+                            exeOfferFn(kitty, buyer, expPrice, matron),
+                            truffleAssert.ErrorType.REVERT,
+                            "offer not active"
+                        );
+                    });
+                });
             }
 
-            it('should send funds to the seller', async () => {
-                const buyerBalBefore = new BN(await web3.eth.getBalance(buyer));
-                const sellerBalBefore = new BN(await web3.eth.getBalance(kitty.owner));
+            describe('Buy Kitty', () => {
 
-                await buyKitty();
+                it('should transfer the kitty to the buyer', async () => {
+                    await setOffer(expPrice, kitty);
+                    await buyKitty(kitty, buyer, expPrice);
 
-                const buyerBalAfter = new BN(await web3.eth.getBalance(buyer));
-                const expBuyerBal = buyerBalBefore.sub(expPrice);
-                expect(buyerBalAfter.lte(expBuyerBal));
+                    const newOwner = await kittyFactory.ownerOf(kitty.kittyId);
+                    expect(newOwner).to.equal(buyer);
+                });
 
-                const sellerBalAfter = new BN(await web3.eth.getBalance(kitty.owner));
-                const expSellerBal = sellerBalBefore.add(expPrice);
-                expect(sellerBalAfter.toString(10)).to.equal(expSellerBal.toString(10));
+                testExecuteOffer(setOffer, buyKitty, transTypes.buy);
             });
 
-            it('should transfer the kitty to the buyer', async () => {
-                await buyKitty();
+            describe('Purchase sire rites', () => {
+                const mum = {
+                    kittyId: new BN('2'),
+                    mumId: new BN('0'),
+                    dadId: new BN('0'),
+                    generation: new BN('0'),
+                    genes: new BN('8765432187654321'),
+                    owner: buyer,
+                }
+                beforeEach(async () => {
+                    await createKitty(kittyFactory, mum);
+                    await setOperator(kittyFactory, buyer, kittyMarketPlace.address);
+                });
 
-                const newOwner = await kittyFactory.ownerOf(kitty.kittyId);
-                expect(newOwner).to.equal(buyer);
+
+                it('should breed the sire and matron', async () => {
+                    const expKitten = {
+                        kittyId: new BN('3'),
+                        mumId: mum.kittyId,
+                        dadId: kitty.kittyId
+                    }
+                    await setSireOffer(expPrice, kitty);
+
+                    await buySireRites(
+                        kitty, buyer, expPrice, mum);
+
+                    const kitten = await kittyFactory
+                        .getKitty(expKitten.kittyId);
+
+                    expect(kitten.mumId.toString(10)).to.equal(expKitten.mumId.toString(10));
+                    expect(kitten.dadId.toString(10)).to.equal(expKitten.dadId.toString(10));
+                });
+
+                it('should REVERT if the matron is not ready to breed', async () => {
+                    // breed mum kitty to set cooldown
+                    const otherDad = {
+                        kittyId: new BN('3'),
+                        mumId: new BN('0'),
+                        dadId: new BN('0'),
+                        generation: new BN('0'),
+                        genes: new BN('3333333387654321'),
+                        owner: buyer,
+                    }
+                    await createKitty(kittyFactory, otherDad);
+                    await kittyFactory.breed(
+                        otherDad.kittyId, mum.kittyId, { from: buyer });
+
+                    await setSireOffer(expPrice, kitty);
+
+                    await truffleAssert.reverts(
+                        buySireRites(kitty, buyer, expPrice, mum),
+                        truffleAssert.ErrorType.REVERT,
+                        "cooldown"
+                    )
+                });
+
+                testExecuteOffer(setSireOffer, buySireRites, transTypes.sireRites, mum);
+
             });
 
-            it('should set the offer as inactive', async () => {
-                await buyKitty();
-
-                const result = await kittyMarketPlace.hasActiveOffer(kitty.kittyId);
-                expect(result).to.equal(false);
-            });
-
-            it('should emit a MarketTransaction event of type "Buy"', async () => {
-                const result = await buyKitty();
-
-                
-
-                expectMarketEvent(
-                    result, transTypes.buy, buyer, kitty.kittyId
-                );
-            });
-
-            it('should REVERT if the value sent does not equal the selling price', async () => {
-                await truffleAssert.fails(
-                    kittyMarketPlace.buyKitty(
-                        kitty.kittyId, { from: buyer, value: 0 }),
-                    truffleAssert.ErrorType.REVERT,
-                    'payment must be exact'
-                );
-            });
-
-            it('should REVERT if the order is not active', async () => {
-                await kittyMarketPlace.removeOffer(
-                    kitty.kittyId, { from: kitty.owner });
-
-                await truffleAssert.fails(
-                    buyKitty(),
-                    truffleAssert.ErrorType.REVERT,
-                    "offer not active"
-                );
-            });
         });
 
-        describe('Get all tokens on sale', () => {
-            let orders;
-            let expOrders;
-            async function createOrders(isActiveArray) {
-                orders = [
+        describe('Get all active offers', () => {
+            let testOffers;
+            async function createTestOffers() {
+                testOffers = [
                     {
                         seller: accounts[1],
                         price: new BN('1000'),
                         index: new BN('0'),
                         tokenId: new BN('1'),
+                        isSireOffer: false,
+                        active: true
+                    },
+                    {
+                        seller: accounts[1],
+                        price: new BN('1000'),
+                        index: new BN('0'),
+                        tokenId: new BN('2'),
+                        isSireOffer: true,
                         active: true
                     },
                     {
                         seller: accounts[2],
                         price: new BN('2000'),
                         index: new BN('1'),
-                        tokenId: new BN('2'),
+                        tokenId: new BN('3'),
+                        isSireOffer: false,
+                        active: true
+                    },
+                    {
+                        seller: accounts[2],
+                        price: new BN('2000'),
+                        index: new BN('1'),
+                        tokenId: new BN('4'),
+                        isSireOffer: true,
+                        active: true
+                    },
+                    {
+                        seller: accounts[2],
+                        price: new BN('2000'),
+                        index: new BN('1'),
+                        tokenId: new BN('5'),
+                        isSireOffer: false,
                         active: false
                     },
                     {
                         seller: accounts[1],
                         price: new BN('1500'),
                         index: new BN('2'),
-                        tokenId: new BN('3'),
+                        tokenId: new BN('6'),
+                        isSireOffer: false,
+                        active: true
+                    },
+                    {
+                        seller: accounts[2],
+                        price: new BN('2000'),
+                        index: new BN('1'),
+                        tokenId: new BN('7'),
+                        isSireOffer: true,
+                        active: false
+                    },
+                    {
+                        seller: accounts[1],
+                        price: new BN('1500'),
+                        index: new BN('2'),
+                        tokenId: new BN('8'),
+                        isSireOffer: true,
                         active: true
                     },
                 ];
-                expOrders = orders.filter(
-                    order => order.active
-                );
-
-                orders.forEach(async order =>
-                    await kittyMarketPlace.setOffer(
+                testOffers.forEach(async order =>
+                    await kittyMarketPlace.test_createOffer(
                         order.seller,
                         order.price,
                         order.tokenId,
+                        order.isSireOffer,
                         order.active
                     )
                 );
             }
 
-            it('should return only active orders', async () => {
-                await createOrders();
+            async function expectOffers(expOffers, actualIds) {
+                expect(actualIds.length).to.equal(expOffers.length, 'incorrect number of results');
+
+                const actualOffers = await Promise.all(
+                    actualIds.map(id => kittyMarketPlace.getOffer(id)));
+
+                expOffers.forEach(expOffer => {
+                    const result = actualOffers.find(offer =>
+                        offer.tokenId.toString(10) == expOffer.tokenId.toString(10));
+                    expect(result).to.exist;
+                });
+            }
+
+            it('should return all active sell offers', async () => {
+                await createTestOffers();
+                const expOffers = testOffers.filter(
+                    offer => offer.active && !offer.isSireOffer);
 
                 const results = await kittyMarketPlace.getAllTokenOnSale();
 
-                expect(results.length).to.equal(expOrders.length);
-
-                actualIds = results.map(r => r.toString(10));
-                expOrders.map(o => o.tokenId.toString(10))
-                    .forEach(expId => expect(actualIds).to.contain(expId));
+                await expectOffers(expOffers, results);
             });
+
+            it('should return all active sire offers', async () => {
+                await createTestOffers();
+                const expOffers = testOffers.filter(
+                    offer => offer.active && offer.isSireOffer);
+
+                const results = await kittyMarketPlace.getAllSireOffers();
+
+                await expectOffers(expOffers, results);
+            })
         });
 
     });

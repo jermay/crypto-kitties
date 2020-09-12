@@ -133,6 +133,10 @@ contract KittyFactory is Ownable, KittyContract {
         _incrementBreedCooldownIndex(dad);
         _incrementBreedCooldownIndex(mum);
 
+        // reset sire approval to fase
+        _sireApprove(_dadId, _mumId, false);
+        _sireApprove(_mumId, _dadId, false);
+
         // get kitten attributes
         uint256 newDna = _mixDna(dad.genes, mum.genes, now);
         uint256 newGeneration = _getKittenGeneration(dad, mum);
@@ -143,9 +147,10 @@ contract KittyFactory is Ownable, KittyContract {
     function _eligibleToBreed(uint256 _dadId, uint256 _mumId)
         internal
         view
+        onlyApproved(_mumId)
         returns (bool)
     {
-        require(isKittyOwner(_mumId), "not owner of _mumId");
+        // require(isKittyOwner(_mumId), "not owner of _mumId");
         require(
             isKittyOwner(_dadId) ||
             isApprovedForSiring(_dadId, _mumId),
