@@ -178,6 +178,11 @@ exports.abi = [
       },
       {
         "internalType": "bool",
+        "name": "isSireOffer",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
         "name": "active",
         "type": "bool"
       }
@@ -190,6 +195,21 @@ exports.abi = [
     "constant": true,
     "inputs": [],
     "name": "getAllTokenOnSale",
+    "outputs": [
+      {
+        "internalType": "uint256[]",
+        "name": "listOfOffers",
+        "type": "uint256[]"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "getAllSireOffers",
     "outputs": [
       {
         "internalType": "uint256[]",
@@ -226,6 +246,26 @@ exports.abi = [
     "inputs": [
       {
         "internalType": "uint256",
+        "name": "_price",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_tokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "setSireOffer",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "internalType": "uint256",
         "name": "_tokenId",
         "type": "uint256"
       }
@@ -246,6 +286,26 @@ exports.abi = [
       }
     ],
     "name": "buyKitty",
+    "outputs": [],
+    "payable": true,
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_sireTokenId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_matronTokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "buySireRites",
     "outputs": [],
     "payable": true,
     "stateMutability": "payable",

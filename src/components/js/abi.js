@@ -803,5 +803,56 @@ exports.abi =  [
     "payable": false,
     "stateMutability": "view",
     "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_dadId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_mumId",
+        "type": "uint256"
+      }
+    ],
+    "name": "isApprovedForSiring",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_dadId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_mumId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "_isApproved",
+        "type": "bool"
+      }
+    ],
+    "name": "sireApprove",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
   }
 ];

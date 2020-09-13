@@ -3,7 +3,7 @@ import { abi } from './kittyMarketplace.abi';
 
 
 export class KittyMarketPlaceService {
-    contractAddress = '0x859bbA87fe43D28DcD084D736fC49674336FA8C0';
+    contractAddress = '0xf8f163214657f7773D4b9876f814bdC906aC36e3';
     user;
     _contract;
     _contractPromise;
@@ -141,7 +141,21 @@ export class KittyMarketPlaceService {
             .catch(this.handleErr);
     }
 
+    async setSireOffer(kittyId, price) {
+        const instance = await this.getContract();
+        const priceInWei = this.web3.utils
+            .toWei(price, 'ether');
+        console.log(`Creating sire offer of ${price} for kittyId: ${kittyId}`);
+
+        return instance.methods
+            .setSireOffer(priceInWei, kittyId)
+            .send({from: this.user})
+            .then(() => true)
+            .catch(this.handleErr);
+    }
+
     async removeOffer(tokenId) {
+        console.log('Removing offer for kittyId:', tokenId);
         const instance = await this.getContract();
         return instance.methods
             .removeOffer(tokenId)
