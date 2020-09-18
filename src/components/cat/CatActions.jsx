@@ -9,7 +9,7 @@ import { offerTypes } from '../js/kittyConstants';
 
 
 export default function CatActions(props) {
-    const { kittyId } = props;
+    const { kittyId, isBuyMode } = props;
 
     const [init, setInit] = useState(false);
     const [offer, setOffer] = useState(undefined);
@@ -75,6 +75,16 @@ export default function CatActions(props) {
         return result;
     }
 
+    const handleBuyKittyClicked = async () => {
+        return Service.market.buyKitty(offer);
+    };
+
+    const handleBuySireOfferClicked = async () => {
+        // sire offers handled in the breed page
+        // by navigating there with the sireId as a query param
+        return Promise.resolve(true);
+    }
+
     const handleBackClicked = () => {
         setOfferType(undefined);
     }
@@ -87,10 +97,12 @@ export default function CatActions(props) {
                 btnText="Sell"
                 btnTextPlural="Selling"
                 isApproved={isApproved}
+                isBuyMode={isBuyMode}
                 kittyId={kittyId}
                 handleApproveClicked={handleApproveClicked}
                 handleBackClicked={handleBackClicked}
                 handleCreateOfferClicked={createSaleOffer}
+                handleBuyOfferClicked={handleBuyKittyClicked}
                 handleCancelOffer={handleCancelOffer}
             />
             break;
@@ -101,10 +113,12 @@ export default function CatActions(props) {
                 btnText="Sire"
                 btnTextPlural="Siring"
                 isApproved={isApproved}
+                isBuyMode={isBuyMode}
                 kittyId={kittyId}
                 handleApproveClicked={handleApproveClicked}
                 handleBackClicked={handleBackClicked}
                 handleCreateOfferClicked={createSireOffer}
+                handleBuyOfferClicked={handleBuySireOfferClicked}
                 handleCancelOffer={handleCancelOffer}
             />
             break;

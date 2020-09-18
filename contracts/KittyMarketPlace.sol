@@ -277,7 +277,8 @@ contract KittyMarketPlace is Ownable, IKittyMarketPlace {
 
         // set sire rites
         _kittyContract.sireApprove(_sireTokenId, _matronTokenId, true);
-        _kittyContract.breed(_sireTokenId, _matronTokenId);
+        uint256 kittenId = _kittyContract.breed(_sireTokenId, _matronTokenId);
+        _kittyContract.transferFrom(address(this), msg.sender, kittenId);
 
         emit MarketTransaction("Sire Rites", msg.sender, _sireTokenId);
     }

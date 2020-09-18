@@ -347,7 +347,7 @@ contract('KittyMarketPlace', (accounts) => {
                 testExecuteOffer(setOffer, buyKitty, transTypes.buy);
             });
 
-            describe('Purchase sire rites', () => {
+            describe.only('Purchase sire rites', () => {
                 const mum = {
                     kittyId: new BN('2'),
                     mumId: new BN('0'),
@@ -378,6 +378,9 @@ contract('KittyMarketPlace', (accounts) => {
 
                     expect(kitten.mumId.toString(10)).to.equal(expKitten.mumId.toString(10));
                     expect(kitten.dadId.toString(10)).to.equal(expKitten.dadId.toString(10));
+                    
+                    const actualOwner = await kittyFactory.ownerOf(expKitten.kittyId);
+                    expect(actualOwner).to.equal(buyer);
                 });
 
                 it('should REVERT if the matron is not ready to breed', async () => {

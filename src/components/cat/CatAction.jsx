@@ -1,9 +1,10 @@
 import React from 'react';
 import { useState } from 'react';
-import { Button, Alert, Form, InputGroup } from 'react-bootstrap';
+import { Button, Alert, Badge, Form, InputGroup } from 'react-bootstrap';
 
 import { Service } from '../js/service';
 import styled from 'styled-components';
+import { NavLink } from 'react-router-dom';
 
 const SELL_STATUS = {
     notForSale: 'Not For Sale',
@@ -11,6 +12,9 @@ const SELL_STATUS = {
     setPrice: 'Set Price',
     sendingOffer: 'Sending Offer',
     offerCreated: 'Offer Created',
+    cancellingOffer: 'Cancelling Offer',
+    offerCancelled: 'Offer Cancelled',
+    sendingBuyOffer: 'Sending Buy Offer',
     sold: 'Sold'
 }
 
@@ -31,8 +35,10 @@ export default function CatAction(props) {
         handleApproveClicked,
         handleBackClicked,
         handleCreateOfferClicked,
+        handleBuyOfferClicked,
         handleCancelOffer,
         isApproved,
+        isBuyMode,
         kittyId,
         offer,
     } = props;
@@ -107,6 +113,28 @@ export default function CatAction(props) {
         handleBackClicked();
     }
 
+    const onBuyOfferClicked = async () => {
+        console.log('onBuyOfferClicked');
+        setMessage({
+            text: `Broadcasting offer for #${kittyId}...`,
+            type: 'info'
+        });
+        setSellStatus(SELL_STATUS.sendingBuyOffer);
+
+        const result = await handleBuyOfferClicked();
+
+        if (result) {
+            setSellStatus(SELL_STATUS.sold);
+            setMessage(emptyMessage);
+        } else {
+            setSellStatus(SELL_STATUS.offerCreated);
+            setMessage({
+                text: 'Oops... something went wrong',
+                type: 'warning'
+            });
+        }
+    }
+
     const displayError = (error, msg) => {
         if (error) {
             console.error(error);
@@ -152,20 +180,51 @@ export default function CatAction(props) {
             break;
 
         case SELL_STATUS.offerCreated:
-            if (!offer){
+            if (!offer) {
                 break;
             }
             const priceInEth = Service.web3.utils.fromWei(offer.price, 'ether');
-            sellDisplay =
-                <div>
-                    <span>{btnTextPlural} For: {priceInEth.toString(10)} ETH</span>
-                    <Button
+            let sellButton;
+            if (Service.kitty.user != offer.seller) {
+                sellButton = offer.isSireOffer ?
+                    <NavLink
+                        to={`/breed?sireId=${offer.tokenId}`}
+                        className="btn btn-primary nav-link">
+                        Buy
+                    </NavLink>
+                    : <Button
+                        key="buy"
                         variant="primary"
                         className="ml-2"
-                        onClick={onCancelSaleClicked}>
-                        Cancel
+                        onClick={onBuyOfferClicked}>
+                        Buy
                     </Button>
+            } else {
+                sellButton = <Button
+                    key="cancel"
+                    variant="primary"
+                    className="ml-2"
+                    onClick={onCancelSaleClicked}>
+                    Cancel
+                    </Button>
+            }
+            sellDisplay =
+                <div className="d-flex align-items-center">
+                    <span className="mr-2">{btnTextPlural} For: {priceInEth.toString(10)} ETH</span>
+                    {sellButton}
                 </div>
+            break;
+
+        case SELL_STATUS.cancellingOffer:
+        case SELL_STATUS.offerCancelled:
+        case SELL_STATUS.sendingBuyOffer:
+            break;
+
+        case SELL_STATUS.sold:
+            sellDisplay =
+                <h3>
+                    <Badge variant="success">SOLD!</Badge>
+                </h3>
             break;
 
         default:

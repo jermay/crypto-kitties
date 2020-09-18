@@ -1,9 +1,10 @@
 // import BN from 'bn.js';
 import { abi } from './kittyMarketplace.abi';
+import { offerTypes } from '../js/kittyConstants';
 
 
 export class KittyMarketPlaceService {
-    contractAddress = '0xf8f163214657f7773D4b9876f814bdC906aC36e3';
+    contractAddress = '0x28ccB94Bd17cE7F2B70C785Ed89a614d97266FFF';
     user;
     _contract;
     _contractPromise;
@@ -85,21 +86,50 @@ export class KittyMarketPlaceService {
             });
     }
 
+    async getOffers(offerType) {
+        if (offerType === offerTypes.sell) {
+            return this.getAllTokenOnSale();
+        }
+        return this.getAllSireOffers();
+    }
+
     async getAllTokenOnSale() {
         const instance = await this.getContract();
         const offerIds = await instance.methods
             .getAllTokenOnSale()
             .call({ from: this.user });
 
-        let promises = offerIds.map(id => this.getOffer(id));
-        this.offers = await Promise.all(promises);
+        this.offers = await this.getOffersForIds(offerIds);
+        // let promises = offerIds.map(id => this.getOffer(id));
+        // this.offers = await Promise.all(promises);
 
-        promises = this.offers.map(offer => this.getKitty(offer.tokenId)
-            .then(kitty => offer.kitty = kitty));
-        await Promise.all(promises);
+        // promises = this.offers.map(offer => this.getKitty(offer.tokenId)
+        //     .then(kitty => offer.kitty = kitty));
+        // await Promise.all(promises);
 
         console.log(`Offers loaded: `, this.offers);
 
+        return this.offers;
+    }
+
+    async getOffersForIds(tokenIds) {
+        let promises = tokenIds.map(id => this.getOffer(id));
+        const offers = await Promise.all(promises);
+
+        promises = offers.map(offer => this.getKitty(offer.tokenId)
+            .then(kitty => offer.kitty = kitty));
+        await Promise.all(promises);
+
+        return offers;
+    }
+
+    async getAllSireOffers() {
+        const instance = await this.getContract();
+        const offerIds = await instance.methods
+            .getAllSireOffers()
+            .call({ from: this.user });
+
+        this.offers = this.getOffersForIds(offerIds);
         return this.offers;
     }
 
@@ -149,7 +179,17 @@ export class KittyMarketPlaceService {
 
         return instance.methods
             .setSireOffer(priceInWei, kittyId)
-            .send({from: this.user})
+            .send({ from: this.user })
+            .then(() => true)
+            .catch(this.handleErr);
+    }
+
+    async buySireRites(offer, matronId) {
+        console.log('buySireRites:: offer: ', offer, ' matronId: ', matronId);
+        const instance = await this.getContract();
+        return instance.methods
+            .buySireRites(offer.tokenId, matronId)
+            .send({ from: this.user, value: offer.price })
             .then(() => true)
             .catch(this.handleErr);
     }
