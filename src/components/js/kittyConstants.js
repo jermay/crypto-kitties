@@ -17,4 +17,10 @@ const KITTY_COOLDOWNS = [
     { name: 'Catatonic', durationName: '7 days', duration: moment.duration(7, 'days') },
 ];
 
+const OFFER_TYPES = {
+    sell: 'Sell',
+    sire: 'Sire'
+}
+
+export const offerTypes = OFFER_TYPES;
 export const kittyCooldowns = KITTY_COOLDOWNS;

@@ -14,6 +14,9 @@ contract KittyFactory is Ownable, KittyContract {
     uint256 public constant RANDOM_DNA_THRESHOLD = 7;
     uint256 internal _gen0Counter;
 
+    // tracks approval for a kittyId in sire market offers
+    mapping(uint256 => address) sireAllowedToAddress;
+
     event Birth(
         address owner,
         uint256 kittyId,
@@ -117,12 +120,9 @@ contract KittyFactory is Ownable, KittyContract {
 
     function breed(uint256 _dadId, uint256 _mumId)
         public
-        onlyKittyOwner(_dadId)
-        onlyKittyOwner(_mumId)
         returns (uint256)
     {
-        require(readyToBreed(_dadId), "dad is on cooldown");
-        require(readyToBreed(_mumId), "mum is on cooldown");
+        require(_eligibleToBreed(_dadId, _mumId), "kitties not eligible");
 
         Kitty storage dad = kitties[_dadId];
         Kitty storage mum = kitties[_mumId];
@@ -133,11 +133,33 @@ contract KittyFactory is Ownable, KittyContract {
         _incrementBreedCooldownIndex(dad);
         _incrementBreedCooldownIndex(mum);
 
+        // reset sire approval to fase
+        _sireApprove(_dadId, _mumId, false);
+        _sireApprove(_mumId, _dadId, false);
+
         // get kitten attributes
         uint256 newDna = _mixDna(dad.genes, mum.genes, now);
         uint256 newGeneration = _getKittenGeneration(dad, mum);
 
         return _createKitty(_mumId, _dadId, newGeneration, newDna, msg.sender);
+    }
+
+    function _eligibleToBreed(uint256 _dadId, uint256 _mumId)
+        internal
+        view
+        onlyApproved(_mumId)
+        returns (bool)
+    {
+        // require(isKittyOwner(_mumId), "not owner of _mumId");
+        require(
+            isKittyOwner(_dadId) ||
+            isApprovedForSiring(_dadId, _mumId),
+            "not owner of _dadId or sire approved"
+        );
+        require(readyToBreed(_dadId), "dad on cooldown");
+        require(readyToBreed(_mumId), "mum on cooldown");
+
+        return true;
     }
 
     function readyToBreed(uint256 _kittyId) public view returns (bool) {
@@ -270,5 +292,33 @@ contract KittyFactory is Ownable, KittyContract {
         randomValues =
             uint256(keccak256(abi.encodePacked(_masterSeed, DNA_LENGTH))) %
             valueMod;
+    }
+
+    function isApprovedForSiring(uint256 _dadId, uint256 _mumId)
+        public
+        view
+        returns (bool)
+    {
+        return sireAllowedToAddress[_dadId] == kittyToOwner[_mumId];
+    }
+
+    function sireApprove(
+        uint256 _dadId,
+        uint256 _mumId,
+        bool _isApproved
+    ) external onlyApproved(_dadId) {
+        _sireApprove(_dadId, _mumId, _isApproved);
+    }
+
+    function _sireApprove(
+        uint256 _dadId,
+        uint256 _mumId,
+        bool _isApproved
+    ) internal {
+        if (_isApproved) {
+            sireAllowedToAddress[_dadId] = kittyToOwner[_mumId];
+        } else {
+            delete sireAllowedToAddress[_dadId];
+        }
     }
 }

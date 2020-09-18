@@ -8,6 +8,8 @@ import { ButtonGroup, Button, Spinner, Badge } from 'react-bootstrap';
 import { Service } from '../js/service';
 
 export default function BreedList(props) {
+    const { handleOnSetParent, sireId } = props;
+
     const [list, setList] = useState([]);
     const [init, setInit] = useState(false);
     const [pageNum, setPageNum] = useState(0);
@@ -93,14 +95,14 @@ export default function BreedList(props) {
                         variant="info"
                         size="sm"
                         disabled={onCooldown}
-                        onClick={e => props.handleOnSetParent(kittyModel.value, 'mum')}>
+                        onClick={e => handleOnSetParent(kittyModel.value, 'mum')}>
                         Set as Mum
                     </Button>
                     <Button
                         variant="info"
                         size="sm"
-                        disabled={onCooldown}
-                        onClick={e => props.handleOnSetParent(kittyModel.value, 'dad')}>
+                        disabled={onCooldown || Boolean(sireId)}
+                        onClick={e => handleOnSetParent(kittyModel.value, 'dad')}>
                         Set as Dad
                     </Button>
                     <Button

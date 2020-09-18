@@ -5,7 +5,7 @@ import { abi } from './abi';
 import { kittyCooldowns } from './kittyConstants';
 
 export class KittyService {
-    contractAddress = '0xe8c56AFD6F8aaA4708533c122983Bf70c80E0AbF';
+    contractAddress = '0xAb454bD8D4d3c562F623d3eb9b4cdD5bb21CFfa0';
     user;
     _contract;
     _contractPromise;

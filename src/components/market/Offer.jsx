@@ -5,6 +5,8 @@ import styled from 'styled-components';
 
 import { CatModel } from '../js/catFactory'
 import { Service } from '../js/service';
+import CatAction from '../cat/CatAction';
+import CatActions from '../cat/CatActions';
 
 
 const emptyMessage = {
@@ -26,6 +28,9 @@ const KittyAlert = styled(Alert)`
 
 export default function Offer(props) {
     const { offer } = props;
+    const model = new CatModel(offer.kitty);
+    
+    /*
     const [message, setMessage] = useState(emptyMessage);
     const [status, setStatus] = useState(OFFER_STATUS.onSale);
 
@@ -100,10 +105,7 @@ export default function Offer(props) {
         default:
             break;
     }
-
-    return (
-        <div>
-            <div>
+    <div>
                 {content}
                 <KittyAlert
                     variant={message.type}
@@ -113,6 +115,14 @@ export default function Offer(props) {
                     {message.text}
                 </KittyAlert>
             </div>
+    */
+
+    return (
+        <div>
+            <CatActions
+                kittyId={offer.tokenId}
+                isBuyMode={true}
+            />
             <CatBox model={model} />
         </div>
     )

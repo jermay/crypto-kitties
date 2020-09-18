@@ -6,6 +6,7 @@ import { useState } from 'react';
 import styled from 'styled-components';
 import { CatModel } from '../js/catFactory';
 import { Service } from '../js/service';
+import { useQuery } from '../js/utils';
 
 const PlaceHolder = styled.div`
     color: white;
@@ -24,11 +25,17 @@ const BreedProgress = {
 }
 
 export default function BreedPage(props) {
+    // from a market sire offer
+    // should lock the dad selection
+    // breed button should buy the offer
+    const sireId = useQuery().get('sireId');
+
     const [init, setInit] = useState(false);
     const [mum, setMum] = useState(undefined);
     const [dad, setDad] = useState(undefined);
     const [progress, setProgress] = useState(BreedProgress.SELECT);
     const [kitten, setKitten] = useState(undefined);
+    const [sireOffer, setSireOffer] = useState(undefined);
 
     const onBirthEvent = async event => {
         const kitten = await Service.kitty.getKitty(event.kittyId);
@@ -41,12 +48,23 @@ export default function BreedPage(props) {
         if (!init) {
             Service.kitty.birthSubscriptions.push(onBirthEvent);
             setInit(true);
+            if (Boolean(sireId)) {
+                Service.kitty.getKitty(sireId)
+                    .then(kitty => setDad(new CatModel(kitty)));
+                Service.market.getOffer(sireId)
+                    .then(offer => setSireOffer(offer));
+            }
         }
     }, [init]);
 
     const handleOnSetParent = (kitty, parentType) => {
         // determine if setting the mum or dad
         console.log(`set ${parentType} to: `, kitty.cat.kittyId);
+        if (parentBoxes === 'dad' && Boolean(sireOffer)) {
+            console.log(`can't set dadId because siring`);
+            return;
+        }
+
         let other = dad;
         if (parentType === 'mum') {
             setMum(kitty);
@@ -69,9 +87,14 @@ export default function BreedPage(props) {
             console.log('Need to select both pareents!');
             return;
         }
-        console.log(`Breeding mum: ${mum.dna.dna} + dad: ${dad.dna.dna}...`);
-        await Service.kitty.breed(mum.cat.kittyId, dad.cat.kittyId);
-        
+        if (Boolean(sireOffer)) {
+            console.log(`Breeding mum: ${mum.dna.dna} + (sire) dad: ${dad.dna.dna}...`);
+            await Service.market.buySireRites(sireOffer, mum.cat.kittyId);
+        } else {
+            console.log(`Breeding mum: ${mum.dna.dna} + dad: ${dad.dna.dna}...`);
+            await Service.kitty.breed(mum.cat.kittyId, dad.cat.kittyId);
+        }
+
         // get updated cooldowns for parents
         const mumUpdated = await Service.kitty.getKitty(mum.cat.kittyId);
         setMum(new CatModel(mumUpdated));
@@ -80,7 +103,7 @@ export default function BreedPage(props) {
         setDad(new CatModel(dadUpdated));
     }
 
-    const onResetParents = ()=>{
+    const onResetParents = () => {
         setProgress(BreedProgress.SELECT);
         setKitten(undefined);
         setMum(undefined);
@@ -106,11 +129,13 @@ export default function BreedPage(props) {
     let instructionContent;
     switch (progress) {
         case BreedProgress.READY:
+            const sireCostTxt = Boolean(sireOffer) ?
+                `(${Service.web3.utils.fromWei(sireOffer.price, 'ether')} ETH)` : '';
             instructionContent =
                 <Button
                     className="mt-2"
                     onClick={onBreedClicked}>
-                    Give them some privacy
+                    Give them some privacy {sireCostTxt}
                 </Button>
             break;
 
@@ -150,7 +175,9 @@ export default function BreedPage(props) {
             <Row>
                 <Col sm={4} className="">
                     <h5 className="text-center">Your Kitties</h5>
-                    <BreedList handleOnSetParent={handleOnSetParent} />
+                    <BreedList
+                        sireId={sireId}
+                        handleOnSetParent={handleOnSetParent} />
                 </Col>
                 <Col sm={8} className="text-center">
                     <h5>Parents</h5>

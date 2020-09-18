@@ -12,6 +12,7 @@ contract KittyMarketPlace is Ownable, IKittyMarketPlace {
         uint256 price;
         uint256 index;
         uint256 tokenId;
+        bool isSireOffer;
         bool active;
     }
 
@@ -32,6 +33,19 @@ contract KittyMarketPlace is Ownable, IKittyMarketPlace {
 
     modifier activeOffer(uint256 _tokenId) {
         require(hasActiveOffer(_tokenId), "offer not active");
+        _;
+    }
+
+    modifier noActiveOffer(uint256 _tokenId) {
+        require(!hasActiveOffer(_tokenId), "duplicate offer");
+        _;
+    }
+
+    modifier marketApproved() {
+        require(
+            _kittyContract.isApprovedForAll(msg.sender, address(this)),
+            "market must be approved operator"
+        );
         _;
     }
 
@@ -59,6 +73,7 @@ contract KittyMarketPlace is Ownable, IKittyMarketPlace {
             uint256 price,
             uint256 index,
             uint256 tokenId,
+            bool isSireOffer,
             bool active
         )
     {
@@ -67,6 +82,7 @@ contract KittyMarketPlace is Ownable, IKittyMarketPlace {
         price = offer.price;
         index = offer.index;
         tokenId = offer.tokenId;
+        isSireOffer = offer.isSireOffer;
         active = offer.active;
     }
 
@@ -78,6 +94,14 @@ contract KittyMarketPlace is Ownable, IKittyMarketPlace {
         view
         returns (uint256[] memory listOfOffers)
     {
+        return _getActiveOffers(false);
+    }
+
+    function _getActiveOffers(bool isSireOffer)
+        internal
+        view
+        returns (uint256[] memory listOfOffers)
+    {
         if (offers.length == 0) {
             return new uint256[](0);
         }
@@ -86,7 +110,7 @@ contract KittyMarketPlace is Ownable, IKittyMarketPlace {
         uint256 count = 0;
         for (uint256 i = 0; i < offers.length; i++) {
             Offer storage offer = offers[i];
-            if (offer.active) {
+            if (offer.active && offer.isSireOffer == isSireOffer) {
                 count++;
             }
         }
@@ -96,7 +120,7 @@ contract KittyMarketPlace is Ownable, IKittyMarketPlace {
         uint256 j = 0;
         for (uint256 i = 0; i < offers.length; i++) {
             Offer storage offer = offers[i];
-            if (offer.active) {
+            if (offer.active && offer.isSireOffer == isSireOffer) {
                 listOfOffers[j] = offer.tokenId;
                 j++;
             }
@@ -109,6 +133,18 @@ contract KittyMarketPlace is Ownable, IKittyMarketPlace {
     }
 
     /**
+     * Get all tokenId's with active sire offers.
+     * Returns an empty array if none exist.
+     */
+    function getAllSireOffers()
+        external
+        view
+        returns (uint256[] memory listOfOffers)
+    {
+        return _getActiveOffers(true);
+    }
+
+    /**
      * Creates a new offer for _tokenId for the price _price.
      * Emits the MarketTransaction event with txType "Create offer"
      * Requirement: Only the owner of _tokenId can create an offer.
@@ -117,23 +153,51 @@ contract KittyMarketPlace is Ownable, IKittyMarketPlace {
      */
     function setOffer(uint256 _price, uint256 _tokenId)
         external
+        marketApproved
         onlyTokenOwner(_tokenId)
+        noActiveOffer(_tokenId)
     {
-        require(
-            _kittyContract.isApprovedForAll(msg.sender, address(this)),
-            "market must be approved operator"
-        );
-        require(!hasActiveOffer(_tokenId), "duplicate offer");
+        _setOffer(_price, _tokenId, "Create", false);
+    }
 
-        uint256 index = offers.length;
-         offers.push(
-            Offer(msg.sender, _price, index, _tokenId, true)
+    function _setOffer(
+        uint256 _price,
+        uint256 _tokenId,
+        string memory _txType,
+        bool isSireOffer
+    ) internal {
+        Offer memory newOffer = Offer(
+            msg.sender,
+            _price,
+            offers.length,
+            _tokenId,
+            isSireOffer,
+            true
         );
 
-        Offer storage newOffer = offers[index];
+        offers.push(newOffer);
         tokenIdToOffer[_tokenId] = newOffer;
 
-        emit MarketTransaction("Create", msg.sender, _tokenId);
+        emit MarketTransaction(_txType, msg.sender, _tokenId);
+    }
+
+    /**
+     * Creates a new siring offer for @param _tokenId at @param _price
+     * Emits the MarketTransaction event with txType "Sire Offer"
+     * Requirement: The sire must be ready to breed
+     * Requirement: Only the owner of _tokenId can create an offer.
+     * Requirement: There can only be one active offer for a token at a time.
+     * Requirement: Marketplace contract (this) needs to be an approved operator when the offer is created.
+     */
+    function setSireOffer(uint256 _price, uint256 _tokenId)
+        external
+        marketApproved
+        onlyTokenOwner(_tokenId)
+        noActiveOffer(_tokenId)
+    {
+        require(_kittyContract.readyToBreed(_tokenId), "on cooldown");
+
+        _setOffer(_price, _tokenId, "Sire Offer", true);
     }
 
     /**
@@ -167,20 +231,55 @@ contract KittyMarketPlace is Ownable, IKittyMarketPlace {
         Offer memory offer = tokenIdToOffer[_tokenId];
         require(msg.value == offer.price, "payment must be exact");
 
-        // Important: remove offer BEFORE payment
-        // to prevent re-entry attack
-        _setOfferInactive(_tokenId);
-
-        // tansfer funds from buyer to seller
-        // TODO: make payment PULL istead of push
-        if (offer.price > 0) {
-            offer.seller.transfer(offer.price);
-        }
+        _executeOffer(offer);
 
         // tranfer kitty ownership
         _kittyContract.transferFrom(offer.seller, msg.sender, _tokenId);
 
         // emit event
         emit MarketTransaction("Buy", msg.sender, _tokenId);
+    }
+
+    function _executeOffer(Offer memory offer) internal {
+        // Important: remove offer BEFORE payment
+        // to prevent re-entry attack
+        _setOfferInactive(offer.tokenId);
+
+        // tansfer funds from buyer to seller
+        // TODO: make payment PULL istead of push
+        if (offer.price > 0) {
+            offer.seller.transfer(offer.price);
+        }
+    }
+
+    /**
+     * Purchase of siring rites
+     * Sends funds to the seller and sets sire approval for the matron
+     * Emits a MarketTransaction event with TxType "Sire Rites"
+     * Requirement: The msg.value needs to equal the siring price of _tokenId
+     * Requirement: msg.sender owns _matronTokenId
+     * Requirement: _matronTokenId is ready to breed
+     * Requirement: There must be an active sire offer for _sireTokenId
+     */
+    function buySireRites(uint256 _sireTokenId, uint256 _matronTokenId)
+        external
+        payable
+        activeOffer(_sireTokenId)
+    {
+        Offer memory offer = tokenIdToOffer[_sireTokenId];
+        require(msg.value == offer.price, "payment must be exact");
+        require(
+            _kittyContract.readyToBreed(_matronTokenId),
+            "matron on cooldown"
+        );
+
+        _executeOffer(offer);
+
+        // set sire rites
+        _kittyContract.sireApprove(_sireTokenId, _matronTokenId, true);
+        uint256 kittenId = _kittyContract.breed(_sireTokenId, _matronTokenId);
+        _kittyContract.transferFrom(address(this), msg.sender, kittenId);
+
+        emit MarketTransaction("Sire Rites", msg.sender, _sireTokenId);
     }
 }

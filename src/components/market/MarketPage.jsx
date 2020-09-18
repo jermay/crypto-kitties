@@ -5,6 +5,7 @@ import { Button, Alert } from 'react-bootstrap';
 
 import { Service } from '../js/service';
 import Offer from './Offer';
+import { offerTypes } from '../js/kittyConstants';
 
 
 const emptyEventMessage = {
@@ -16,17 +17,14 @@ export default function MarketPage() {
     const [init, setInit] = useState(false);
     const [isApproved, setIsApproved] = useState(false);
     const [offers, setOffers] = useState([]);
+    const [currOfferType, setCurrOfferType] = useState(offerTypes.sell);
     const [eventMessage, setEventMessage] = useState(emptyEventMessage);
 
     useEffect(() => {
         if (!init) {
             setInit(true);
             Service.market.marketSubscriptions.push(onMarketEvent);
-            Service.market.getAllTokenOnSale()
-                .then(results => {
-                    console.log('market offers loaded', results);
-                    setOffers(results);
-                });
+            getOffers(currOfferType);
             Service.market.isApproved()
                 .then(result => {
                     console.log(`market is ${result ? "already" : "NOT"} approved!`);
@@ -61,6 +59,15 @@ export default function MarketPage() {
                 break;
         }
     }
+
+    const getOffers = async (offerType) => {
+        if (offerType === currOfferType && offers.length) {
+            return;
+        }
+        setCurrOfferType(offerType);
+        Service.market.getOffers(offerType)
+            .then(results => setOffers(results));
+    };
 
     // const findOffer = kittyId => {
     //     console.log('find offer > kittyId: ', kittyId, 'in offers: ', offers);
@@ -117,6 +124,21 @@ export default function MarketPage() {
     return (
         <div>
             <h1>Kitty Marketplace</h1>
+            <div>
+                <Button
+                    className="mr-2"
+                    variation="info"
+                    onClick={() => getOffers(offerTypes.sell)}
+                    active={currOfferType === offerTypes.sell}>
+                    Kitties For Sale
+                </Button>
+                <Button
+                    variation="info"
+                    onClick={() => getOffers(offerTypes.sire)}
+                    active={currOfferType === offerTypes.sire}>
+                    Sire Offers
+                </Button>
+            </div>
             <Alert
                 variant={eventMessage.type}
                 dismissible
