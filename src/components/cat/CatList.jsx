@@ -1,39 +1,35 @@
-import React, { useState, useEffect } from 'react'
+import React, { useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux';
 
 import CatBox from './CatBox';
-import { CatModel } from '../js/catFactory';
 import { Container } from 'react-bootstrap';
-import { Service } from '../js/service';
 import CatActions from './CatActions';
+import { requestStatus } from '../js/utils';
+import { getKitties, selectKittyIds } from './catSlice';
 
 
-export default function CatList(props) {
-    const [data, setData] = useState({ cats: [] });
-    const [init, setInit] = useState(false);
+export default function CatList() {
+    const dispatch = useDispatch();
+    const kittyStatus = useSelector(state => state.kitties.status);
+    const kittyIds = useSelector(selectKittyIds);
 
-    useEffect(() => {
-        if (!init) {
-            const getKittes = async () => {
-                const list = await Service.kitty.getKitties();
-                setData({ cats: list });
-            }
-            getKittes();
-            setInit(true);
+    useEffect(()=>{
+        if (kittyStatus === requestStatus.idle) {
+            dispatch(getKitties());
         }
-    }, [init])
+    }, [kittyStatus, dispatch])
 
-    if (!data.cats.length) {
+    if (!kittyIds.length) {
         return (
-            <p>You have no kittes! Go to the Marketplace to find some!</p>
+            <p>You have no kittes! Go to the Marketplace to adpot some!</p>
         )
     }
 
-    const catBoxes = data.cats.map(kitty => {
-        let model = new CatModel(kitty);
+    const catBoxes = kittyIds.map(kittyId => {
         return (
-            <div key={kitty.genes}>                
-                <CatBox model={model} />
-                <CatActions kittyId={model.cat.kittyId} />
+            <div key={kittyId}>                
+                <CatBox kittyId={kittyId} />
+                <CatActions kittyId={kittyId} />
             </div>
         )
     })
