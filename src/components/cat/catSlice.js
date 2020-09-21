@@ -30,6 +30,13 @@ export const getKitties = createAsyncThunk(
     }
 )
 
+export const createGen0Kitty = createAsyncThunk(
+    'kitties/createGen0Kitty',
+    async (dna) => {
+        return Service.kitty.createGen0Kitty(dna);
+    }
+)
+
 const catSlice = createSlice({
     name: 'kitties',
     initialState: catAdapter.getInitialState({
@@ -55,6 +62,7 @@ const catSlice = createSlice({
 export default catSlice.reducer;
 
 export const {
+    selectAll: selectAllKitties,
     selectById: selectKittyById,
     selectIds: selectKittyIds
 } = catAdapter.getSelectors(state => state.kitties);

@@ -5,31 +5,33 @@ import CatBox from './CatBox';
 import { Container } from 'react-bootstrap';
 import CatActions from './CatActions';
 import { requestStatus } from '../js/utils';
-import { getKitties, selectKittyIds } from './catSlice';
+import { getKitties, selectAllKitties } from './catSlice';
+import { CatModel } from '../js/catFactory';
 
 
 export default function CatList() {
     const dispatch = useDispatch();
     const kittyStatus = useSelector(state => state.kitties.status);
-    const kittyIds = useSelector(selectKittyIds);
+    const kitties = useSelector(selectAllKitties);
 
-    useEffect(()=>{
+    useEffect(() => {
         if (kittyStatus === requestStatus.idle) {
             dispatch(getKitties());
         }
     }, [kittyStatus, dispatch])
 
-    if (!kittyIds.length) {
+    if (!kitties.length) {
         return (
             <p>You have no kittes! Go to the Marketplace to adpot some!</p>
         )
     }
 
-    const catBoxes = kittyIds.map(kittyId => {
+    const catBoxes = kitties.map(kitty => {
+        const model = new CatModel(kitty);
         return (
-            <div key={kittyId}>                
-                <CatBox kittyId={kittyId} />
-                <CatActions kittyId={kittyId} />
+            <div key={kitty.kittyId}>
+                <CatBox model={model} />
+                <CatActions kittyId={kitty.kittyId} />
             </div>
         )
     })
