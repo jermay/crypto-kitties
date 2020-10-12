@@ -1,15 +1,13 @@
 // import BN from 'bn.js';
 import { abi } from './kittyMarketplace.abi';
-import { offerTypes } from '../js/kittyConstants';
 
 
 export class KittyMarketPlaceService {
-    contractAddress = '0x28ccB94Bd17cE7F2B70C785Ed89a614d97266FFF';
+    contractAddress = '0x81287efD83dA314ff7cBD8F5221b909A8b6FF7B3';
     user;
     _contract;
     _contractPromise;
     _kittyService;
-    offers = [];
     marketSubscriptions = [];
 
     constructor(web3, kittyService) {
@@ -42,6 +40,17 @@ export class KittyMarketPlaceService {
         return this._contractPromise;
     }
 
+    subscribe = (callback) => {
+        this.marketSubscriptions.push(callback);
+    }
+
+    unsubscribe = (callback) => {
+        const i = this.marketSubscriptions.findIndex(callback);
+        if (i >= 0) {
+            this.marketSubscriptions.splice(i, 1);
+        }
+    }
+
     async subscribeToEvents() {
         window.ethereum.on(
             'accountsChanged',
@@ -56,10 +65,15 @@ export class KittyMarketPlaceService {
 
     onMarketEvent = (event) => {
         let trans = event.returnValues;
-        console.log('On Marketplace event: ', trans, 'subscriptions: ', this.marketSubscriptions.length);
+        const cleanTrans = {
+            TxType: trans.TxType,
+            owner: trans.owner,
+            tokenId: trans.tokenId
+        }
+        console.log('On Marketplace event: ', cleanTrans, 'subscriptions: ', this.marketSubscriptions.length);
 
         // emit event
-        this.marketSubscriptions.forEach(sub => sub(trans));
+        this.marketSubscriptions.forEach(sub => sub(cleanTrans));
     }
 
     onAccountChanged = (accounts) => {
@@ -67,17 +81,27 @@ export class KittyMarketPlaceService {
         this.user = accounts[0];
     }
 
-    async getKitty(id) {
+    getKitty = async (id) => {
         return this._kittyService.getKitty(id);
     }
 
-    async getOffer(tokenId) {
+    getOffer = async (tokenId) => {
         //TODO: add hasOffer(uint256 _tokenId) function to contract
         // to avoid revert as it spams the console with error messages
         // even though it's caught
         const instance = await this.getContract();
         return instance.methods.getOffer(tokenId)
             .call({ from: this.user })
+            .then(offer => {
+                return {
+                    seller: offer.seller,
+                    price: offer.price,
+                    index: offer.index,
+                    tokenId: offer.tokenId,
+                    isSireOffer: offer.isSireOffer,
+                    active: offer.active
+                }
+            })
             .catch(err => {
                 if (!err.message.includes('offer not active')) {
                     console.error(err);
@@ -86,33 +110,26 @@ export class KittyMarketPlaceService {
             });
     }
 
-    async getOffers(offerType) {
-        if (offerType === offerTypes.sell) {
-            return this.getAllTokenOnSale();
-        }
-        return this.getAllSireOffers();
+    getOffers = async () => {
+        const sellOffers = await this.getAllTokenOnSale();
+        const sireOffers = await this.getAllSireOffers();
+        const allOffers = sellOffers.concat(sireOffers);
+        return allOffers;
     }
 
-    async getAllTokenOnSale() {
+    getAllTokenOnSale = async () => {
         const instance = await this.getContract();
         const offerIds = await instance.methods
             .getAllTokenOnSale()
             .call({ from: this.user });
 
-        this.offers = await this.getOffersForIds(offerIds);
-        // let promises = offerIds.map(id => this.getOffer(id));
-        // this.offers = await Promise.all(promises);
+        const offers = await this.getOffersForIds(offerIds);
+        // console.log(`Sell offers loaded: `, offers);
 
-        // promises = this.offers.map(offer => this.getKitty(offer.tokenId)
-        //     .then(kitty => offer.kitty = kitty));
-        // await Promise.all(promises);
-
-        console.log(`Offers loaded: `, this.offers);
-
-        return this.offers;
+        return offers;
     }
 
-    async getOffersForIds(tokenIds) {
+    getOffersForIds = async (tokenIds) => {
         let promises = tokenIds.map(id => this.getOffer(id));
         const offers = await Promise.all(promises);
 
@@ -123,28 +140,31 @@ export class KittyMarketPlaceService {
         return offers;
     }
 
-    async getAllSireOffers() {
+    getAllSireOffers = async () => {
+        // console.log('getting sire offers');
         const instance = await this.getContract();
         const offerIds = await instance.methods
             .getAllSireOffers()
             .call({ from: this.user });
 
-        this.offers = this.getOffersForIds(offerIds);
-        return this.offers;
+        const offers = await this.getOffersForIds(offerIds);
+        // console.log('Sire offers loaded: ', offers);
+
+        return offers;
     }
 
-    isApproved() {
+    isApproved = async () => {
         return this._kittyService
             .isApproved(this.contractAddress);
     }
 
-    approve() {
+    approve = async () => {
         // set the market as an approved operator
         return this._kittyService
             .approve(this.contractAddress);
     }
 
-    async sellKitty(kittyId, price) {
+    sellKitty = async (kittyId, price) => {
         console.log('kittyId: ', kittyId, ' price: ', price, typeof price);
 
         // throw if market is NOT operator
@@ -161,7 +181,7 @@ export class KittyMarketPlaceService {
             .catch(this.handleErr);
     }
 
-    async buyKitty(offer) {
+    buyKitty = async (offer) => {
         // TODO: check user balance for insufficient funds
         const instance = await this.getContract();
         return instance.methods
@@ -171,7 +191,7 @@ export class KittyMarketPlaceService {
             .catch(this.handleErr);
     }
 
-    async setSireOffer(kittyId, price) {
+    setSireOffer = async (kittyId, price) => {
         const instance = await this.getContract();
         const priceInWei = this.web3.utils
             .toWei(price, 'ether');
@@ -184,7 +204,7 @@ export class KittyMarketPlaceService {
             .catch(this.handleErr);
     }
 
-    async buySireRites(offer, matronId) {
+    buySireRites = async (offer, matronId) => {
         console.log('buySireRites:: offer: ', offer, ' matronId: ', matronId);
         const instance = await this.getContract();
         return instance.methods
@@ -194,7 +214,7 @@ export class KittyMarketPlaceService {
             .catch(this.handleErr);
     }
 
-    async removeOffer(tokenId) {
+    removeOffer = async (tokenId) => {
         console.log('Removing offer for kittyId:', tokenId);
         const instance = await this.getContract();
         return instance.methods
@@ -204,7 +224,7 @@ export class KittyMarketPlaceService {
             .catch(this.handleErr);
     }
 
-    handleErr(err) {
+    handleErr = (err) => {
         console.error(err);
         return false;
     }

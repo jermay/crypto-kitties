@@ -98,21 +98,21 @@ contract KittyContract is IERC721 {
             uint32 mumId,
             uint32 dadId,
             uint16 generation,
-            uint16 cooldownIndex
+            uint16 cooldownIndex,
+            address owner
         )
-
     {
         Kitty storage kitty = kitties[_kittyId];
-        return (
-            _kittyId,
-            kitty.genes,
-            kitty.birthTime,
-            kitty.cooldownEndTime,
-            kitty.mumId,
-            kitty.dadId,
-            kitty.generation,
-            kitty.cooldownIndex
-        );
+        
+        kittyId = _kittyId;
+        genes = kitty.genes;
+        birthTime = kitty.birthTime;
+        cooldownEndTime = kitty.cooldownEndTime;
+        mumId = kitty.mumId;
+        dadId = kitty.dadId;
+        generation = kitty.generation;
+        cooldownIndex = kitty.cooldownIndex;
+        owner = kittyToOwner[_kittyId];
     }
 
     /**

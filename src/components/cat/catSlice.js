@@ -1,8 +1,8 @@
-import { createAsyncThunk, createEntityAdapter, createSlice } from '@reduxjs/toolkit';
+import { createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
 import { normalize, schema } from 'normalizr';
 
 import { Service } from '../js/service';
-import { requestStatus } from '../js/utils';
+import { RequestStatus, setRequestStatusFailed, setRequestStatusLoading, setRequestStatusSucceeded } from '../js/utils';
 
 const catAdapter = createEntityAdapter({
     // sort by kittyId descending
@@ -26,7 +26,7 @@ export const getKitties = createAsyncThunk(
         const data = await Service.kitty.getKitties();
         const normalized = normalize(data, kittyListSchema);
         console.log('kitties/getKitties: normalized: ', normalized);
-        return normalized.entities.kitties;
+        return normalized.entities.kitties || [];
     }
 )
 
@@ -40,24 +40,36 @@ export const createGen0Kitty = createAsyncThunk(
 const catSlice = createSlice({
     name: 'kitties',
     initialState: catAdapter.getInitialState({
-        status: requestStatus.idle,
+        status: RequestStatus.idle,
         error: null
     }),
-    reducers: {},
+    reducers: {
+        kittenBorn: (state, action) => {
+            state.status = RequestStatus.confirmed;
+            catAdapter.addOne(state, action.payload);
+        },
+        addKitties: catAdapter.upsertMany,
+        updateKitty: catAdapter.upsertOne,
+    },
     extraReducers: {
-        [getKitties.pending]: (state, action) => {
-            state.status = requestStatus.loading;
-        },
+        [getKitties.pending]: setRequestStatusLoading,
+        [getKitties.rejected]: setRequestStatusFailed,
         [getKitties.fulfilled]: (state, action) => {
-            state.status = requestStatus.succeeded;
-            catAdapter.upsertMany(state, action.payload);
+            state.status = RequestStatus.succeeded;
+            catAdapter.setAll(state, action.payload);
         },
-        [getKitties.rejected]: (state, action) => {
-            state.status = requestStatus.failed;
-            state.error = action.error.message;
-        }
+
+        [createGen0Kitty.pending]: setRequestStatusLoading,
+        [createGen0Kitty.rejected]: setRequestStatusFailed,
+        [createGen0Kitty.fulfilled]: setRequestStatusSucceeded,
     }
 });
+
+export const {
+    kittenBorn,
+    addKitties,
+    updateKitty
+} = catSlice.actions;
 
 export default catSlice.reducer;
 
@@ -66,3 +78,8 @@ export const {
     selectById: selectKittyById,
     selectIds: selectKittyIds
 } = catAdapter.getSelectors(state => state.kitties);
+
+export const selectKittiesByOwner = createSelector(
+    [selectAllKitties, (_, owner) => owner],
+    (entities, owner) => entities.filter(kitty => kitty.owner === owner)
+);

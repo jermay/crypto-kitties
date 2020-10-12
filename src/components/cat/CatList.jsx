@@ -1,24 +1,16 @@
-import React, { useEffect } from 'react'
-import { useDispatch, useSelector } from 'react-redux';
+import React from 'react';
+import { useSelector } from 'react-redux';
 
 import CatBox from './CatBox';
 import { Container } from 'react-bootstrap';
 import CatActions from './CatActions';
-import { requestStatus } from '../js/utils';
-import { getKitties, selectAllKitties } from './catSlice';
+import { selectKittiesByOwner } from './catSlice';
 import { CatModel } from '../js/catFactory';
 
 
 export default function CatList() {
-    const dispatch = useDispatch();
-    const kittyStatus = useSelector(state => state.kitties.status);
-    const kitties = useSelector(selectAllKitties);
-
-    useEffect(() => {
-        if (kittyStatus === requestStatus.idle) {
-            dispatch(getKitties());
-        }
-    }, [kittyStatus, dispatch])
+    const wallet = useSelector(state => state.wallet);
+    const kitties = useSelector(state => selectKittiesByOwner(state, wallet.account));
 
     if (!kitties.length) {
         return (

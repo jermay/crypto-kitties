@@ -1,11 +1,10 @@
 // import BN from 'bn.js';
 import { abi } from './abi';
-// import moment from 'moment';
 
 import { kittyCooldowns } from './kittyConstants';
 
 export class KittyService {
-    contractAddress = '0xAb454bD8D4d3c562F623d3eb9b4cdD5bb21CFfa0';
+    contractAddress = '0xBED527c80830cf4bBd51C6Ec5599424240d946C0';
     user;
     _contract;
     _contractPromise;
@@ -16,7 +15,6 @@ export class KittyService {
         this.web3 = web3;
 
         this.subscribeToEvents();
-        this.getKitties();
     }
 
     async getContract() {
@@ -53,6 +51,17 @@ export class KittyService {
             .on('error', console.error);
     }
 
+    subscribeToBirthEvent = (callback) => {
+        this.birthSubscriptions.push(callback);
+    }
+
+    unSubscribeToBirthEvent = (callback) => {
+        const i = this.birthSubscriptions.indexOf(callback);
+        if (i >= 0) {
+            this.birthSubscriptions.splice(i, 1);
+        }
+    }
+
     onBirth = (event) => {
         let birth = event.returnValues;
         console.log('Birth event: ', birth);
@@ -61,14 +70,14 @@ export class KittyService {
         this.birthSubscriptions.forEach(sub => sub(birth));
     }
 
-    async isUserOwner() {
+    isUserOwner = async () => {
         const instance = await this.getContract();
         return instance.methods
             .isOwner()
             .call({ from: this.user });
     }
 
-    async createGen0Kitty(dna) {
+    createGen0Kitty = async (dna) => {
         const instance = await this.getContract();
         const result = await instance.methods
             .createKittyGen0(dna)
@@ -77,18 +86,28 @@ export class KittyService {
         console.log('kitty created! ', result);
     }
 
-    async getKitty(id) {
+    getKitty = async (id) => {
         const instance = await this.getContract();
         return instance.methods
             .getKitty(id)
             .call()
             .then(kitty => {
-                kitty.cooldown = kittyCooldowns[kitty.cooldownIndex];
-                return kitty;
+                return {
+                    kittyId: id,
+                    genes: kitty.genes,
+                    birthTime: kitty.birthTime,
+                    cooldownEndTime: kitty.cooldownEndTime,
+                    mumId: kitty.mumId,
+                    dadId: kitty.dadId,
+                    generation: kitty.generation,
+                    cooldownIndex: kitty.cooldownIndex,
+                    cooldown: kittyCooldowns[kitty.cooldownIndex],
+                    owner: kitty.owner.toLowerCase()
+                };
             });
     }
 
-    async getKitties() {
+    getKitties = async () => {
         const instance = await this.getContract();
         const kittyIds = await instance.methods
             .kittiesOf(this.user)
@@ -97,26 +116,26 @@ export class KittyService {
         let promises = kittyIds.map(id => this.getKitty(id));
         this.kitties = await Promise.all(promises);
 
-        console.log(`Kittes for ${this.user} loaded: `, this.kitties);
+        // console.log(`Kittes for ${this.user} loaded: `, this.kitties);
 
         return this.kitties;
     }
 
-    async breed(mumId, dadId) {
+    breed = async (mumId, dadId) => {
         const instance = await this.getContract();
         return instance.methods
             .breed(dadId, mumId)
             .send({ from: this.user });
     }
 
-    async isApproved(address) {
+    isApproved = async (address) => {
         const instance = await this.getContract();
         return instance.methods
             .isApprovedForAll(this.user, address)
             .call({ from: this.user });
     }
 
-    async approve(address) {
+    approve = async (address) => {
         // set the market as an approved operator
         const instance = await this.getContract();
         return instance.methods

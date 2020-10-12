@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useDispatch } from 'react-redux';
 import { Tabs, Tab, Button, Col, Row } from 'react-bootstrap';
 
 import { CatModel } from '../js/catFactory';
@@ -8,6 +9,7 @@ import CatSettings from './CatSettings';
 import CatBox from '../cat/CatBox';
 import BirthAlert from './BirthAlert';
 import { Service } from '../js/service';
+import { createGen0Kitty } from '../cat/catSlice';
 
 const initialCatModel = new CatModel();
 
@@ -17,6 +19,8 @@ export default function CatFactory() {
    const [cat, setCat] = useState({ model: initialCatModel });
    const [birthEvent, setBirthEvent] = useState({});
    const [showBirthAlert, setShowBirthAlert] = useState(false)
+
+   const dispatch = useDispatch();
 
    useEffect(() => {
       if (!init) {
@@ -49,7 +53,7 @@ export default function CatFactory() {
    }
 
    const handleCreateKitty = () => {
-      Service.kitty.createGen0Kitty(cat.model.dna.dna);
+      dispatch(createGen0Kitty(cat.model.dna.dna));
    };
 
    const handleBirthEvent = (event) => {
