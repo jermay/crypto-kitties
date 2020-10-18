@@ -5,29 +5,24 @@ import moment from 'moment';
 import CatBox from '../cat/CatBox';
 import { CatModel } from '../js/catFactory';
 import { ButtonGroup, Button, Spinner, Badge } from 'react-bootstrap';
-import { Service } from '../js/service';
+import { selectKittiesByOwner } from '../cat/catSlice';
+import { useSelector } from 'react-redux';
 
 export default function BreedList(props) {
     const { handleOnSetParent, sireId } = props;
 
-    const [list, setList] = useState([]);
-    const [init, setInit] = useState(false);
+    const wallet = useSelector(state => state.wallet);
+    const list = useSelector(state => selectKittiesByOwner(state, wallet.account));
+
     const [pageNum, setPageNum] = useState(0);
     const [kittyModel, setKittyModel] = useState({ value: null });
 
-    useEffect(() => {
-        if (!init) {
-            Service.kitty.getKitties()
-                .then(list => {
-                    const items = list.map(item => {
-                        return new CatModel(item);
-                    })
-                    setKittyModel({ value: items[0] });
-                    setList(items);
-                });
-            setInit(true);
+    useEffect(()=>{
+        if (list.length) {
+            const model = new CatModel(list[pageNum]);
+            setKittyModel({ value: model });
         }
-    }, [init])
+    }, [list, pageNum]);
 
     const isOnCoolDown = () => {
         if (Boolean(kittyModel.value)) {
@@ -51,8 +46,9 @@ export default function BreedList(props) {
         return () => clearInterval(timer);
     }, [isOnCoolDown, onCooldown, kittyModel])
 
-    // kitties still loading, show spinner
-    if (!list.length) {
+    
+    if (!kittyModel.value) {
+        // kitties still loading, show spinner
         return <Spinner animation="grow" variant="success" />
     }
 
@@ -66,7 +62,6 @@ export default function BreedList(props) {
         }
         const prev = pageNum - 1;
         setPageNum(prev);
-        setKittyModel({ value: list[prev] });
         setOnCooldown(isOnCoolDown());
     };
 
@@ -76,7 +71,6 @@ export default function BreedList(props) {
         }
         const next = pageNum + 1;
         setPageNum(next);
-        setKittyModel({ value: list[next] });
         setOnCooldown(isOnCoolDown());
     };
 

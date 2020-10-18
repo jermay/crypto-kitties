@@ -30,6 +30,13 @@ export const getKitties = createAsyncThunk(
     }
 )
 
+export const fetchKitty = createAsyncThunk(
+    'kitties/fetchKitty',
+    async (kittyId) => {
+        return Service.kitty.getKitty(kittyId);
+    }
+)
+
 export const createGen0Kitty = createAsyncThunk(
     'kitties/createGen0Kitty',
     async (dna) => {
@@ -37,16 +44,31 @@ export const createGen0Kitty = createAsyncThunk(
     }
 )
 
+export const breedKitties = createAsyncThunk(
+    'kitties/breedKitties',
+    ({ mumId, dadId }) => {
+        return Service.kitty.breed(mumId, dadId);
+    }
+)
+
 const catSlice = createSlice({
     name: 'kitties',
     initialState: catAdapter.getInitialState({
+        newKittenId: null,
         status: RequestStatus.idle,
         error: null
     }),
     reducers: {
         kittenBorn: (state, action) => {
             state.status = RequestStatus.confirmed;
+            state.newKittenId = action.payload.kittyId;
             catAdapter.addOne(state, action.payload);
+        },
+        newKittenIdClear: (state, action) => {
+            state.newKittenId = null;
+        },
+        kittyError: (state, action) => {
+            state.error = action.payload;
         },
         addKitties: catAdapter.upsertMany,
         updateKitty: catAdapter.upsertOne,
@@ -62,13 +84,17 @@ const catSlice = createSlice({
         [createGen0Kitty.pending]: setRequestStatusLoading,
         [createGen0Kitty.rejected]: setRequestStatusFailed,
         [createGen0Kitty.fulfilled]: setRequestStatusSucceeded,
+
+        [fetchKitty.fulfilled]: catAdapter.upsertOne,
     }
 });
 
 export const {
-    kittenBorn,
     addKitties,
-    updateKitty
+    kittyError,
+    kittenBorn,
+    newKittenIdClear,
+    updateKitty,
 } = catSlice.actions;
 
 export default catSlice.reducer;

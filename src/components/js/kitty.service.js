@@ -66,8 +66,16 @@ export class KittyService {
         let birth = event.returnValues;
         console.log('Birth event: ', birth);
 
+        const cleanedEvent = {
+            owner: birth.owner,
+            kittyId: birth.kittyId,
+            mumId: birth.mumId,
+            dadId: birth.dadId,
+            genes: birth.genes
+        }
+
         // emit event
-        this.birthSubscriptions.forEach(sub => sub(birth));
+        this.birthSubscriptions.forEach(sub => sub(cleanedEvent));
     }
 
     isUserOwner = async () => {
@@ -125,7 +133,8 @@ export class KittyService {
         const instance = await this.getContract();
         return instance.methods
             .breed(dadId, mumId)
-            .send({ from: this.user });
+            .send({ from: this.user })
+            .then(result => result.transactionHash);
     }
 
     isApproved = async (address) => {
