@@ -8,10 +8,10 @@ import CatBox from '../cat/CatBox';
 import { CatModel } from '../js/catFactory';
 import { Service } from '../js/service';
 import { useQuery } from '../js/utils';
-import { BreedProgress, breedReset } from './breedSlice';
+import { BreedProgress, breedReset, sireOfferSelected } from './breedSlice';
 import { selectKittyById } from '../cat/catSlice';
 import { selectOfferByKittyId } from '../market/offerSlice';
-import { approveParent, breed } from './breedSaga';
+import { approveParent, breed, sire } from './breedSaga';
 
 const PlaceHolder = styled.div`
     color: white;
@@ -26,7 +26,7 @@ export default function BreedPage() {
     // from a market sire offer
     // should lock the dad selection
     // breed button should buy the offer
-    const sireId = useQuery().get('sireId');
+    // const sireId = useQuery().get('sireId');
     const dispatch = useDispatch();
 
     const {
@@ -38,13 +38,12 @@ export default function BreedPage() {
         // error TODO: display errors
     } = useSelector(state => state.breed);
 
+    const sireOffer = useSelector(state => selectOfferByKittyId(state, sireOfferId));
     const dadKitty = useSelector(state => selectKittyById(state, dadId));
     let dad = undefined;
     if (dadKitty) {
         dad = new CatModel(dadKitty);
     }
-
-    const sireOffer = useSelector(state => selectOfferByKittyId(state, sireOfferId));
 
     const mumKitty = useSelector(state => selectKittyById(state, mumId));
     let mum = undefined;
@@ -59,24 +58,31 @@ export default function BreedPage() {
     }
 
     const handleOnSetParent = (kitty, parentType) => {
-        dispatch(approveParent({parentId: kitty.cat.kittyId, parentType}));
+        dispatch(approveParent({ parentId: kitty.cat.kittyId, parentType }));
     };
 
     const onBreedClicked = async () => {
-        dispatch(breed({mumId, dadId}));
+        if (sireOffer) {
+            dispatch(sire({offer: sireOffer, matronId: mumId}));
+        } else {
+            dispatch(breed({ mumId, dadId }));
+        }
     }
 
     const onResetParents = () => {
         dispatch(breedReset());
     }
 
+    const sireCostTxt = Boolean(sireOffer) ?
+        ` (${Service.web3.utils.fromWei(sireOffer.price, 'ether')} ETH)` : '';
+
     // Set Parents
     const parentBoxes = [
         { type: 'Mum', model: mum },
-        { type: 'Dad', model: dad }
+        { type: `Dad${sireCostTxt}`, model: dad }
     ].map(data =>
         <Col key={data.type}>
-            <h5>{data.type} Kitty</h5>
+            <h5>{data.type}</h5>
             {
                 data.model ? <CatBox model={data.model} /> :
                     <PlaceHolder className="bg-info">
@@ -89,13 +95,11 @@ export default function BreedPage() {
     let instructionContent;
     switch (progress) {
         case BreedProgress.READY:
-            const sireCostTxt = Boolean(sireOffer) ?
-                `(${Service.web3.utils.fromWei(sireOffer.price, 'ether')} ETH)` : '';
             instructionContent =
                 <Button
                     className="mt-2"
                     onClick={onBreedClicked}>
-                    Give them some privacy {sireCostTxt}
+                    Give them some privacy{sireCostTxt}
                 </Button>
             break;
 
@@ -136,7 +140,7 @@ export default function BreedPage() {
                 <Col sm={4} className="">
                     <h5 className="text-center">Your Kitties</h5>
                     <BreedList
-                        sireId={sireId}
+                        sireId={sireOffer ? sireOffer.tokenId : null}
                         handleOnSetParent={handleOnSetParent} />
                 </Col>
                 <Col sm={8} className="text-center">

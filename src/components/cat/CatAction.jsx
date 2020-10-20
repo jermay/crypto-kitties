@@ -9,6 +9,7 @@ import { Service } from '../js/service';
 import { approveMarket } from '../wallet/walletSlice';
 import { OfferStatus, selectOfferByKittyId } from '../market/offerSlice';
 import { RequestStatus } from '../js/utils';
+import { sireOfferSelected } from '../breed/breedSlice';
 
 const SELL_STATUS = {
     notForSale: 'Not For Sale',
@@ -121,6 +122,7 @@ export default function CatAction(props) {
     const onCancelSaleClicked = () => handleCancelOffer();
     const onBackClicked = () => handleBackClicked();
     const onBuyOfferClicked = () => handleBuyOfferClicked();
+    const onSireOfferClicked = () => dispatch(sireOfferSelected(offer.tokenId));
 
     
     let sellDisplay = null;
@@ -170,7 +172,8 @@ export default function CatAction(props) {
             if (Service.kitty.user !== offer.seller) {
                 sellButton = offer.isSireOffer ?
                     <NavLink
-                        to={`/breed?sireId=${offer.tokenId}`}
+                        to={`/breed`}
+                        onClick={onSireOfferClicked}
                         className="btn btn-primary nav-link">
                         Buy
                     </NavLink>

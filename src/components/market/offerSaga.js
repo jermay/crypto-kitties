@@ -1,3 +1,4 @@
+import { createAction } from "@reduxjs/toolkit";
 import { addKitties, updateKitty } from "../cat/catSlice";
 
 const { eventChannel } = require("redux-saga");
@@ -14,6 +15,10 @@ export const MarketTransType = {
     sireOfferPurchased: 'Sire Rites',
     offerCancelled: 'Remove'
 }
+
+// actions
+export const marketEvent = createAction('offers/marketEvent');
+
 
 
 export function* offerSaga() {
@@ -50,6 +55,7 @@ function createMarketEventChannel() {
 
 function* onMarketEvent(marketEvent) {
     try {
+        // update offer slice
         switch (marketEvent.TxType) {
             case MarketTransType.sellOfferCreated:
             case MarketTransType.sireOfferCreated:
@@ -81,6 +87,9 @@ function* onMarketEvent(marketEvent) {
                 console.log('Unknown market trans type: ', marketEvent.TxType);
                 break;
         }
+
+        // broadcast event
+
     } catch (error) {
         yield put(offerError(error));
     }

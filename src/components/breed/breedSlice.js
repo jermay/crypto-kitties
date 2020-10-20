@@ -47,6 +47,7 @@ const breedSlice = createSlice({
         },
         sireOfferSelected: (state, action) => {
             state.sireOfferId = action.payload;
+            state.dadId = action.payload;
         },
         breedReset: (state, action) => {
             state.dadId = null;

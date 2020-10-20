@@ -3,6 +3,8 @@ import { all, fork, put, select, take } from "redux-saga/effects";
 import { breedKitties, fetchKitty, kittenBorn } from "../cat/catSlice";
 import { selectParentIds, breedError, breedProgress, BreedProgress, kittenBredEvent, setParent } from './breedSlice';
 import { dispatchKittenOnBirthEventMatch } from '../cat/catSaga';
+import { buySireRites } from "../market/offerSlice";
+import { marketEvent } from "../market/offerSaga";
 
 export const approveParent = createAction(
     'breed/approveParent',
@@ -13,18 +15,26 @@ export const approveParent = createAction(
 export const parentApproved = createAction('breed/parentApproved');
 
 export const breed = createAction(
-    'kitties/breed',
+    'breed/breed',
     ({ mumId, dadId }) => {
         return { payload: { mumId, dadId } }
     }
 );
+
+export const sire = createAction(
+    'breed/sire',
+    ({ offer, matronId }) => {
+        return { payload: { offer, matronId } }
+    }
+)
 
 
 
 export function* breedSaga() {
     yield all([
         validateParent(),
-        onBreed()
+        onBreed(),
+        onSire(),
     ]);
 }
 
@@ -101,3 +111,28 @@ function* onBreed() {
     }
 }
 
+function* onSire() {
+    const sireAction = yield take(sire);
+    const { offer, matronId } = sireAction.payload;
+    const sireId = offer.tokenId;
+
+    yield fork(
+        dispatchKittenOnBirthEventMatch,
+        kitten => kitten.mumId === matronId &&
+            kitten.dadId === sireId
+    );
+
+    yield put(buySireRites({ offer, matronId }));
+
+    const { kittenAction } = yield all({
+        fulfilled: take(buySireRites.fulfilled),
+        kittenAction: take(kittenBorn)
+    });
+
+    // update parent cooldowns after breeding
+    yield all([
+        put(kittenBredEvent(kittenAction.payload.kittyId)),
+        put(fetchKitty(matronId)),
+        put(fetchKitty(sireId)),
+    ]);
+}
