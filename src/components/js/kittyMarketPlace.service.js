@@ -15,7 +15,7 @@ export class KittyMarketPlaceService {
         this._kittyService = kittyService;
 
         this.subscribeToEvents();
-        this.getAllTokenOnSale();
+        // this.getAllTokenOnSale();
     }
 
     async getContract() {

@@ -4,7 +4,6 @@ import { breedKitties, fetchKitty, kittenBorn } from "../cat/catSlice";
 import { selectParentIds, breedError, breedProgress, BreedProgress, kittenBredEvent, setParent } from './breedSlice';
 import { dispatchKittenOnBirthEventMatch } from '../cat/catSaga';
 import { buySireRites } from "../market/offerSlice";
-import { marketEvent } from "../market/offerSaga";
 
 export const approveParent = createAction(
     'breed/approveParent',

@@ -7,8 +7,7 @@ import BreedList from './BreedList'
 import CatBox from '../cat/CatBox';
 import { CatModel } from '../js/catFactory';
 import { Service } from '../js/service';
-import { useQuery } from '../js/utils';
-import { BreedProgress, breedReset, sireOfferSelected } from './breedSlice';
+import { BreedProgress, breedReset } from './breedSlice';
 import { selectKittyById } from '../cat/catSlice';
 import { selectOfferByKittyId } from '../market/offerSlice';
 import { approveParent, breed, sire } from './breedSaga';

@@ -19,9 +19,9 @@ export function* catSaga() {
 function* onGenZeroKitty() {
     while (true) {
         try {
-            const action = yield take(createGen0Kitty);
-            const newDna = action.payload;
-            console.log('cataSaga::onGenZeroKitty genes:', newDna);
+            const action = yield take(createGen0Kitty.pending);
+            const newDna = action.meta.arg;
+            console.log('cataSaga::onGenZeroKitty action', action);
 
             // listen for birth events until
             // matching kitten is found or an error
