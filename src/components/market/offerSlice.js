@@ -16,6 +16,7 @@ const offerAdapter = createEntityAdapter({
 
 const initialState = offerAdapter.getInitialState({
     status: RequestStatus.idle,
+    event: null,
     error: null
 });
 
@@ -67,8 +68,8 @@ export const buySireRites = createAsyncThunk(
     }
 )
 
-export const cancelOffer = createAsyncThunk(
-    'offers/cancelOffer',
+export const removeOffer = createAsyncThunk(
+    'offers/removeOffer',
     async ({ kittyId }) => {
         return Service.market.removeOffer(kittyId);
     }
@@ -78,37 +79,25 @@ const offerSlice = createSlice({
     name: 'offers',
     initialState,
     reducers: {
-        offerCreated: {
-            reducer(state, action) {
-                state.status = RequestStatus.confirmed;
+        offerCreated: (state, action) => {
+            state.status = RequestStatus.confirmed;
 
-                const offer = { status: OfferStatus.active, ...action.payload };
-                offerAdapter.addOne(state, offer);
-            }
+            const offer = { status: OfferStatus.active, ...action.payload };
+            offerAdapter.addOne(state, offer);
         },
         offerPurchased: (state, action) => {
             state.status = RequestStatus.confirmed;
-
-            offerAdapter.updateOne(
-                state,
-                {
-                    id: action.payload.tokenId,
-                    changes: { status: OfferStatus.sold }
-                }
-            )
+            offerAdapter.removeOne(state, action.payload.tokenId);
         },
         offerCancelled: (state, action) => {
             state.status = RequestStatus.confirmed;
-
-            offerAdapter.updateOne(
-                state,
-                {
-                    id: action.payload.tokenId,
-                    changes: {
-                        status: OfferStatus.cancelled,
-                        isActive: false
-                    }
-                });
+            offerAdapter.removeOne(state, action.payload.tokenId);
+        },
+        offerEventNotify: (state, action) => {
+            state.event = action.payload;
+        },
+        OfferEventDismiss: (state, action) => {
+            state.event = null;
         },
         offerError: (state, action) => {
             state.error = action.payload;
@@ -138,16 +127,36 @@ const offerSlice = createSlice({
         [buySireRites.rejected]: setRequestStatusFailed,
         [buySireRites.fulfilled]: setRequestStatusSucceeded,
 
-        [cancelOffer.pending]: setRequestStatusLoading,
-        [cancelOffer.rejected]: setRequestStatusFailed,
-        [cancelOffer.fulfilled]: setRequestStatusSucceeded,
+        [removeOffer.pending]: setRequestStatusLoading,
+        [removeOffer.rejected]: setRequestStatusFailed,
+        [removeOffer.fulfilled]: setRequestStatusSucceeded,
     }
 });
+
+// function setOfferStatus(status) {
+//     return (state, action) => {
+//         state.status = status;
+        
+//         // update offer status
+//         const arg = action.meta.arg;
+//         let kittyId;
+//         if (arg.kittyId) {
+//             kittyId = arg.kittyId;
+//         } else if (arg.offer) {
+//             kittyId = arg.offer.tokenId;
+//         }
+        
+//         const offer = selectOfferByKittyId(state, kittyid);
+//         offer.requestStatus = status;
+//     }
+// }
 
 export const {
     offerCreated,
     offerPurchased,
     offerCancelled,
+    offerEventNotify,
+    OfferEventDismiss,
     offerError
 } = offerSlice.actions;
 
@@ -170,3 +179,5 @@ export const selectOfferIdsByType = createSelector(
             .map(offer => offer.tokenId);
     }
 );
+
+export const selectOfferRequestStatus = (state) => state.offers.status;

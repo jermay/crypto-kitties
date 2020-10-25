@@ -1,12 +1,12 @@
-import { getKitties } from "../cat/catSlice";
+import { createAction } from "@reduxjs/toolkit";
+import { eventChannel } from "redux-saga";
+import { take, call, put, all } from "redux-saga/effects";
+
+import { Service } from "../js/service";
+import { fetchKittiesForIds, getKitties } from "../cat/catSlice";
 import { getOffers } from "../market/offerSlice";
 import { updateAccountNetwork, walletError } from "./walletSlice";
-import { addKitties } from '../cat/catSlice';
 
-const { createAction } = require("@reduxjs/toolkit");
-const { eventChannel } = require("redux-saga");
-const { take, call, put, all } = require("redux-saga/effects");
-const { Service } = require("../js/service");
 
 export const connect = createAction('wallet/connect');
 export const connectSuccess = createAction('wallet/connect/success');
@@ -54,10 +54,10 @@ function* onAccountOrNetworkChange() {
 function* getKittesFromOffers() {
     const result = yield take(getOffers.fulfilled);
 
-    const kitties = Object.values(result.payload)
-        .map(offer => offer.kitty);
+    const kittyIds = Object.values(result.payload)
+        .map(offer => offer.tokenId);
 
-    yield put(addKitties(kitties));
+    yield put(fetchKittiesForIds(kittyIds));
 }
 
 function* onAccountChange() {
@@ -82,7 +82,7 @@ function* onAccountChange() {
 
 function createAccountChangedChannel() {
     return eventChannel(emitter => {
-        const emitAccount = accounts => emitter(accounts[0] || '');
+        const emitAccount = accounts => emitter(accounts[0].toLowerCase() || '');
 
         window.ethereum.on('accountsChanged', emitAccount);
 

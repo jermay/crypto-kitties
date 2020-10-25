@@ -32,7 +32,7 @@ export class KittyMarketPlaceService {
                 { from: accounts[0] }
             );
             this.user = accounts[0];
-            console.log('user: ', this.user, 'contract: ', this._contract);
+            console.log('user: ', this.user, 'market contract: ', this._contract);
 
             return this._contract;
         });
@@ -67,7 +67,7 @@ export class KittyMarketPlaceService {
         let trans = event.returnValues;
         const cleanTrans = {
             TxType: trans.TxType,
-            owner: trans.owner,
+            owner: trans.owner.toLowerCase(),
             tokenId: trans.tokenId
         }
         console.log('On Marketplace event: ', cleanTrans, 'subscriptions: ', this.marketSubscriptions.length);
@@ -94,7 +94,7 @@ export class KittyMarketPlaceService {
             .call({ from: this.user })
             .then(offer => {
                 return {
-                    seller: offer.seller,
+                    seller: offer.seller.toLowerCase(),
                     price: offer.price,
                     index: offer.index,
                     tokenId: offer.tokenId,
@@ -133,10 +133,6 @@ export class KittyMarketPlaceService {
         let promises = tokenIds.map(id => this.getOffer(id));
         const offers = await Promise.all(promises);
 
-        promises = offers.map(offer => this.getKitty(offer.tokenId)
-            .then(kitty => offer.kitty = kitty));
-        await Promise.all(promises);
-
         return offers;
     }
 
@@ -165,14 +161,13 @@ export class KittyMarketPlaceService {
     }
 
     sellKitty = async (kittyId, price) => {
-        console.log('kittyId: ', kittyId, ' price: ', price, typeof price);
+        // console.log('kittyId: ', kittyId, ' price: ', price, typeof price);
 
         // throw if market is NOT operator
         // call contract to sell kitty
         const instance = await this.getContract();
         const priceInWei = this.web3.utils
             .toWei(price, 'ether');
-        console.log('priceInWei: ', priceInWei);
 
         return instance.methods
             .setOffer(priceInWei, kittyId)
@@ -195,7 +190,7 @@ export class KittyMarketPlaceService {
         const instance = await this.getContract();
         const priceInWei = this.web3.utils
             .toWei(price, 'ether');
-        console.log(`Creating sire offer of ${price} for kittyId: ${kittyId}`);
+        // console.log(`Creating sire offer of ${price} for kittyId: ${kittyId}`);
 
         return instance.methods
             .setSireOffer(priceInWei, kittyId)
@@ -205,7 +200,7 @@ export class KittyMarketPlaceService {
     }
 
     buySireRites = async (offer, matronId) => {
-        console.log('buySireRites:: offer: ', offer, ' matronId: ', matronId);
+        // console.log('buySireRites:: offer: ', offer, ' matronId: ', matronId);
         const instance = await this.getContract();
         return instance.methods
             .buySireRites(offer.tokenId, matronId)
@@ -215,7 +210,7 @@ export class KittyMarketPlaceService {
     }
 
     removeOffer = async (tokenId) => {
-        console.log('Removing offer for kittyId:', tokenId);
+        // console.log('Removing offer for kittyId:', tokenId);
         const instance = await this.getContract();
         return instance.methods
             .removeOffer(tokenId)

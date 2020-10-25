@@ -6,7 +6,8 @@ import { useEffect } from 'react';
 import CatAction from './CatAction';
 import { offerTypes } from '../js/kittyConstants';
 import { useDispatch, useSelector } from 'react-redux';
-import { cancelOffer, selectOfferByKittyId, buyKitty, sellKitty, sireKitty } from '../market/offerSlice';
+import { selectOfferByKittyId, sellKitty, sireKitty } from '../market/offerSlice';
+import { buyOffer, cancelOffer } from '../market/offerSaga';
 
 
 export default function CatActions(props) {
@@ -38,7 +39,7 @@ export default function CatActions(props) {
     }
 
     const handleBuyKittyClicked = async () => {
-        return dispatch(buyKitty({offer}));
+        return dispatch(buyOffer({offer}));
     };
 
     const handleBuySireOfferClicked = async () => {

@@ -5,8 +5,10 @@ import { Button, Alert } from 'react-bootstrap';
 import Offer from './Offer';
 import { offerTypes } from '../js/kittyConstants';
 import { useDispatch, useSelector } from 'react-redux';
-import { selectOfferIdsByType } from './offerSlice';
+import { OfferEventDismiss, selectOfferIdsByType, selectOfferRequestStatus } from './offerSlice';
 import { approveMarket } from '../wallet/walletSlice';
+import { MarketTransType } from './offerSaga';
+import RequestStatusToast from '../RequestStatusToast';
 
 
 // const emptyEventMessage = {
@@ -35,20 +37,41 @@ export default function MarketPage() {
         </Alert>;
 
 
+    const eventData = useSelector(state => state.offers.event);
+    let eventAlert = null;
+    if (eventData) {
+        let msg = '';
+        switch (eventData.TxType) {
+            case MarketTransType.sellOfferPurchased:
+                msg = `Successfully purchased kitty #${eventData.tokenId}`;
+                break;
+            case MarketTransType.offerCancelled:
+                msg = `Offer for kitty #${eventData.tokenId} cancelled!`;
+                break;
+            default:
+                msg = `${eventData.TxType} kitty #${eventData.tokenId}`;
+        }
+        eventAlert =
+            <Alert
+                variant="info"
+                dismissible
+                show={Boolean(eventData)}
+                onClose={() => dispatch(OfferEventDismiss())}>
+                {msg}
+            </Alert>;
+    }
+
     const offerBoxes = offerIds.map(id =>
         <Offer key={id} tokenId={id} />
     );
 
-    // <Alert
-    //     variant={eventMessage.type}
-    //     dismissible
-    //     show={eventMessage.text.length > 0}>
-    //     {eventMessage.text}
-    // </Alert>
 
     return (
         <div>
             <h1>Kitty Marketplace</h1>
+            {message}
+            <RequestStatusToast statusSelector={selectOfferRequestStatus} />
+            {eventAlert}
             <div>
                 <Button
                     className="mr-2"
@@ -64,7 +87,6 @@ export default function MarketPage() {
                     Sire Offers
                 </Button>
             </div>
-            {message}
             <div className="d-flex flex-wrap">
                 {offerBoxes}
             </div>

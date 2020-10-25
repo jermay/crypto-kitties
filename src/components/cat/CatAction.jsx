@@ -8,7 +8,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Service } from '../js/service';
 import { approveMarket } from '../wallet/walletSlice';
 import { OfferStatus, selectOfferByKittyId } from '../market/offerSlice';
-import { RequestStatus } from '../js/utils';
 import { sireOfferSelected } from '../breed/breedSlice';
 
 const SELL_STATUS = {
@@ -46,8 +45,8 @@ export default function CatAction(props) {
 
     const dispatch = useDispatch();
 
-    const requestStatus = useSelector(state => state.offers.status);
     const isApproved = useSelector(state => state.wallet.isApproved);
+    const user = useSelector(state => state.wallet.account);
     const offer = useSelector(state => selectOfferByKittyId(state, kittyId));
     const [sellStatus, setSellStatus] = useState(SELL_STATUS.notForSale);
     const [message, setMessage] = useState(emptyMessage);
@@ -118,23 +117,18 @@ export default function CatAction(props) {
         event.preventDefault();
         handleCreateOfferClicked(price);
     };
+   
+    const onSireOfferClicked = () => {
+        dispatch(sireOfferSelected(offer.tokenId));
+    }
 
-    const onCancelSaleClicked = () => handleCancelOffer();
-    const onBackClicked = () => handleBackClicked();
-    const onBuyOfferClicked = () => handleBuyOfferClicked();
-    const onSireOfferClicked = () => dispatch(sireOfferSelected(offer.tokenId));
 
-    
     let sellDisplay = null;
-    let spinner = requestStatus === RequestStatus.loading ?
-        <Spinner as="span" animation="border" role="status" aria-hidden="true" />
-        : null;
-
     switch (sellStatus) {
         case SELL_STATUS.approvalRequired:
             sellDisplay =
                 <Button onClick={onApproveClicked}>
-                    YES. It's OK. You are approved! {spinner}
+                    YES. It's OK. You are approved!
                 </Button>
             break;
 
@@ -153,10 +147,10 @@ export default function CatAction(props) {
                     <InputGroup.Append>
                         <InputGroup.Text>ETH</InputGroup.Text>
                         <Button type="submit">
-                            {btnText} Kitty {spinner}
+                            {btnText} Kitty
                         </Button>
                         <Button variant="secondary"
-                            onClick={onBackClicked}>
+                            onClick={handleBackClicked}>
                             Back
                         </Button>
                     </InputGroup.Append>
@@ -169,7 +163,7 @@ export default function CatAction(props) {
             }
             const priceInEth = Service.web3.utils.fromWei(offer.price, 'ether');
             let sellButton;
-            if (Service.kitty.user !== offer.seller) {
+            if (user !== offer.seller) {
                 sellButton = offer.isSireOffer ?
                     <NavLink
                         to={`/breed`}
@@ -181,16 +175,16 @@ export default function CatAction(props) {
                         key="buy"
                         variant="primary"
                         className="ml-2"
-                        onClick={onBuyOfferClicked}>
-                        Buy {spinner}
+                        onClick={handleBuyOfferClicked}>
+                        Buy
                     </Button>
             } else {
                 sellButton = <Button
                     key="cancel"
                     variant="primary"
                     className="ml-2"
-                    onClick={onCancelSaleClicked}>
-                    Cancel {spinner}
+                    onClick={handleCancelOffer}>
+                    Cancel
                 </Button>
             }
             sellDisplay =

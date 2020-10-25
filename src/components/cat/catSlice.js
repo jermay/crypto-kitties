@@ -28,28 +28,35 @@ export const getKitties = createAsyncThunk(
         console.log('kitties/getKitties: normalized: ', normalized);
         return normalized.entities.kitties || [];
     }
-)
+);
 
 export const fetchKitty = createAsyncThunk(
     'kitties/fetchKitty',
     async (kittyId) => {
         return Service.kitty.getKitty(kittyId);
     }
-)
+);
+
+export const fetchKittiesForIds = createAsyncThunk(
+    'kitties/fetchKittiesForIds',
+    async (kittyIds) => {
+        return Service.kitty.getKittesForIds(kittyIds);
+    }
+);
 
 export const createGen0Kitty = createAsyncThunk(
     'kitties/createGen0Kitty',
     async (dna) => {
         return Service.kitty.createGen0Kitty(dna);
     }
-)
+);
 
 export const breedKitties = createAsyncThunk(
     'kitties/breedKitties',
     ({ mumId, dadId }) => {
         return Service.kitty.breed(mumId, dadId);
     }
-)
+);
 
 const catSlice = createSlice({
     name: 'kitties',
@@ -86,6 +93,8 @@ const catSlice = createSlice({
         [createGen0Kitty.fulfilled]: setRequestStatusSucceeded,
 
         [fetchKitty.fulfilled]: catAdapter.upsertOne,
+
+        [fetchKittiesForIds.fulfilled]: catAdapter.upsertMany
     }
 });
 

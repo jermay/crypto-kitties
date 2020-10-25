@@ -22,7 +22,7 @@ export class WalletService {
 
     connect = async () => {
         return this.web3.eth.requestAccounts()
-            .then(accounts => accounts[0]);
+            .then(accounts => accounts[0].toLowerCase());
     }
 
     getNetwork = async () => {

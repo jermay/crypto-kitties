@@ -31,7 +31,7 @@ export class KittyService {
                 { from: accounts[0] }
             );
             this.user = accounts[0];
-            console.log('user: ', this.user, 'contract: ', this._contract);
+            console.log('user: ', this.user, 'kitty contract: ', this._contract);
 
             return this._contract;
         });
@@ -67,7 +67,7 @@ export class KittyService {
         console.log('Birth event: ', birth);
 
         const cleanedEvent = {
-            owner: birth.owner,
+            owner: birth.owner.toLowerCase(),
             kittyId: birth.kittyId,
             mumId: birth.mumId,
             dadId: birth.dadId,
@@ -127,6 +127,16 @@ export class KittyService {
         // console.log(`Kittes for ${this.user} loaded: `, this.kitties);
 
         return this.kitties;
+    }
+
+    getKittesForIds = async (kittyIds) => {
+        if (!kittyIds || !kittyIds.length) {
+            return [];
+        }
+
+        return Promise.all(kittyIds.map(
+            kittyId => this.getKitty(kittyId)
+        ));
     }
 
     breed = async (mumId, dadId) => {

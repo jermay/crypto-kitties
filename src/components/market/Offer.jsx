@@ -2,19 +2,19 @@ import React from 'react'
 import { useSelector } from 'react-redux';
 
 import { CatModel } from '../js/catFactory'
-import { selectOfferByKittyId } from './offerSlice';
 import CatActions from '../cat/CatActions';
 import CatBox from '../cat/CatBox'
+import { selectKittyById } from '../cat/catSlice';
 
 export default function Offer(props) {
     const { tokenId } = props;
-    const offer = useSelector(state => selectOfferByKittyId(state, tokenId));
-    const model = new CatModel(offer.kitty);
+    const kitty = useSelector(state => selectKittyById(state, tokenId));
+    const model = new CatModel(kitty);
 
     return (
-        <div>
+        <div className="p-2">
             <CatActions
-                kittyId={offer.tokenId}
+                kittyId={tokenId}
                 isBuyMode={true}
             />
             <CatBox model={model} />
