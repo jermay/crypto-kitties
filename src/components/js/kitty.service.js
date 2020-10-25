@@ -13,7 +13,9 @@ export class KittyService {
 
     constructor(web3) {
         this.web3 = web3;
+    }
 
+    init = async () => {
         this.subscribeToEvents();
     }
 

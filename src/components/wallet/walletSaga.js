@@ -10,6 +10,8 @@ import { updateAccountNetwork, walletError } from "./walletSlice";
 
 export const connect = createAction('wallet/connect');
 export const connectSuccess = createAction('wallet/connect/success');
+export const contractInitSuccess = createAction('wallet/contractInit/success');
+export const contractInitError = createAction('wallet/contractInit/error');
 
 
 export function* walletSaga() {
@@ -29,12 +31,27 @@ function* connectWallet() {
         const account = yield call(Service.wallet.connect);
         yield put(connectSuccess());
 
+        yield call(initContracts);
+        yield put(contractInitSuccess());
+
         const network = yield call(Service.wallet.getNetwork);
         const { isOwner, isApproved } = yield call(onAccountOrNetworkChange);
         yield put(updateAccountNetwork(account, network, isOwner, isApproved));
 
     } catch (err) {
         yield put(walletError(err));
+    }
+}
+
+function* initContracts() {
+    try {
+        yield all([
+            call(Service.kitty.init),
+            call(Service.market.init)
+        ]);
+    } catch (err) {
+        console.error(err);
+        yield put(contractInitError(err.message));
     }
 }
 

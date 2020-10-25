@@ -16,14 +16,14 @@ export default function RequestStatusToast({ statusSelector }) {
     let show = false;
     let message = '';
 
+    // this doesn't work
     const closeAfterDelay = () => {
-        console.log('closeAfterDelay');
         setTimeout(() => {
             show = false;
-            console.log('delay finsished');
         }, 3000);
     }    
 
+    // and for some reason show is false when status is confirmed
     switch (status) {
         case RequestStatus.loading:
             show = true;
@@ -45,7 +45,7 @@ export default function RequestStatusToast({ statusSelector }) {
             show = false;
             break;
     }
-    console.log('status: ', status, 'show: ', show, 'message:', message);
+    // console.log('status: ', status, 'show: ', show, 'message:', message);
 
     return (
         <ToastTopRight

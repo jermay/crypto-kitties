@@ -13,9 +13,10 @@ export class KittyMarketPlaceService {
     constructor(web3, kittyService) {
         this.web3 = web3;
         this._kittyService = kittyService;
+    }
 
+    init = async () => {
         this.subscribeToEvents();
-        // this.getAllTokenOnSale();
     }
 
     async getContract() {
