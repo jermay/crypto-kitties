@@ -7,6 +7,7 @@ import { CatModel } from '../js/catFactory';
 import { ButtonGroup, Button, Spinner, Badge } from 'react-bootstrap';
 import { selectKittiesByOwner } from '../cat/catSlice';
 import { useSelector } from 'react-redux';
+import { SmallCatContainer } from '../cat/CatBoxContainers';
 
 export default function BreedList(props) {
     const { handleOnSetParent, sireId } = props;
@@ -110,9 +111,9 @@ export default function BreedList(props) {
                 {onCooldown ?
                     <Badge variant="secondary" className="mt-1">Not Ready</Badge>
                     : <Badge variant="success" className="mt-1">Ready</Badge>}
-                <div className="breed-list-item">
+                <SmallCatContainer>
                     <CatBox model={kittyModel.value} />
-                </div>
+                </SmallCatContainer>
             </div>
         </div>
     )

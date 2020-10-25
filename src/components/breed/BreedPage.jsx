@@ -11,6 +11,7 @@ import { BreedProgress, breedReset } from './breedSlice';
 import { selectKittyById } from '../cat/catSlice';
 import { selectOfferByKittyId } from '../market/offerSlice';
 import { approveParent, breed, sire } from './breedSaga';
+import { MediumCatContainer } from '../cat/CatBoxContainers';
 
 const PlaceHolder = styled.div`
     color: white;
@@ -83,8 +84,11 @@ export default function BreedPage() {
         <Col key={data.type}>
             <h5>{data.type}</h5>
             {
-                data.model ? <CatBox model={data.model} /> :
-                    <PlaceHolder className="bg-info">
+                data.model ?
+                <MediumCatContainer>
+                    <CatBox model={data.model} />
+                </MediumCatContainer>
+                : <PlaceHolder className="bg-info">
                         <h1>?</h1>
                     </PlaceHolder>
             }

@@ -6,6 +6,7 @@ import { Container } from 'react-bootstrap';
 import CatActions from './CatActions';
 import { selectKittiesByOwner } from './catSlice';
 import { CatModel } from '../js/catFactory';
+import { MediumCatContainer } from './CatBoxContainers';
 
 
 export default function CatList() {
@@ -21,10 +22,10 @@ export default function CatList() {
     const catBoxes = kitties.map(kitty => {
         const model = new CatModel(kitty);
         return (
-            <div key={kitty.kittyId}>
+            <MediumCatContainer key={kitty.kittyId}>
                 <CatBox model={model} />
                 <CatActions kittyId={kitty.kittyId} />
-            </div>
+            </MediumCatContainer>
         )
     })
 
