@@ -1,3 +1,5 @@
+/* eslint-env node, mocha */
+var expect = require('chai').expect;
 const TestKittyContract = artifacts.require("TestKittyContract");
 const TestERC721Receiver = artifacts.require("TestERC721Receiver");
 const TestBadNFTReceiver = artifacts.require("TestBadNFTReceiver");
@@ -56,16 +58,11 @@ contract('KittyContract', (accounts) => {
         return result;
     }
 
-    function addOperator(kitty, operator) {
-        // grant operator approval
-        return contract.setApprovalForAll(
-            operator, true, { from: kitty.owner });
-    }
-
-    async function addKittyAndOperator(kitty, operator) {
-        await addKitty(kitty);
-        return addOperator(kitty, operator);
-    }
+    // function addOperator(kitty, operator) {
+    //     // grant operator approval
+    //     return contract.setApprovalForAll(
+    //         operator, true, { from: kitty.owner });
+    // }
 
     describe('init', () => {
         it('should be created with the un-kitty so valid kitties have an id > 0', async () => {
@@ -80,7 +77,7 @@ contract('KittyContract', (accounts) => {
                 genes: new BN('0'),
                 owner: zeroAddress,
             };
-            result = await contract.getKitty(0);
+            const result = await contract.getKitty(0);
             expect(result.kittyId.toString(10)).to.equal(unKitty.kittyId.toString(10));
             expect(result.birthTime.toString(10)).to.equal(unKitty.birthTime.toString(10));
             expect(result.cooldownEndTime.toString(10)).to.equal(unKitty.cooldownEndTime.toString(10));

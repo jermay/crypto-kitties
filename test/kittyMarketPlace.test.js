@@ -1,3 +1,4 @@
+/* eslint-env node, mocha */
 var expect = require('chai').expect;
 const BN = web3.utils.BN
 const truffleAssert = require('truffle-assertions');

@@ -1,3 +1,4 @@
+/* eslint-env node, mocha */
 var expect = require('chai').expect;
 const BN = web3.utils.BN
 const truffleAssert = require('truffle-assertions');
@@ -60,12 +61,12 @@ contract('KittyFactory', async (accounts) => {
         );
     }
 
-    function expectKitty(kitty, expected) {
-        expect(kitty.mumId.toString(10)).to.equal(expected.mumId.toString(10));
-        expect(kitty.dadId.toString(10)).to.equal(expected.dadId.toString(10));
-        expect(kitty.genes.toString(10)).to.equal(expected.genes.toString(10));
-        expect(kitty.generation.toString(10)).to.equal(expected.generation.toString(10));
-    }
+    // function expectKitty(kitty, expected) {
+    //     expect(kitty.mumId.toString(10)).to.equal(expected.mumId.toString(10));
+    //     expect(kitty.dadId.toString(10)).to.equal(expected.dadId.toString(10));
+    //     expect(kitty.genes.toString(10)).to.equal(expected.genes.toString(10));
+    //     expect(kitty.generation.toString(10)).to.equal(expected.generation.toString(10));
+    // }
 
     async function createParents() {
         await createKitty(dad);
@@ -94,7 +95,7 @@ contract('KittyFactory', async (accounts) => {
         });
 
         it('should store the new kitty', async () => {
-            result = await kittyFactory.getKitty(1);
+            const result = await kittyFactory.getKitty(1);
             expect(result.mumId.toString(10)).to.equal(expKitty.mumId.toString(10));
             expect(result.dadId.toString(10)).to.equal(expKitty.dadId.toString(10));
             expect(result.generation.toString(10)).to.equal(expKitty.generation.toString(10));
@@ -186,9 +187,9 @@ contract('KittyFactory', async (accounts) => {
         });
 
         it('should return all the kittyIds owned by the given address', async () => {
-            exptectedIds = ['1', '3'];
+            const exptectedIds = ['1', '3'];
 
-            results = await kittyFactory.kittiesOf(contractOwner);
+            const results = await kittyFactory.kittiesOf(contractOwner);
 
             expect(results.length).to.equal(exptectedIds.length);
             results
@@ -197,7 +198,7 @@ contract('KittyFactory', async (accounts) => {
         });
 
         it('should return an empty array if the owner has no kitties', async () => {
-            result = await kittyFactory.kittiesOf(accounts[9]);
+            const result = await kittyFactory.kittiesOf(accounts[9]);
 
             expect(result.length).to.equal(0);
         });
@@ -207,8 +208,8 @@ contract('KittyFactory', async (accounts) => {
         let mumDna;
         let dadDna
         let masterSeed;
-        const geneSizes = [2, 2, 2, 2, 1, 1, 2, 2, 1, 1];
-        const randomDnaThreshold = 7;
+        // const geneSizes = [2, 2, 2, 2, 1, 1, 2, 2, 1, 1];
+        // const randomDnaThreshold = 7;
         let expDna;
         beforeEach(() => {
             mumDna = '1122334456778890';

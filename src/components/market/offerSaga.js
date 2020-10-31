@@ -1,11 +1,11 @@
 import { createAction } from "@reduxjs/toolkit";
 import { addKitties, updateKitty } from "../cat/catSlice";
 
-const { eventChannel } = require("redux-saga");
-const { call, put, take, all, fork } = require("redux-saga/effects");
+import { eventChannel } from "redux-saga";
+import { call, put, take, all, fork } from "redux-saga/effects";
 
-const { Service } = require("../js/service");
-const { offerError, offerCreated, offerPurchased, offerCancelled, buyKitty, offerEventNotify, removeOffer } = require("./offerSlice");
+import { Service } from "../js/service";
+import { offerError, offerCreated, offerPurchased, offerCancelled, buyKitty, offerEventNotify, removeOffer } from "./offerSlice";
 
 
 export const MarketTransType = {
@@ -66,11 +66,11 @@ function* onMarketEvent(eventData) {
         switch (eventData.TxType) {
             case MarketTransType.sellOfferCreated:
             case MarketTransType.sireOfferCreated:
-                const offer = yield call(
+                var offer = yield call(
                     Service.market.getOffer, eventData.tokenId);
                 yield put(offerCreated(offer));
 
-                const offerKitty = yield call(
+                var offerKitty = yield call(
                     Service.kitty.getKitty, eventData.tokenId);
                 yield put(addKitties([offerKitty]));
                 break;
@@ -81,7 +81,7 @@ function* onMarketEvent(eventData) {
 
                 // kitty will have changed ownership or
                 // have a new cooldown
-                const kitty = yield call(
+                var kitty = yield call(
                     Service.kitty.getKitty, eventData.tokenId);
                 yield put(updateKitty(kitty));
                 break;

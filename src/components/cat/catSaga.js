@@ -1,10 +1,10 @@
 import { createAction } from "@reduxjs/toolkit";
 
-const { eventChannel } = require("redux-saga");
-const { call, put, take, all } = require("redux-saga/effects");
+import { eventChannel } from "redux-saga";
+import { call, put, take, all } from "redux-saga/effects";
 
-const { Service } = require("../js/service");
-const { kittenBorn, createGen0Kitty, kittyError } = require("./catSlice");
+import { Service } from "../js/service";
+import { kittenBorn, createGen0Kitty, kittyError } from "./catSlice";
 
 export const birthEvent = createAction('kitties/birthEvent');
 

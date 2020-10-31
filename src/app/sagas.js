@@ -5,10 +5,10 @@ import { offerSaga } from '../components/market/offerSaga';
 import { walletSaga } from '../components/wallet/walletSaga';
 
 export default function* rootSaga() {
-    yield all([
-        walletSaga(),
-        catSaga(),
-        breedSaga(),
-        offerSaga(),
-    ]);
+  yield all([
+    walletSaga(),
+    catSaga(),
+    breedSaga(),
+    offerSaga(),
+  ]);
 }

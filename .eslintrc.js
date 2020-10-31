@@ -1,22 +1,39 @@
 module.exports = {
-    "env": {
-        "browser": true,
-        "es2021": true
+  env: {
+    browser: true,
+  },
+  extends: [
+    'airbnb-base',
+    'airbnb/rules/react',
+    'airbnb/hooks'
+  ],
+  parserOptions: {
+    ecmaFeatures: {
+      jsx: true,
     },
-    "extends": [
-        "eslint:recommended",
-        "plugin:react/recommended"
+    ecmaVersion: 6,
+    sourceType: 'module',
+  },
+  plugins: [
+    'react'
+  ],
+  rules: {
+    'comma-dangle': [
+      'error',
+      {
+        arrays: 'only-multiline',
+        objects: 'always',
+        imports: 'only-multiline',
+        exports: 'only-multiline',
+        functions: 'never',
+      }
     ],
-    "parserOptions": {
-        "ecmaFeatures": {
-            "jsx": true
-        },
-        "ecmaVersion": 12,
-        "sourceType": "module"
-    },
-    "plugins": [
-        "react"
-    ],
-    "rules": {
-    }
+    'no-multiple-empty-lines': ['error', { max: 2, }],
+  },
+  globals: {
+    // testing
+    artifacts: 'readonly',
+    contract: 'readonly',
+    web3: 'readonly',
+  },
 };

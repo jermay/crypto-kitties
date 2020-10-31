@@ -1,4 +1,4 @@
-const { createSlice } = require("@reduxjs/toolkit");
+import { createSlice } from "@reduxjs/toolkit";
 
 export const ParentType = {
     MUM: 'mum',
@@ -49,7 +49,7 @@ const breedSlice = createSlice({
             state.sireOfferId = action.payload;
             state.dadId = action.payload;
         },
-        breedReset: (state, action) => {
+        breedReset: (state) => {
             state.dadId = null;
             state.mumId = null;
             state.kittenId = null;
