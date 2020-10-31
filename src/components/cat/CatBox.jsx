@@ -16,12 +16,13 @@ const Box = styled(Col)`
     max-width: 20rem;
 `;
 
-export default function CatBox(props) {
+export default function CatBox({ model }) {
+
     return (
         <Box className="m-2 light-b-shadow">
-            <Cat model={props.model} />
-            <DnaViewer dna={props.model.dna} />
-            <CatFeatures cat={props.model.cat} dna={props.model.dna} />
+            <Cat model={model} />
+            <DnaViewer dna={model.dna} />
+            <CatFeatures cat={model.cat} dna={model.dna} />
         </Box>
     );
 }

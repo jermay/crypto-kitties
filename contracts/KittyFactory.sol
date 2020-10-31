@@ -8,7 +8,7 @@ contract KittyFactory is Ownable, KittyContract {
     using SafeMath32 for uint32;
     using SafeMath16 for uint16;
 
-    uint256 public constant CREATION_LIMIT_GEN0 = 10;
+    uint256 public constant CREATION_LIMIT_GEN0 = 100;
     uint256 public constant NUM_CATTRIBUTES = 10;
     uint256 public constant DNA_LENGTH = 16;
     uint256 public constant RANDOM_DNA_THRESHOLD = 7;

@@ -323,6 +323,11 @@ exports.abi =  [
         "internalType": "uint16",
         "name": "cooldownIndex",
         "type": "uint16"
+      },
+      {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
       }
     ],
     "payable": false,

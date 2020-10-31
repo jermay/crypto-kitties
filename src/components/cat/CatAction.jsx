@@ -1,10 +1,14 @@
 import React from 'react';
-import { useState } from 'react';
-import { Button, Alert, Badge, Form, InputGroup } from 'react-bootstrap';
-
-import { Service } from '../js/service';
+import { useEffect, useState } from 'react';
+import { Button, Alert, Badge, Form, InputGroup, Spinner } from 'react-bootstrap';
 import styled from 'styled-components';
 import { NavLink } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+
+import { Service } from '../js/service';
+import { approveMarket } from '../wallet/walletSlice';
+import { OfferStatus, selectOfferByKittyId } from '../market/offerSlice';
+import { sireOfferSelected } from '../breed/breedSlice';
 
 const SELL_STATUS = {
     notForSale: 'Not For Sale',
@@ -32,118 +36,92 @@ export default function CatAction(props) {
     const {
         btnText,
         btnTextPlural,
-        handleApproveClicked,
         handleBackClicked,
         handleCreateOfferClicked,
         handleBuyOfferClicked,
         handleCancelOffer,
-        isApproved,
-        isBuyMode,
         kittyId,
-        offer,
     } = props;
 
-    let initSellStatus = SELL_STATUS.setPrice;
-    let initialMessage = emptyMessage;
-    if (Boolean(offer)) {
-        initSellStatus = SELL_STATUS.offerCreated;
-    } else if (!isApproved) {
-        initSellStatus = SELL_STATUS.approvalRequired;
-        initialMessage = {
-            text: 'In order to sell your kitties you need to give the Marketplace permission to transfer your kitties on your behalf. This is required so the buyer and sellers do not need to be online at the same time.',
-            type: 'info'
-        }
-    }
+    const dispatch = useDispatch();
 
-    const [sellStatus, setSellStatus] = useState(initSellStatus);
-    const [price, setPrice] = useState(undefined);
-    const [message, setMessage] = useState(initialMessage);
+    const isApproved = useSelector(state => state.wallet.isApproved);
+    const user = useSelector(state => state.wallet.account);
+    const offer = useSelector(state => selectOfferByKittyId(state, kittyId));
+    const [sellStatus, setSellStatus] = useState(SELL_STATUS.notForSale);
+    const [message, setMessage] = useState(emptyMessage);
 
-    const onPriceChange = e => setPrice(e.target.value);
+    useEffect(() => {
+        setMessage(emptyMessage);
 
-    const onApproveClicked = async () => {
-        try {
-            const result = await handleApproveClicked();
-            if (result) {
-                setSellStatus(SELL_STATUS.setPrice);
-                setMessage(emptyMessage);
-            } else {
-                displayError(null, 'Approval rejected. Try again.');
-            }
-        } catch (err) {
-            displayError(err, 'Oops...There was a problem with the approval. Try again.');
-        }
-    }
-
-    const onCreateOfferClicked = async (event) => {
-        event.preventDefault();
-
-        setSellStatus(SELL_STATUS.sendingOffer);
-        setMessage({
-            text: `Broadcasting ${btnText} offer of ${price} ETH for kitty #${kittyId}...`,
-            type: 'info'
-        });
-        try {
-            const newOffer = await handleCreateOfferClicked(price);
-
-            if (newOffer) {
-                setSellStatus(SELL_STATUS.offerCreated);
-                setMessage(emptyMessage);
-            } else {
-                setSellStatus(SELL_STATUS.setPrice);
-                displayError();
-            }
-        }
-        catch (err) {
-            setSellStatus(SELL_STATUS.setPrice);
-            displayError(err);
-        }
-    };
-
-    const onCancelSaleClicked = async () => {
-        const result = await handleCancelOffer();
-        if (result) {
-            setSellStatus(SELL_STATUS.setPrice);
-        } else {
-            displayError();
-        }
-    }
-
-    const onBackClicked = () => {
-        handleBackClicked();
-    }
-
-    const onBuyOfferClicked = async () => {
-        console.log('onBuyOfferClicked');
-        setMessage({
-            text: `Broadcasting offer for #${kittyId}...`,
-            type: 'info'
-        });
-        setSellStatus(SELL_STATUS.sendingBuyOffer);
-
-        const result = await handleBuyOfferClicked();
-
-        if (result) {
-            setSellStatus(SELL_STATUS.sold);
-            setMessage(emptyMessage);
-        } else {
-            setSellStatus(SELL_STATUS.offerCreated);
+        if (!isApproved) {
+            setSellStatus(SELL_STATUS.approvalRequired);
             setMessage({
-                text: 'Oops... something went wrong',
+                text: 'In order to sell your kitties you need to give the Marketplace permission to transfer your kitties on your behalf. This is required so the buyer and sellers do not need to be online at the same time.',
+                type: 'info'
+            });
+            return;
+        }
+
+        if (!Boolean(offer)) {
+            setSellStatus(SELL_STATUS.setPrice);
+            return;
+        }
+
+        switch (offer.status) {
+            case OfferStatus.sold:
+                setSellStatus(SELL_STATUS.sold);
+                break;
+
+            case OfferStatus.cancelled:
+                setSellStatus(SELL_STATUS.offerCancelled);
+                break;
+
+            default:
+                setSellStatus(SELL_STATUS.offerCreated);
+                break;
+        }
+    }, [isApproved, offer])
+
+    const error = useSelector(state => state.offers.error);
+    useEffect(() => {
+        if (error) {
+            setMessage({
+                text: 'Oops... something went wrong.',
                 type: 'warning'
             });
+            console.error(error);
+        } else {
+            setMessage(emptyMessage);
         }
+    }, [error]);
+
+    // const displayError = (error, msg) => {
+    //     if (error) {
+    //         console.error(error);
+    //     }
+    //     setMessage({
+    //         text: msg || 'Oops... something went wrong.',
+    //         type: 'warning'
+    //     });
+    // };
+
+    const [price, setPrice] = useState(undefined);
+    const onPriceChange = e => setPrice(e.target.value);
+
+    const onApproveClicked = () => {
+        dispatch(approveMarket());
     }
 
-    const displayError = (error, msg) => {
-        if (error) {
-            console.error(error);
-        }
-        setMessage({
-            text: msg || 'Oops... something went wrong.',
-            type: 'warning'
-        });
+    const onCreateOfferClicked = (event) => {
+        event.preventDefault();
+        handleCreateOfferClicked(price);
     };
+   
+    const onSireOfferClicked = () => {
+        dispatch(sireOfferSelected(offer.tokenId));
+    }
+
 
     let sellDisplay = null;
     switch (sellStatus) {
@@ -172,7 +150,7 @@ export default function CatAction(props) {
                             {btnText} Kitty
                         </Button>
                         <Button variant="secondary"
-                            onClick={onBackClicked}>
+                            onClick={handleBackClicked}>
                             Back
                         </Button>
                     </InputGroup.Append>
@@ -180,15 +158,16 @@ export default function CatAction(props) {
             break;
 
         case SELL_STATUS.offerCreated:
-            if (!offer) {
+            if (!Boolean(offer)) {
                 break;
             }
             const priceInEth = Service.web3.utils.fromWei(offer.price, 'ether');
             let sellButton;
-            if (Service.kitty.user != offer.seller) {
+            if (user !== offer.seller) {
                 sellButton = offer.isSireOffer ?
                     <NavLink
-                        to={`/breed?sireId=${offer.tokenId}`}
+                        to={`/breed`}
+                        onClick={onSireOfferClicked}
                         className="btn btn-primary nav-link">
                         Buy
                     </NavLink>
@@ -196,7 +175,7 @@ export default function CatAction(props) {
                         key="buy"
                         variant="primary"
                         className="ml-2"
-                        onClick={onBuyOfferClicked}>
+                        onClick={handleBuyOfferClicked}>
                         Buy
                     </Button>
             } else {
@@ -204,9 +183,9 @@ export default function CatAction(props) {
                     key="cancel"
                     variant="primary"
                     className="ml-2"
-                    onClick={onCancelSaleClicked}>
+                    onClick={handleCancelOffer}>
                     Cancel
-                    </Button>
+                </Button>
             }
             sellDisplay =
                 <div className="d-flex align-items-center">

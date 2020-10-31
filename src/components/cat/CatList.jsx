@@ -1,40 +1,31 @@
-import React, { useState, useEffect } from 'react'
+import React from 'react';
+import { useSelector } from 'react-redux';
 
 import CatBox from './CatBox';
-import { CatModel } from '../js/catFactory';
 import { Container } from 'react-bootstrap';
-import { Service } from '../js/service';
 import CatActions from './CatActions';
+import { selectKittiesByOwner } from './catSlice';
+import { CatModel } from '../js/catFactory';
+import { MediumCatContainer } from './CatBoxContainers';
 
 
-export default function CatList(props) {
-    const [data, setData] = useState({ cats: [] });
-    const [init, setInit] = useState(false);
+export default function CatList() {
+    const wallet = useSelector(state => state.wallet);
+    const kitties = useSelector(state => selectKittiesByOwner(state, wallet.account));
 
-    useEffect(() => {
-        if (!init) {
-            const getKittes = async () => {
-                const list = await Service.kitty.getKitties();
-                setData({ cats: list });
-            }
-            getKittes();
-            setInit(true);
-        }
-    }, [init])
-
-    if (!data.cats.length) {
+    if (!kitties.length) {
         return (
-            <p>You have no kittes! Go to the Marketplace to find some!</p>
+            <p>You have no kittes! Go to the Marketplace to adpot some!</p>
         )
     }
 
-    const catBoxes = data.cats.map(kitty => {
-        let model = new CatModel(kitty);
+    const catBoxes = kitties.map(kitty => {
+        const model = new CatModel(kitty);
         return (
-            <div key={kitty.genes}>                
+            <MediumCatContainer key={kitty.kittyId}>
                 <CatBox model={model} />
-                <CatActions kittyId={model.cat.kittyId} />
-            </div>
+                <CatActions kittyId={kitty.kittyId} />
+            </MediumCatContainer>
         )
     })
 

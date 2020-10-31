@@ -1,23 +1,24 @@
 import React from 'react';
 import { Nav } from 'react-bootstrap';
 import { NavLink } from 'react-router-dom';
-import { useState } from 'react';
-import { useEffect } from 'react';
-import { Service } from './js/service';
+import Wallet from './wallet/Wallet';
+import { useSelector } from 'react-redux';
 
 export default function AppHeader() {
-    const [init, setInit] = useState(false);
-    const [showFactory, setShowFactory] = useState(false);
+    const account = useSelector(state => state.wallet.account);
+    const isOwner = useSelector(state => state.wallet.isOwner);
 
-    useEffect(() => {
-        if (!init) {
-            setInit(true);
-            Service.kitty.isUserOwner()
-                .then(result => setShowFactory(result));
-        }
-    }, [init, showFactory])
+    // only show nav links if there is a connected account
+    const links = account ?
+        <React.Fragment>
+            <NavLink to="/kitties" className="btn nav-link">My Kitties</NavLink>
+            <NavLink to="/breed" className="btn nav-link">Breed</NavLink>
+            <NavLink to="/market" className="btn nav-link">Marketplace</NavLink>
+        </React.Fragment>
+        : null
 
-    const factory = showFactory ?
+    // only the owner can create gen zero kitties
+    const factory = isOwner ?
         <NavLink to="/factory" className="btn nav-link">Factory</NavLink>
         : null;
 
@@ -29,10 +30,9 @@ export default function AppHeader() {
                     width="30" height="30" />
                 Academy Kitties
             </NavLink>
-            <NavLink to="/kitties" className="btn nav-link">My Kitties</NavLink>
-            <NavLink to="/breed" className="btn nav-link">Breed</NavLink>
-            <NavLink to="/market" className="btn nav-link">Marketplace</NavLink>
+            {links}
             {factory}
+            <Wallet />
         </Nav>
     )
 }

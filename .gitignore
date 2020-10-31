@@ -20,3 +20,4 @@ dist
 .env.production.local
 
 npm-debug.log*
+*.log

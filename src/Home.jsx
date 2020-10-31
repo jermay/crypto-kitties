@@ -2,7 +2,9 @@ import React from 'react';
 import styled from 'styled-components';
 import Cat from './components/cat/Cat';
 import { CatModel } from './components/js/catFactory';
-import { Col, Row } from 'react-bootstrap';
+import { Button, Col, Row } from 'react-bootstrap';
+import { useDispatch, useSelector } from 'react-redux';
+import { connect } from './components/wallet/walletSaga';
 
 const Featured = styled(Row)`
     max-width: 40rem;
@@ -13,6 +15,7 @@ const Div = styled(Col)`
 `;
 
 export default function Home() {
+    const dispatch = useDispatch();
     const featured = [
         "8770856871829324",
         "9080335340204323",
@@ -22,7 +25,7 @@ export default function Home() {
     ];
 
     const featuredCats = featured.map(genes => {
-        const cat = new CatModel({genes});
+        const cat = new CatModel({ genes });
         return (
             <Div key={genes}>
                 <Cat model={cat} />
@@ -30,12 +33,22 @@ export default function Home() {
         )
     });
 
+    const wallet = useSelector(state => state.wallet);
+    const connectWallet = wallet.account ?
+        null
+        : <h3>
+            <Button size="lg" onClick={() => dispatch(connect())}>
+                Connect to get started
+            </Button>
+        </h3>;
+
     return (
         <div className="d-flex flex-column align-items-center">
             <div align="center" className="mt-2">
                 <h1>Academy Kitties</h1>
                 <p>Collect and breed furrever freinds!</p>
             </div>
+            {connectWallet}
             <Featured>
                 {featuredCats}
             </Featured>

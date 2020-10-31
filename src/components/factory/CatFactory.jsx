@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { Tabs, Tab, Button, Col, Row } from 'react-bootstrap';
 
 import { CatModel } from '../js/catFactory';
@@ -7,24 +8,18 @@ import { Cattribute } from '../js/dna';
 import CatSettings from './CatSettings';
 import CatBox from '../cat/CatBox';
 import BirthAlert from './BirthAlert';
-import { Service } from '../js/service';
+import { createGen0Kitty, selectKittyById, newKittenIdClear } from '../cat/catSlice';
 
 const initialCatModel = new CatModel();
 
 
 export default function CatFactory() {
-   const [init, setInit] = useState(false);
+   const dispatch = useDispatch();
+
    const [cat, setCat] = useState({ model: initialCatModel });
-   const [birthEvent, setBirthEvent] = useState({});
-   const [showBirthAlert, setShowBirthAlert] = useState(false)
+   const kitten = useSelector(state => selectKittyById(state, state.kitties.newKittenId));
 
-   useEffect(() => {
-      if (!init) {
-         Service.kitty.birthSubscriptions.push(handleBirthEvent);
-         setInit(true);
-      }
-   }, [init]);
-
+   
    const handleDnaChange = (event) => {
       // set new dna value
       const cattributeName = event.target.id;
@@ -49,16 +44,11 @@ export default function CatFactory() {
    }
 
    const handleCreateKitty = () => {
-      Service.kitty.createGen0Kitty(cat.model.dna.dna);
-   };
-
-   const handleBirthEvent = (event) => {
-      setBirthEvent(event);
-      setShowBirthAlert(true);
+      dispatch(createGen0Kitty(cat.model.dna.dna));
    };
 
    const handleBirthEventClose = () => {
-      setShowBirthAlert(false);
+      dispatch(newKittenIdClear());
    }
 
    return (
@@ -98,8 +88,8 @@ export default function CatFactory() {
                </Button>
                </div>
                <BirthAlert
-                  show={showBirthAlert}
-                  event={birthEvent}
+                  show={Boolean(kitten)}
+                  event={kitten}
                   handleBirthEventClose={handleBirthEventClose}
                />
             </Col>
