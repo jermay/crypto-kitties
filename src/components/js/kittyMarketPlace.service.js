@@ -173,8 +173,7 @@ export class KittyMarketPlaceService {
         return instance.methods
             .setOffer(priceInWei, kittyId)
             .send({ from: this.user })
-            .then(() => true)
-            .catch(this.handleErr);
+            .then(() => true);
     }
 
     buyKitty = async (offer) => {
@@ -183,8 +182,7 @@ export class KittyMarketPlaceService {
         return instance.methods
             .buyKitty(offer.tokenId)
             .send({ from: this.user, value: offer.price })
-            .then(() => true)
-            .catch(this.handleErr);
+            .then(() => true);
     }
 
     setSireOffer = async (kittyId, price) => {
@@ -196,8 +194,7 @@ export class KittyMarketPlaceService {
         return instance.methods
             .setSireOffer(priceInWei, kittyId)
             .send({ from: this.user })
-            .then(() => true)
-            .catch(this.handleErr);
+            .then(() => true);
     }
 
     buySireRites = async (offer, matronId) => {
@@ -206,8 +203,7 @@ export class KittyMarketPlaceService {
         return instance.methods
             .buySireRites(offer.tokenId, matronId)
             .send({ from: this.user, value: offer.price })
-            .then(() => true)
-            .catch(this.handleErr);
+            .then(() => true);
     }
 
     removeOffer = async (tokenId) => {
@@ -216,13 +212,6 @@ export class KittyMarketPlaceService {
         return instance.methods
             .removeOffer(tokenId)
             .send({ from: this.user })
-            .then(() => true)
-            .catch(this.handleErr);
+            .then(() => true);
     }
-
-    handleErr = (err) => {
-        console.error(err);
-        return false;
-    }
-
 }

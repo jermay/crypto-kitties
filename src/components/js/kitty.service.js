@@ -162,10 +162,6 @@ export class KittyService {
         return instance.methods
             .setApprovalForAll(address, true)
             .send({ from: this.user })
-            .then(() => true)
-            .catch(err => {
-                console.error(err);
-                return false;
-            });
+            .then(() => true);
     }
 }
