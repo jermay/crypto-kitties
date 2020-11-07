@@ -1,5 +1,5 @@
 import { createAction } from "@reduxjs/toolkit";
-import { all, fork, put, select, take } from "redux-saga/effects";
+import { all, fork, put, race, select, take } from "redux-saga/effects";
 import { breedKitties, fetchKitty, kittenBorn } from "../cat/catSlice";
 import { selectParentIds, breedError, breedProgress, BreedProgress, kittenBredEvent, setParent } from './breedSlice';
 import { dispatchKittenOnBirthEventMatch } from '../cat/catSaga';
@@ -83,30 +83,39 @@ function setReady(currentParents) {
 
 function* onBreed() {
     while (true) {
-        const breedAction = yield take(breed);
-        const { mumId, dadId } = breedAction.payload;
+        try {
+            const breedAction = yield take(breed);
+            const { mumId, dadId } = breedAction.payload;
 
-        // listen for birth events until kitten with
-        // this mum and dad are born
-        yield fork(
-            dispatchKittenOnBirthEventMatch,
-            kitten => kitten.mumId === mumId &&
-                kitten.dadId === dadId
-        );
+            // dispatch breed action and
+            // listen for kitten birth event
+            const result = yield race({
+                breed: all({
+                    listen: fork(
+                        dispatchKittenOnBirthEventMatch,
+                        kitten => kitten.mumId === mumId &&
+                            kitten.dadId === dadId
+                    ),
+                    dispatch: put(breedKitties(breedAction.payload)),
+                    kittenAction: take(kittenBorn),
+                }),
+                error: take(breedKitties.rejected),
+            });
 
-        yield put(breedKitties(breedAction.payload));
+            if(result.error) {
+                yield put(breedError(result.error.error.message));
+                continue;
+            }
 
-        const { kittenAction } = yield all({
-            fulfilled: take(breedKitties.fulfilled),
-            kittenAction: take(kittenBorn)
-        });
-
-        // update parent cooldowns after breeding
-        yield all([
-            put(kittenBredEvent(kittenAction.payload.kittyId)),
-            put(fetchKitty(mumId)),
-            put(fetchKitty(dadId)),
-        ]);
+            // update parent cooldowns after breeding
+            yield all([
+                put(kittenBredEvent(result.breed.kittenAction.payload.kittyId)),
+                put(fetchKitty(mumId)),
+                put(fetchKitty(dadId)),
+            ]);
+        } catch (err) {
+            yield put(breedError(err.message));
+        }
     }
 }
 
