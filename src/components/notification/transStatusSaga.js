@@ -3,10 +3,15 @@ import {
 } from 'redux-saga/effects';
 import { breedKitties, createGen0Kitty } from '../cat/catSlice';
 import { RequestStatus } from '../js/utils';
-import { buyKitty, removeOffer, sellKitty, sireKitty } from '../market/offerSlice';
+import { buyKitty, buySireRites, removeOffer, sellKitty, sireKitty } from '../market/offerSlice';
+import { approveMarket } from '../wallet/walletSlice';
 import { dismissTransStatus, newTransaction, updateTransStatus } from './transStatusSlice';
 
 const messagesByAction = [
+  {
+    prefix: approveMarket.typePrefix,
+    pending: 'Sending market approval...'
+  },
   {
     prefix: breedKitties.typePrefix,
     pending: 'Privacy mode engaged...',
@@ -25,9 +30,12 @@ const messagesByAction = [
   },
   {
     prefix: sireKitty.typePrefix,
-    pending: 'Creating sire offer...',    
+    pending: 'Creating sire offer...',
   },
-  // buySireRites handled by breedKitties action
+  {
+    prefix: buySireRites.typePrefix,
+    pending: 'Kittes getting to know each other...'
+ },
   {
     prefix: removeOffer.typePrefix,
     pending: 'Cancelling offer...',
@@ -57,7 +65,7 @@ function* onTransaction(id, actionMessage) {
       // console.log(resultAction);
 
     } while (!resultAction.rejected &&
-    resultAction.fulfilled.meta.requestId !== id);
+      resultAction.fulfilled.meta.requestId !== id);
 
     if (resultAction.fulfilled) {
       // found matching trans; notify success
