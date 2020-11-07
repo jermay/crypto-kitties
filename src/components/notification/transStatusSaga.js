@@ -45,8 +45,17 @@ const messagesByAction = [
 const oops = 'Opps.. something went wrong';
 const success = 'Success!';
 
+function getErrorMessage(actionRejection) {
+  const errMsg = actionRejection.error.message;  
+
+  if(errMsg.match(/user denied transaction/i)) {
+    return 'Cancelled by user';
+  }
+
+  return oops;
+}
+
 function* onTransaction(id, actionMessage) {
-  const failMessage = actionMessage.rejected || oops;
   const successMessage = actionMessage.fulfilled || success;
 
   try {
@@ -75,8 +84,9 @@ function* onTransaction(id, actionMessage) {
       yield put(dismissTransStatus(id));
     }
     else {
+      const errorMessage = getErrorMessage(resultAction.rejected)
       yield put(updateTransStatus(
-        id, failMessage, RequestStatus.failed
+        id, errorMessage, RequestStatus.failed
       ));
     }
   } catch (err) {
