@@ -3,10 +3,10 @@ import styled from 'styled-components';
 export const SmallCatContainer = styled.div`
     transform: scale(0.5);
     position: relative;
-    top: -190px;
+    top: -160px;
     left: -85px;
     margin-right: -160px;
-    margin-bottom: -345px;
+    margin-bottom: -305px;
 `;
 
 export const MediumCatContainer = styled.div`
@@ -15,5 +15,5 @@ export const MediumCatContainer = styled.div`
     top: -75px;
     left: -45px;
     margin-right: -75px;
-    margin-bottom: -165px;
+    margin-bottom: -150px;
 `;

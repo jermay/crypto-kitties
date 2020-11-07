@@ -3,7 +3,6 @@ import { Col } from 'react-bootstrap';
 import styled from 'styled-components';
 
 import Cat from './Cat';
-import DnaViewer from './DnaViewer';
 import CatFeatures from './CatFeatures';
 
 
@@ -21,8 +20,7 @@ export default function CatBox({ model }) {
     return (
         <Box className="m-2 light-b-shadow">
             <Cat model={model} />
-            <DnaViewer dna={model.dna} />
-            <CatFeatures cat={model.cat} dna={model.dna} />
+            <CatFeatures model={model} />
         </Box>
     );
 }

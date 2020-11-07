@@ -10,7 +10,7 @@ import { useSelector } from 'react-redux';
 import CatBox from '../cat/CatBox';
 import { CatModel } from '../js/catFactory';
 import { selectKittiesByOwner } from '../cat/catSlice';
-import { SmallCatContainer } from '../cat/CatBoxContainers';
+import { MediumCatContainer } from '../cat/CatBoxContainers';
 
 export default function BreedList(props) {
   const { handleOnSetParent, sireId, } = props;
@@ -121,9 +121,9 @@ export default function BreedList(props) {
         {onCooldown
           ? <Badge variant="secondary" className="mt-1">Not Ready</Badge>
           : <Badge variant="success" className="mt-1">Ready</Badge>}
-        <SmallCatContainer>
+        <MediumCatContainer>
           <CatBox model={kittyModel.value} />
-        </SmallCatContainer>
+        </MediumCatContainer>
       </div>
     </div>
   );
