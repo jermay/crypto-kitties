@@ -2,7 +2,7 @@ import { createAction } from "@reduxjs/toolkit";
 import { addKitties, updateKitty } from "../cat/catSlice";
 
 import { eventChannel } from "redux-saga";
-import { call, put, take, all, fork } from "redux-saga/effects";
+import { call, put, take, all, fork, race } from "redux-saga/effects";
 
 import { Service } from "../js/service";
 import { offerError, offerCreated, offerPurchased, offerCancelled, buyKitty, offerEventNotify, removeOffer } from "./offerSlice";
@@ -144,20 +144,41 @@ function* onCancelOffer(tokenId) {
     }
 }
 
+function offerRejectedActionMatcher(action) {
+    const match = action.type.match(/offers\/.*\/rejected/);
+    return Boolean(match);
+}
+
 function* dispatchAlertOnEventMatch(_tokenId, transType) {
     let matchingEvent;
     do {
-        const eventAction = yield take(marketEvent);
-        const { tokenId, TxType } = eventAction.payload;
+        const result = yield race({
+            eventAction: take(marketEvent),
+            rejected: take(offerRejectedActionMatcher)
+        });
+
+        if (result.rejected) {
+            // abort- an error occured
+            // console.log(`dispatchAlertOnEventMatch: aborting. received reject`);
+            break;
+        }
+
+        // else a market event occurred
+        // check to see if it's the right one
+        const { tokenId, TxType } = result.eventAction.payload;
 
         if (tokenId === _tokenId &&
             TxType === transType
         ) {
-            matchingEvent = eventAction.payload;
+            matchingEvent = result.eventAction.payload;
         }
     } while (!matchingEvent);
 
-    yield put(offerEventNotify(matchingEvent));
+    if (matchingEvent) {
+        // display market event
+        yield put(offerEventNotify(matchingEvent));
+    }
+    // else an error occurred so no notification
 }
 
 function* onOfferError(err) {
