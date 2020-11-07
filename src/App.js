@@ -1,10 +1,11 @@
 import React from 'react';
 import {
-   BrowserRouter as Router,
-   Switch,
-   Route,
-   Redirect
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Redirect
 } from "react-router-dom";
+import { useSelector } from 'react-redux';
 import { Container } from 'react-bootstrap';
 
 import AppHeader from './components/AppHeader';
@@ -14,58 +15,59 @@ import CatList from './components/cat/CatList';
 import Home from './Home';
 import BreedPage from './components/breed/BreedPage';
 import MarketPage from './components/market/MarketPage';
-import { useSelector } from 'react-redux';
+import TransactionStatusToast from './components/notification/TransactionStatusToast';
 
 
 export default function App() {
-   const wallet = useSelector(state => state.wallet);
+  const wallet = useSelector(state => state.wallet);
 
-   // only include feature routes if wallet connected
-   let routes = null;
-   if (wallet.account) {
+  // only include feature routes if wallet connected
+  let routes = null;
+  if (wallet.account) {
 
-      const factoryRoute = wallet.isOwner ?
-         <Route exact path="/factory">
-            <CatFactory />
-         </Route>
-         : null;
+    const factoryRoute = wallet.isOwner ?
+      <Route exact path="/factory">
+        <CatFactory />
+      </Route>
+      : null;
 
-      routes =
-         <Switch>
-            {factoryRoute}
-            <Route exact path="/breed">
-               <BreedPage />
-            </Route>
-            <Route exact path="/market">
-               <MarketPage />
-            </Route>
-            <Route exact path="/kitties">
-               <CatList />
-            </Route>
-            <Route exact path="/">
-               <Home />
-            </Route>
-            <Redirect to="/" />
-         </Switch>
-   } else {
-      routes =
-         <Switch>
-            <Route exact path="/">
-               <Home />
-            </Route>
-            <Redirect to="/" />
-         </Switch>
-   }
+    routes =
+      <Switch>
+        {factoryRoute}
+        <Route exact path="/breed">
+          <BreedPage />
+        </Route>
+        <Route exact path="/market">
+          <MarketPage />
+        </Route>
+        <Route exact path="/kitties">
+          <CatList />
+        </Route>
+        <Route exact path="/">
+          <Home />
+        </Route>
+        <Redirect to="/" />
+      </Switch>
+  } else {
+    routes =
+      <Switch>
+        <Route exact path="/">
+          <Home />
+        </Route>
+        <Redirect to="/" />
+      </Switch>
+  }
 
-   return (
-      <div>
-         <Container className="p-5">
-            <Router>
-               <AppHeader />
-               {routes}
-            </Router>
-            <AppFooter />
-         </Container>
-      </div>
-   )
+  return (
+    <div>
+      <Container className="p-5">
+        <TransactionStatusToast />
+        <Router>
+          <AppHeader />
+          {routes}
+        </Router>
+        <AppFooter />
+      </Container>
+    </div>
+  )
 }

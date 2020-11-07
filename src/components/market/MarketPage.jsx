@@ -8,7 +8,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { OfferEventDismiss, selectOfferIdsByType, selectOfferRequestStatus } from './offerSlice';
 import { approveMarket } from '../wallet/walletSlice';
 import { MarketTransType } from './offerSaga';
-import RequestStatusToast from '../RequestStatusToast';
 
 
 // const emptyEventMessage = {
@@ -70,7 +69,6 @@ export default function MarketPage() {
         <div>
             <h1>Kitty Marketplace</h1>
             {message}
-            <RequestStatusToast statusSelector={selectOfferRequestStatus} />
             {eventAlert}
             <div>
                 <Button

@@ -131,5 +131,5 @@ export default function BreedList(props) {
 
 BreedList.propTypes = {
   handleOnSetParent: PropTypes.func.isRequired,
-  sireId: PropTypes.number.isRequired,
+  sireId: PropTypes.number,
 };
