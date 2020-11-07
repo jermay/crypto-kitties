@@ -2,59 +2,89 @@ import React from 'react'
 import { Cattribute } from '../js/dna';
 import { useState } from 'react';
 import { useEffect } from 'react';
-import { Alert } from 'react-bootstrap';
+import { Accordion, Alert, Button, Card } from 'react-bootstrap';
 import moment from 'moment';
+import DnaViewer from './DnaViewer';
+import styled from 'styled-components';
 
-export default function CatFeatures(props) {
-    const [onCooldown, setOnCooldown] = useState(false);
-    const [toReadyTxt, setToReadyTxt] = useState('');
+const PlainCard = styled(Card)`
+  border: 0;
+  background-color: transparent;
+`;
 
-    useEffect(() => {
-        const timer = setInterval(() => {
-            const now = moment();
-            const cooldownEndTime = moment.unix(props.cat.cooldownEndTime);
-            if (now.isBefore(cooldownEndTime)) {
-                setOnCooldown(true);
-                const newReadyText = now.to(cooldownEndTime);
-                setToReadyTxt(newReadyText);
-            } else {
-                setOnCooldown(false);
-                clearInterval(timer);
-            }
-        }, 1000);
+const CardHeader = styled(Card.Header)`
+  padding: 0 1.25rem;
+`;
 
-        return () => clearInterval(timer);
+const BtnSecondary = styled(Button)`
+  background-color: darkgray;
+  border-color: darkgray;
+`;
 
-    })
+export default function CatFeatures({ model }) {
+  const { cat, dna } = model;
+  const [onCooldown, setOnCooldown] = useState(false);
+  const [toReadyTxt, setToReadyTxt] = useState('');
 
-    if (!props.cat.kittyId) {
-        return null;
-    }
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const now = moment();
+      const cooldownEndTime = moment.unix(cat.cooldownEndTime);
+      if (now.isBefore(cooldownEndTime)) {
+        setOnCooldown(true);
+        const newReadyText = now.to(cooldownEndTime);
+        setToReadyTxt(newReadyText);
+      } else {
+        setOnCooldown(false);
+        clearInterval(timer);
+      }
+    }, 1000);
 
-    const cattributes = props.dna.cattributes
-        .filter(c => c.type === Cattribute.TYPES.cattribute)
-        .map(c =>
-            <span key={c.name}>{c.displayName}: {c.valueName}</span>
-        );
+    return () => clearInterval(timer);
 
-    const breedCountdown = onCooldown ?
-        <Alert variant="info">
-            <small>Ready to breed {toReadyTxt}</small>
-        </Alert>
-        : null;
+  })
 
-    return (
-        <div className="d-flex flex-column">
+  if (!cat.kittyId) {
+    return null;
+  }
+
+  const cattributes = dna.cattributes
+    .filter(c => c.type === Cattribute.TYPES.cattribute)
+    .map(c =>
+      <span key={c.name}>{c.displayName}: {c.valueName}</span>
+    );
+
+  const breedCountdown = onCooldown ?
+    <Alert variant="info">
+      <small>Ready to breed {toReadyTxt}</small>
+    </Alert>
+    : null;
+
+  return (
+    <Accordion>
+      <PlainCard>
+        <CardHeader>
+          <Accordion.Toggle as={BtnSecondary} eventKey="0">
             <strong>
-                <span># {props.cat.kittyId} </span>
-                <span>Gen {props.cat.generation} </span>
-                <span>
-                    <span role="img" aria-label="timer clock">⏲</span>
-                    <span>{props.cat.cooldown.name} ({props.cat.cooldown.durationName})</span>
-                </span>
+              <span># {cat.kittyId} </span>
+              <span>Gen {cat.generation} </span>
+              <span>
+                <span role="img" aria-label="timer clock">⏲</span>
+                <span>{cat.cooldown.name} ({cat.cooldown.durationName})</span>
+              </span>
             </strong>
-            {breedCountdown}
+            <DnaViewer dna={dna} />
+          </Accordion.Toggle>
+        </CardHeader>
+      </PlainCard>
+      <Accordion.Collapse eventKey="0">
+        <Card.Body>
+          {breedCountdown}
+          <div className="d-flex flex-column">
             {cattributes}
-        </div>
-    )
+          </div>
+        </Card.Body>
+      </Accordion.Collapse>
+    </Accordion>
+  )
 }

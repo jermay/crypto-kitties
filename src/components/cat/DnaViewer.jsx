@@ -1,11 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
 
-const Div = styled.div`
-    position: absolute;
-    left: 20px;
-    bottom: 5px;
-`;
+// const Div = styled.div`
+//     position: absolute;
+//     left: 20px;
+//     bottom: 5px;
+// `;
 
 const Span = styled.span`
     margin-left: 0.25rem;
@@ -13,7 +13,7 @@ const Span = styled.span`
 
 export default function DnaViewer(props) {
     return (
-        <Div id="catDNA">
+        <div id="catDNA">
             <b>
                 DNA:
                 {
@@ -22,6 +22,6 @@ export default function DnaViewer(props) {
                     )
                 }
             </b>
-        </Div>
+        </div>
     )
 }
