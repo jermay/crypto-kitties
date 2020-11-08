@@ -1,17 +1,20 @@
-import { createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
+/* eslint-disable no-param-reassign */
+import {
+  createAsyncThunk, createEntityAdapter, createSelector, createSlice
+} from '@reduxjs/toolkit';
 import { normalize, schema } from 'normalizr';
 
-import { Service } from '../js/service';
+import Service from '../js/service';
 
 const catAdapter = createEntityAdapter({
   // sort by kittyId descending
   sortComparer: (a, b) => b.kittyId - a.kittyId,
-  selectId: kitty => kitty.kittyId
+  selectId: (kitty) => kitty.kittyId,
 });
 
 // define kitty schema
 export const kittySchema = new schema.Entity(
-  'kitties', {}, { idAttribute: 'kittyId' }
+  'kitties', {}, { idAttribute: 'kittyId', }
 );
 
 export const kittyListSchema = [kittySchema];
@@ -24,52 +27,43 @@ export const getKitties = createAsyncThunk(
   async () => {
     const data = await Service.kitty.getKitties();
     const normalized = normalize(data, kittyListSchema);
-    console.log('kitties/getKitties: normalized: ', normalized);
+    // console.log('kitties/getKitties: normalized: ', normalized);
     return normalized.entities.kitties || [];
   }
 );
 
 export const fetchKitty = createAsyncThunk(
   'kitties/fetchKitty',
-  async (kittyId) => {
-    return Service.kitty.getKitty(kittyId);
-  }
+  async (kittyId) => Service.kitty.getKitty(kittyId)
 );
 
 export const fetchKittiesForIds = createAsyncThunk(
   'kitties/fetchKittiesForIds',
-  async (kittyIds) => {
-    return Service.kitty.getKittesForIds(kittyIds);
-  }
+  async (kittyIds) => Service.kitty.getKittesForIds(kittyIds)
 );
 
 export const createGen0Kitty = createAsyncThunk(
   'kitties/createGen0Kitty',
-  async (dna) => {
-    return Service.kitty.createGen0Kitty(dna);
-  }
+  async (dna) => Service.kitty.createGen0Kitty(dna)
 );
 
 export const breedKitties = createAsyncThunk(
   'kitties/breedKitties',
-  ({ mumId, dadId }) => {
-    return Service.kitty.breed(mumId, dadId);
-  }
+  ({ mumId, dadId, }) => Service.kitty.breed(mumId, dadId)
 );
 
 const catSlice = createSlice({
   name: 'kitties',
   initialState: catAdapter.getInitialState({
     newKittenId: null,
-    error: null
+    error: null,
   }),
   reducers: {
     kittenBorn: (state, action) => {
-      // state.status = RequestStatus.confirmed;
       state.newKittenId = action.payload.kittyId;
       catAdapter.addOne(state, action.payload);
     },
-    newKittenIdClear: (state, action) => {
+    newKittenIdClear: (state) => {
       state.newKittenId = null;
     },
     kittyError: (state, action) => {
@@ -83,8 +77,8 @@ const catSlice = createSlice({
 
     [fetchKitty.fulfilled]: catAdapter.upsertOne,
 
-    [fetchKittiesForIds.fulfilled]: catAdapter.upsertMany
-  }
+    [fetchKittiesForIds.fulfilled]: catAdapter.upsertMany,
+  },
 });
 
 export const {
@@ -100,10 +94,10 @@ export default catSlice.reducer;
 export const {
   selectAll: selectAllKitties,
   selectById: selectKittyById,
-  selectIds: selectKittyIds
-} = catAdapter.getSelectors(state => state.kitties);
+  selectIds: selectKittyIds,
+} = catAdapter.getSelectors((state) => state.kitties);
 
 export const selectKittiesByOwner = createSelector(
   [selectAllKitties, (_, owner) => owner],
-  (entities, owner) => entities.filter(kitty => kitty.owner === owner)
+  (entities, owner) => entities.filter((kitty) => kitty.owner === owner)
 );

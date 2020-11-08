@@ -1,38 +1,43 @@
 import React from 'react';
 import { Nav } from 'react-bootstrap';
 import { NavLink } from 'react-router-dom';
-import Wallet from './wallet/Wallet';
 import { useSelector } from 'react-redux';
+import Wallet from './wallet/Wallet';
 
 export default function AppHeader() {
-    const account = useSelector(state => state.wallet.account);
-    const isOwner = useSelector(state => state.wallet.isOwner);
+  const account = useSelector((state) => state.wallet.account);
+  const isOwner = useSelector((state) => state.wallet.isOwner);
 
-    // only show nav links if there is a connected account
-    const links = account ?
-        <React.Fragment>
-            <NavLink to="/kitties" className="btn nav-link">My Kitties</NavLink>
-            <NavLink to="/breed" className="btn nav-link">Breed</NavLink>
-            <NavLink to="/market" className="btn nav-link">Marketplace</NavLink>
-        </React.Fragment>
-        : null
-
-    // only the owner can create gen zero kitties
-    const factory = isOwner ?
-        <NavLink to="/factory" className="btn nav-link">Factory</NavLink>
-        : null;
-
-    return (
-        <Nav variant="pills" className="mb-2">
-            <NavLink to="/" className="navbar-brand btn">
-                <img src="logo192.png"
-                    alt="React"
-                    width="30" height="30" />
-                Academy Kitties
-            </NavLink>
-            {links}
-            {factory}
-            <Wallet />
-        </Nav>
+  // only show nav links if there is a connected account
+  const links = account
+    ? (
+      <>
+        <NavLink to="/kitties" className="btn nav-link">My Kitties</NavLink>
+        <NavLink to="/breed" className="btn nav-link">Breed</NavLink>
+        <NavLink to="/market" className="btn nav-link">Marketplace</NavLink>
+      </>
     )
+    : null;
+
+  // only the owner can create gen zero kitties
+  const factory = isOwner
+    ? <NavLink to="/factory" className="btn nav-link">Factory</NavLink>
+    : null;
+
+  return (
+    <Nav variant="pills" className="mb-2">
+      <NavLink to="/" className="navbar-brand btn">
+        <img
+          src="logo192.png"
+          alt="React"
+          width="30"
+          height="30"
+        />
+        Academy Kitties
+      </NavLink>
+      {links}
+      {factory}
+      <Wallet />
+    </Nav>
+  );
 }

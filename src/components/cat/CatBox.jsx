@@ -1,9 +1,11 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Col } from 'react-bootstrap';
 import styled from 'styled-components';
 
 import Cat from './Cat';
 import CatFeatures from './CatFeatures';
+import { CatModel } from '../js/catFactory';
 
 
 const Box = styled(Col)`
@@ -15,12 +17,15 @@ const Box = styled(Col)`
     max-width: 20rem;
 `;
 
-export default function CatBox({ model }) {
-
-    return (
-        <Box className="m-2 light-b-shadow">
-            <Cat model={model} />
-            <CatFeatures model={model} />
-        </Box>
-    );
+export default function CatBox({ model, }) {
+  return (
+    <Box className="m-2 light-b-shadow">
+      <Cat model={model} />
+      <CatFeatures model={model} />
+    </Box>
+  );
 }
+
+CatBox.propTypes = {
+  model: PropTypes.instanceOf(CatModel).isRequired,
+};

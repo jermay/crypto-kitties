@@ -1,10 +1,11 @@
+/* eslint-disable react/jsx-filename-extension */
 import React from 'react';
 import {
   BrowserRouter as Router,
   Switch,
   Route,
   Redirect
-} from "react-router-dom";
+} from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { Container } from 'react-bootstrap';
 
@@ -19,19 +20,20 @@ import TransactionStatusToast from './components/notification/TransactionStatusT
 
 
 export default function App() {
-  const wallet = useSelector(state => state.wallet);
+  const wallet = useSelector((state) => state.wallet);
 
   // only include feature routes if wallet connected
   let routes = null;
   if (wallet.account) {
-
-    const factoryRoute = wallet.isOwner ?
-      <Route exact path="/factory">
-        <CatFactory />
-      </Route>
+    const factoryRoute = wallet.isOwner
+      ? (
+        <Route exact path="/factory">
+          <CatFactory />
+        </Route>
+      )
       : null;
 
-    routes =
+    routes = (
       <Switch>
         {factoryRoute}
         <Route exact path="/breed">
@@ -48,14 +50,16 @@ export default function App() {
         </Route>
         <Redirect to="/" />
       </Switch>
+    );
   } else {
-    routes =
+    routes = (
       <Switch>
         <Route exact path="/">
           <Home />
         </Route>
         <Redirect to="/" />
       </Switch>
+    );
   }
 
   return (
@@ -69,5 +73,5 @@ export default function App() {
         <AppFooter />
       </Container>
     </div>
-  )
+  );
 }

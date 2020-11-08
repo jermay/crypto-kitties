@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { PropTypes } from 'prop-types';
-
-import moment from 'moment';
-
 import {
   ButtonGroup, Button, Spinner, Badge
 } from 'react-bootstrap';
 import { useSelector } from 'react-redux';
+import moment from 'moment';
+
 import CatBox from '../cat/CatBox';
 import { CatModel } from '../js/catFactory';
 import { selectKittiesByOwner } from '../cat/catSlice';
@@ -131,5 +130,10 @@ export default function BreedList(props) {
 
 BreedList.propTypes = {
   handleOnSetParent: PropTypes.func.isRequired,
-  sireId: PropTypes.number,
+  sireId: PropTypes.string,
 };
+
+BreedList.defaultProps = {
+  sireId: null,
+};
+

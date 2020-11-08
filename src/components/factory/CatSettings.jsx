@@ -1,8 +1,11 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Badge, Col } from 'react-bootstrap';
 import styled from 'styled-components';
 
 import '../css/mystyle.css';
+import KittyDNA from '../js/dna';
+import Cattribute from '../js/Cattribute';
 
 const Cattributes = styled(Col)`
   padding: 25px;
@@ -10,15 +13,14 @@ const Cattributes = styled(Col)`
   border-radius: 10px;
 `;
 
-export default function CatSettings(props) {
-
+export default function CatSettings({ dna, type, handleDnaChange, }) {
   return (
     <Cattributes className="m-2 light-b-shadow">
       <div id="catColors">
         {
-          props.dna.cattributes
-            .filter(cattribute => cattribute.type === props.type)
-            .map(cattribute => (
+          dna.cattributes
+            .filter((cattribute) => cattribute.type === type)
+            .map((cattribute) => (
               <div className="form-group" key={cattribute.name}>
                 <label htmlFor="formControlRange">
                   <b>{cattribute.displayName}</b>
@@ -26,11 +28,13 @@ export default function CatSettings(props) {
                     {cattribute.valueName}
                   </Badge>
                 </label>
-                <input type="range" className="form-control-range"
+                <input
+                  type="range"
+                  className="form-control-range"
                   id={cattribute.name}
                   min={cattribute.minValue}
                   max={cattribute.maxValue}
-                  onChange={props.handleDnaChange}
+                  onChange={handleDnaChange}
                   defaultValue={cattribute.value}
                 />
               </div>
@@ -38,5 +42,11 @@ export default function CatSettings(props) {
         }
       </div>
     </Cattributes>
-  )
+  );
 }
+
+CatSettings.propTypes = {
+  dna: PropTypes.instanceOf(KittyDNA).isRequired,
+  type: PropTypes.instanceOf(Cattribute.TYPES).isRequired,
+  handleDnaChange: PropTypes.func.isRequired,
+};

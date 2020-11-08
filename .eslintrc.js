@@ -1,17 +1,19 @@
 module.exports = {
   env: {
     browser: true,
+    es2017: true
   },
   extends: [
     'airbnb-base',
     'airbnb/rules/react',
     'airbnb/hooks'
   ],
+  parser: 'babel-eslint',
   parserOptions: {
     ecmaFeatures: {
       jsx: true,
     },
-    ecmaVersion: 6,
+    ecmaVersion: 8,
     sourceType: 'module',
   },
   plugins: [
@@ -29,6 +31,9 @@ module.exports = {
       }
     ],
     'no-multiple-empty-lines': ['error', { max: 2, }],
+    'prefer-destructuring': ['error', { 'object': true, 'array': false }],
+    'no-console': ['error', { allow: ['warn', 'error'] }],
+    'lines-between-class-members': ['error', 'always', { 'exceptAfterSingleLine': true }]
   },
   globals: {
     // testing

@@ -1,11 +1,15 @@
-import React from 'react'
-import { Cattribute } from '../js/dna';
-import { useState } from 'react';
-import { useEffect } from 'react';
-import { Accordion, Alert, Button, Card } from 'react-bootstrap';
+import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
+import {
+  Accordion, Alert, Button, Card
+} from 'react-bootstrap';
 import moment from 'moment';
-import DnaViewer from './DnaViewer';
 import styled from 'styled-components';
+
+import DnaViewer from './DnaViewer';
+import { CatModel } from '../js/catFactory';
+import Cattribute from '../js/Cattribute';
+
 
 const PlainCard = styled(Card)`
   border: 0;
@@ -21,8 +25,8 @@ const BtnSecondary = styled(Button)`
   border-color: darkgray;
 `;
 
-export default function CatFeatures({ model }) {
-  const { cat, dna } = model;
+export default function CatFeatures({ model, }) {
+  const { cat, dna, } = model;
   const [onCooldown, setOnCooldown] = useState(false);
   const [toReadyTxt, setToReadyTxt] = useState('');
 
@@ -41,23 +45,32 @@ export default function CatFeatures({ model }) {
     }, 1000);
 
     return () => clearInterval(timer);
-
-  })
+  });
 
   if (!cat.kittyId) {
     return null;
   }
 
   const cattributes = dna.cattributes
-    .filter(c => c.type === Cattribute.TYPES.cattribute)
-    .map(c =>
-      <span key={c.name}>{c.displayName}: {c.valueName}</span>
-    );
+    .filter((c) => c.type === Cattribute.TYPES.cattribute)
+    .map((c) => (
+      <span key={c.name}>
+        {c.displayName}
+        :
+        {' '}
+        {c.valueName}
+      </span>
+    ));
 
-  const breedCountdown = onCooldown ?
-    <Alert variant="info">
-      <small>Ready to breed {toReadyTxt}</small>
-    </Alert>
+  const breedCountdown = onCooldown
+    ? (
+      <Alert variant="info">
+        <small>
+          Ready to breed
+          {toReadyTxt}
+        </small>
+      </Alert>
+    )
     : null;
 
   return (
@@ -66,11 +79,22 @@ export default function CatFeatures({ model }) {
         <CardHeader>
           <Accordion.Toggle as={BtnSecondary} eventKey="0">
             <strong>
-              <span># {cat.kittyId} </span>
-              <span>Gen {cat.generation} </span>
               <span>
+                #
+                {cat.kittyId}
+                {' '}
+                Gen
+                {' '}
+                {cat.generation}
+                {' '}
                 <span role="img" aria-label="timer clock">⏲</span>
-                <span>{cat.cooldown.name} ({cat.cooldown.durationName})</span>
+                <span>
+                  {cat.cooldown.name}
+                  {' '}
+                  (
+                  {cat.cooldown.durationName}
+                  )
+                </span>
               </span>
             </strong>
             <DnaViewer dna={dna} />
@@ -86,5 +110,9 @@ export default function CatFeatures({ model }) {
         </Card.Body>
       </Accordion.Collapse>
     </Accordion>
-  )
+  );
 }
+
+CatFeatures.propTypes = {
+  model: PropTypes.instanceOf(CatModel).isRequired,
+};
