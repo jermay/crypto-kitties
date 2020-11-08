@@ -1,16 +1,19 @@
 import {
   take, fork, put, all, call, race
 } from 'redux-saga/effects';
+
 import { breedKitties, createGen0Kitty } from '../cat/catSlice';
 import { RequestStatus } from '../js/utils';
-import { buyKitty, buySireRites, removeOffer, sellKitty, sireKitty } from '../market/offerSlice';
+import {
+  buyKitty, buySireRites, removeOffer, sellKitty, sireKitty
+} from '../market/offerSlice';
 import { approveMarket } from '../wallet/walletSlice';
 import { dismissTransStatus, newTransaction, updateTransStatus } from './transStatusSlice';
 
 const messagesByAction = [
   {
     prefix: approveMarket.typePrefix,
-    pending: 'Sending market approval...'
+    pending: 'Sending market approval...',
   },
   {
     prefix: breedKitties.typePrefix,
@@ -34,8 +37,8 @@ const messagesByAction = [
   },
   {
     prefix: buySireRites.typePrefix,
-    pending: 'Kittes getting to know each other...'
- },
+    pending: 'Kittes getting to know each other...',
+  },
   {
     prefix: removeOffer.typePrefix,
     pending: 'Cancelling offer...',
@@ -46,9 +49,9 @@ const oops = 'Opps.. something went wrong';
 const success = 'Success!';
 
 function getErrorMessage(actionRejection) {
-  const errMsg = actionRejection.error.message;  
+  const errMsg = actionRejection.error.message;
 
-  if(errMsg.match(/user denied transaction/i)) {
+  if (errMsg.match(/user denied transaction/i)) {
     return 'Cancelled by user';
   }
 
@@ -72,9 +75,8 @@ function* onTransaction(id, actionMessage) {
         rejected: take(`${actionMessage.prefix}/rejected`),
       });
       // console.log(resultAction);
-
-    } while (!resultAction.rejected &&
-      resultAction.fulfilled.meta.requestId !== id);
+    } while (!resultAction.rejected
+      && resultAction.fulfilled.meta.requestId !== id);
 
     if (resultAction.fulfilled) {
       // found matching trans; notify success
@@ -82,9 +84,8 @@ function* onTransaction(id, actionMessage) {
         id, successMessage, RequestStatus.succeeded
       ));
       yield put(dismissTransStatus(id));
-    }
-    else {
-      const errorMessage = getErrorMessage(resultAction.rejected)
+    } else {
+      const errorMessage = getErrorMessage(resultAction.rejected);
       yield put(updateTransStatus(
         id, errorMessage, RequestStatus.failed
       ));
@@ -92,7 +93,7 @@ function* onTransaction(id, actionMessage) {
   } catch (err) {
     console.error(err);
     yield put(updateTransStatus(
-      id, failMessage, RequestStatus.failed
+      id, oops, RequestStatus.failed
     ));
   }
 }

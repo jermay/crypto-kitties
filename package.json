@@ -11,7 +11,7 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
-    "lint": "eslint . --ext .js,.jsx src/** test/**",
+    "lint": "eslint --ext .js,.jsx src/ test/",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {

@@ -20,6 +20,10 @@ contract TestKittyFactory is KittyFactory {
         _createKitty(_mumId, _dadId, _generation, _genes, _owner);
     }
 
+    function test_setGenZeroCounter(uint256 _value) public {
+        _gen0Counter = _value;
+    }
+
     function mixDna(uint256 _dadDna, uint256 _mumDna, uint256 _seed)
         public
         pure

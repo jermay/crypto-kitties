@@ -1,4 +1,6 @@
-exports.abi =  [
+/* eslint-disable quotes */
+/* eslint-disable quote-props */
+exports.abi = [
   {
     "anonymous": false,
     "inputs": [
@@ -6,23 +8,23 @@ exports.abi =  [
         "indexed": true,
         "internalType": "address",
         "name": "owner",
-        "type": "address"
+        "type": "address",
       },
       {
         "indexed": true,
         "internalType": "address",
         "name": "approved",
-        "type": "address"
+        "type": "address",
       },
       {
         "indexed": true,
         "internalType": "uint256",
         "name": "tokenId",
-        "type": "uint256"
+        "type": "uint256",
       }
     ],
     "name": "Approval",
-    "type": "event"
+    "type": "event",
   },
   {
     "anonymous": false,
@@ -31,23 +33,23 @@ exports.abi =  [
         "indexed": true,
         "internalType": "address",
         "name": "owner",
-        "type": "address"
+        "type": "address",
       },
       {
         "indexed": true,
         "internalType": "address",
         "name": "operator",
-        "type": "address"
+        "type": "address",
       },
       {
         "indexed": false,
         "internalType": "bool",
         "name": "approved",
-        "type": "bool"
+        "type": "bool",
       }
     ],
     "name": "ApprovalForAll",
-    "type": "event"
+    "type": "event",
   },
   {
     "anonymous": false,
@@ -56,35 +58,35 @@ exports.abi =  [
         "indexed": false,
         "internalType": "address",
         "name": "owner",
-        "type": "address"
+        "type": "address",
       },
       {
         "indexed": false,
         "internalType": "uint256",
         "name": "kittyId",
-        "type": "uint256"
+        "type": "uint256",
       },
       {
         "indexed": false,
         "internalType": "uint256",
         "name": "mumId",
-        "type": "uint256"
+        "type": "uint256",
       },
       {
         "indexed": false,
         "internalType": "uint256",
         "name": "dadId",
-        "type": "uint256"
+        "type": "uint256",
       },
       {
         "indexed": false,
         "internalType": "uint256",
         "name": "genes",
-        "type": "uint256"
+        "type": "uint256",
       }
     ],
     "name": "Birth",
-    "type": "event"
+    "type": "event",
   },
   {
     "anonymous": false,
@@ -93,17 +95,17 @@ exports.abi =  [
         "indexed": true,
         "internalType": "address",
         "name": "previousOwner",
-        "type": "address"
+        "type": "address",
       },
       {
         "indexed": true,
         "internalType": "address",
         "name": "newOwner",
-        "type": "address"
+        "type": "address",
       }
     ],
     "name": "OwnershipTransferred",
-    "type": "event"
+    "type": "event",
   },
   {
     "anonymous": false,
@@ -112,23 +114,23 @@ exports.abi =  [
         "indexed": true,
         "internalType": "address",
         "name": "from",
-        "type": "address"
+        "type": "address",
       },
       {
         "indexed": true,
         "internalType": "address",
         "name": "to",
-        "type": "address"
+        "type": "address",
       },
       {
         "indexed": true,
         "internalType": "uint256",
         "name": "tokenId",
-        "type": "uint256"
+        "type": "uint256",
       }
     ],
     "name": "Transfer",
-    "type": "event"
+    "type": "event",
   },
   {
     "constant": true,
@@ -138,12 +140,12 @@ exports.abi =  [
       {
         "internalType": "uint256",
         "name": "",
-        "type": "uint256"
+        "type": "uint256",
       }
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
   },
   {
     "constant": true,
@@ -153,12 +155,12 @@ exports.abi =  [
       {
         "internalType": "uint256",
         "name": "",
-        "type": "uint256"
+        "type": "uint256",
       }
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
   },
   {
     "constant": true,
@@ -168,12 +170,12 @@ exports.abi =  [
       {
         "internalType": "uint256",
         "name": "",
-        "type": "uint256"
+        "type": "uint256",
       }
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
   },
   {
     "constant": true,
@@ -183,12 +185,12 @@ exports.abi =  [
       {
         "internalType": "uint256",
         "name": "",
-        "type": "uint256"
+        "type": "uint256",
       }
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
   },
   {
     "constant": false,
@@ -196,19 +198,19 @@ exports.abi =  [
       {
         "internalType": "address",
         "name": "_approved",
-        "type": "address"
+        "type": "address",
       },
       {
         "internalType": "uint256",
         "name": "_tokenId",
-        "type": "uint256"
+        "type": "uint256",
       }
     ],
     "name": "approve",
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function"
+    "type": "function",
   },
   {
     "constant": true,
@@ -216,7 +218,7 @@ exports.abi =  [
       {
         "internalType": "address",
         "name": "owner",
-        "type": "address"
+        "type": "address",
       }
     ],
     "name": "balanceOf",
@@ -224,12 +226,12 @@ exports.abi =  [
       {
         "internalType": "uint256",
         "name": "balance",
-        "type": "uint256"
+        "type": "uint256",
       }
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
   },
   {
     "constant": true,
@@ -237,7 +239,7 @@ exports.abi =  [
       {
         "internalType": "uint256",
         "name": "",
-        "type": "uint256"
+        "type": "uint256",
       }
     ],
     "name": "cooldowns",
@@ -245,12 +247,12 @@ exports.abi =  [
       {
         "internalType": "uint32",
         "name": "",
-        "type": "uint32"
+        "type": "uint32",
       }
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
   },
   {
     "constant": true,
@@ -258,7 +260,7 @@ exports.abi =  [
       {
         "internalType": "uint256",
         "name": "_tokenId",
-        "type": "uint256"
+        "type": "uint256",
       }
     ],
     "name": "getApproved",
@@ -266,12 +268,12 @@ exports.abi =  [
       {
         "internalType": "address",
         "name": "",
-        "type": "address"
+        "type": "address",
       }
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
   },
   {
     "constant": true,
@@ -279,7 +281,7 @@ exports.abi =  [
       {
         "internalType": "uint256",
         "name": "_kittyId",
-        "type": "uint256"
+        "type": "uint256",
       }
     ],
     "name": "getKitty",
@@ -287,52 +289,52 @@ exports.abi =  [
       {
         "internalType": "uint256",
         "name": "kittyId",
-        "type": "uint256"
+        "type": "uint256",
       },
       {
         "internalType": "uint256",
         "name": "genes",
-        "type": "uint256"
+        "type": "uint256",
       },
       {
         "internalType": "uint64",
         "name": "birthTime",
-        "type": "uint64"
+        "type": "uint64",
       },
       {
         "internalType": "uint64",
         "name": "cooldownEndTime",
-        "type": "uint64"
+        "type": "uint64",
       },
       {
         "internalType": "uint32",
         "name": "mumId",
-        "type": "uint32"
+        "type": "uint32",
       },
       {
         "internalType": "uint32",
         "name": "dadId",
-        "type": "uint32"
+        "type": "uint32",
       },
       {
         "internalType": "uint16",
         "name": "generation",
-        "type": "uint16"
+        "type": "uint16",
       },
       {
         "internalType": "uint16",
         "name": "cooldownIndex",
-        "type": "uint16"
+        "type": "uint16",
       },
       {
         "internalType": "address",
         "name": "owner",
-        "type": "address"
+        "type": "address",
       }
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
   },
   {
     "constant": true,
@@ -340,7 +342,7 @@ exports.abi =  [
       {
         "internalType": "uint256",
         "name": "_kittyId",
-        "type": "uint256"
+        "type": "uint256",
       }
     ],
     "name": "isApproved",
@@ -348,12 +350,12 @@ exports.abi =  [
       {
         "internalType": "bool",
         "name": "",
-        "type": "bool"
+        "type": "bool",
       }
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
   },
   {
     "constant": true,
@@ -361,12 +363,12 @@ exports.abi =  [
       {
         "internalType": "address",
         "name": "_owner",
-        "type": "address"
+        "type": "address",
       },
       {
         "internalType": "address",
         "name": "_operator",
-        "type": "address"
+        "type": "address",
       }
     ],
     "name": "isApprovedForAll",
@@ -374,12 +376,12 @@ exports.abi =  [
       {
         "internalType": "bool",
         "name": "",
-        "type": "bool"
+        "type": "bool",
       }
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
   },
   {
     "constant": true,
@@ -387,7 +389,7 @@ exports.abi =  [
       {
         "internalType": "uint256",
         "name": "_kittyId",
-        "type": "uint256"
+        "type": "uint256",
       }
     ],
     "name": "isApprovedOperatorOf",
@@ -395,12 +397,12 @@ exports.abi =  [
       {
         "internalType": "bool",
         "name": "",
-        "type": "bool"
+        "type": "bool",
       }
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
   },
   {
     "constant": true,
@@ -408,7 +410,7 @@ exports.abi =  [
       {
         "internalType": "uint256",
         "name": "_kittyId",
-        "type": "uint256"
+        "type": "uint256",
       }
     ],
     "name": "isKittyOwner",
@@ -416,12 +418,12 @@ exports.abi =  [
       {
         "internalType": "bool",
         "name": "",
-        "type": "bool"
+        "type": "bool",
       }
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
   },
   {
     "constant": true,
@@ -431,12 +433,12 @@ exports.abi =  [
       {
         "internalType": "bool",
         "name": "",
-        "type": "bool"
+        "type": "bool",
       }
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
   },
   {
     "constant": true,
@@ -444,7 +446,7 @@ exports.abi =  [
       {
         "internalType": "uint256",
         "name": "",
-        "type": "uint256"
+        "type": "uint256",
       }
     ],
     "name": "kittyToApproved",
@@ -452,12 +454,12 @@ exports.abi =  [
       {
         "internalType": "address",
         "name": "",
-        "type": "address"
+        "type": "address",
       }
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
   },
   {
     "constant": true,
@@ -467,12 +469,12 @@ exports.abi =  [
       {
         "internalType": "string",
         "name": "tokenName",
-        "type": "string"
+        "type": "string",
       }
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
   },
   {
     "constant": true,
@@ -482,12 +484,12 @@ exports.abi =  [
       {
         "internalType": "address",
         "name": "",
-        "type": "address"
+        "type": "address",
       }
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
   },
   {
     "constant": true,
@@ -495,7 +497,7 @@ exports.abi =  [
       {
         "internalType": "uint256",
         "name": "_tokenId",
-        "type": "uint256"
+        "type": "uint256",
       }
     ],
     "name": "ownerOf",
@@ -503,12 +505,12 @@ exports.abi =  [
       {
         "internalType": "address",
         "name": "owner",
-        "type": "address"
+        "type": "address",
       }
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
   },
   {
     "constant": false,
@@ -517,7 +519,7 @@ exports.abi =  [
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function"
+    "type": "function",
   },
   {
     "constant": false,
@@ -525,24 +527,24 @@ exports.abi =  [
       {
         "internalType": "address",
         "name": "_from",
-        "type": "address"
+        "type": "address",
       },
       {
         "internalType": "address",
         "name": "_to",
-        "type": "address"
+        "type": "address",
       },
       {
         "internalType": "uint256",
         "name": "_tokenId",
-        "type": "uint256"
+        "type": "uint256",
       }
     ],
     "name": "safeTransferFrom",
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function"
+    "type": "function",
   },
   {
     "constant": false,
@@ -550,29 +552,29 @@ exports.abi =  [
       {
         "internalType": "address",
         "name": "_from",
-        "type": "address"
+        "type": "address",
       },
       {
         "internalType": "address",
         "name": "_to",
-        "type": "address"
+        "type": "address",
       },
       {
         "internalType": "uint256",
         "name": "_tokenId",
-        "type": "uint256"
+        "type": "uint256",
       },
       {
         "internalType": "bytes",
         "name": "_data",
-        "type": "bytes"
+        "type": "bytes",
       }
     ],
     "name": "safeTransferFrom",
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function"
+    "type": "function",
   },
   {
     "constant": false,
@@ -580,19 +582,19 @@ exports.abi =  [
       {
         "internalType": "address",
         "name": "_operator",
-        "type": "address"
+        "type": "address",
       },
       {
         "internalType": "bool",
         "name": "_approved",
-        "type": "bool"
+        "type": "bool",
       }
     ],
     "name": "setApprovalForAll",
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function"
+    "type": "function",
   },
   {
     "constant": true,
@@ -600,7 +602,7 @@ exports.abi =  [
       {
         "internalType": "bytes4",
         "name": "_interfaceId",
-        "type": "bytes4"
+        "type": "bytes4",
       }
     ],
     "name": "supportsInterface",
@@ -608,12 +610,12 @@ exports.abi =  [
       {
         "internalType": "bool",
         "name": "",
-        "type": "bool"
+        "type": "bool",
       }
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
   },
   {
     "constant": true,
@@ -623,12 +625,12 @@ exports.abi =  [
       {
         "internalType": "string",
         "name": "tokenSymbol",
-        "type": "string"
+        "type": "string",
       }
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
   },
   {
     "constant": true,
@@ -638,12 +640,12 @@ exports.abi =  [
       {
         "internalType": "uint256",
         "name": "total",
-        "type": "uint256"
+        "type": "uint256",
       }
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
   },
   {
     "constant": false,
@@ -651,19 +653,19 @@ exports.abi =  [
       {
         "internalType": "address",
         "name": "_to",
-        "type": "address"
+        "type": "address",
       },
       {
         "internalType": "uint256",
         "name": "_tokenId",
-        "type": "uint256"
+        "type": "uint256",
       }
     ],
     "name": "transfer",
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function"
+    "type": "function",
   },
   {
     "constant": false,
@@ -671,24 +673,24 @@ exports.abi =  [
       {
         "internalType": "address",
         "name": "_from",
-        "type": "address"
+        "type": "address",
       },
       {
         "internalType": "address",
         "name": "_to",
-        "type": "address"
+        "type": "address",
       },
       {
         "internalType": "uint256",
         "name": "_tokenId",
-        "type": "uint256"
+        "type": "uint256",
       }
     ],
     "name": "transferFrom",
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function"
+    "type": "function",
   },
   {
     "constant": false,
@@ -696,14 +698,14 @@ exports.abi =  [
       {
         "internalType": "address",
         "name": "newOwner",
-        "type": "address"
+        "type": "address",
       }
     ],
     "name": "transferOwnership",
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function"
+    "type": "function",
   },
   {
     "constant": true,
@@ -711,7 +713,7 @@ exports.abi =  [
       {
         "internalType": "address",
         "name": "_owner",
-        "type": "address"
+        "type": "address",
       }
     ],
     "name": "kittiesOf",
@@ -719,12 +721,12 @@ exports.abi =  [
       {
         "internalType": "uint256[]",
         "name": "",
-        "type": "uint256[]"
+        "type": "uint256[]",
       }
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
   },
   {
     "constant": true,
@@ -734,12 +736,12 @@ exports.abi =  [
       {
         "internalType": "uint256",
         "name": "",
-        "type": "uint256"
+        "type": "uint256",
       }
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
   },
   {
     "constant": false,
@@ -747,7 +749,7 @@ exports.abi =  [
       {
         "internalType": "uint256",
         "name": "_genes",
-        "type": "uint256"
+        "type": "uint256",
       }
     ],
     "name": "createKittyGen0",
@@ -755,12 +757,12 @@ exports.abi =  [
       {
         "internalType": "uint256",
         "name": "",
-        "type": "uint256"
+        "type": "uint256",
       }
     ],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function"
+    "type": "function",
   },
   {
     "constant": false,
@@ -768,12 +770,12 @@ exports.abi =  [
       {
         "internalType": "uint256",
         "name": "_dadId",
-        "type": "uint256"
+        "type": "uint256",
       },
       {
         "internalType": "uint256",
         "name": "_mumId",
-        "type": "uint256"
+        "type": "uint256",
       }
     ],
     "name": "breed",
@@ -781,12 +783,12 @@ exports.abi =  [
       {
         "internalType": "uint256",
         "name": "",
-        "type": "uint256"
+        "type": "uint256",
       }
     ],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function"
+    "type": "function",
   },
   {
     "constant": true,
@@ -794,7 +796,7 @@ exports.abi =  [
       {
         "internalType": "uint256",
         "name": "_kittyId",
-        "type": "uint256"
+        "type": "uint256",
       }
     ],
     "name": "readyToBreed",
@@ -802,12 +804,12 @@ exports.abi =  [
       {
         "internalType": "bool",
         "name": "",
-        "type": "bool"
+        "type": "bool",
       }
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
   },
   {
     "constant": true,
@@ -815,12 +817,12 @@ exports.abi =  [
       {
         "internalType": "uint256",
         "name": "_dadId",
-        "type": "uint256"
+        "type": "uint256",
       },
       {
         "internalType": "uint256",
         "name": "_mumId",
-        "type": "uint256"
+        "type": "uint256",
       }
     ],
     "name": "isApprovedForSiring",
@@ -828,12 +830,12 @@ exports.abi =  [
       {
         "internalType": "bool",
         "name": "",
-        "type": "bool"
+        "type": "bool",
       }
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
   },
   {
     "constant": false,
@@ -841,23 +843,23 @@ exports.abi =  [
       {
         "internalType": "uint256",
         "name": "_dadId",
-        "type": "uint256"
+        "type": "uint256",
       },
       {
         "internalType": "uint256",
         "name": "_mumId",
-        "type": "uint256"
+        "type": "uint256",
       },
       {
         "internalType": "bool",
         "name": "_isApproved",
-        "type": "bool"
+        "type": "bool",
       }
     ],
     "name": "sireApprove",
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function"
+    "type": "function",
   }
 ];

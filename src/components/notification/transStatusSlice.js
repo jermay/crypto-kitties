@@ -26,7 +26,7 @@ const transStatusSlice = createSlice({
         },
       }),
     },
-    dismissTransStatus: transStatusAdapter.removeOne
+    dismissTransStatus: transStatusAdapter.removeOne,
   },
 });
 
@@ -39,5 +39,5 @@ export const {
 } = transStatusSlice.actions;
 
 export const {
-  selectAll: selectAllTransStatus
-} = transStatusAdapter.getSelectors(state => state.transStatus);
+  selectAll: selectAllTransStatus,
+} = transStatusAdapter.getSelectors((state) => state.transStatus);

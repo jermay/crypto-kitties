@@ -1,9 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
-import Cat from './components/cat/Cat';
-import { CatModel } from './components/js/catFactory';
 import { Button, Col, Row } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
+
+import Cat from './components/cat/Cat';
+import { CatModel } from './components/js/catFactory';
 import { connect } from './components/wallet/walletSaga';
 
 const Featured = styled(Row)`
@@ -15,43 +16,45 @@ const Div = styled(Col)`
 `;
 
 export default function Home() {
-    const dispatch = useDispatch();
-    const featured = [
-        "8770856871829324",
-        "9080335340204323",
-        "1937825512645025",
-        "8886915152314413",
-        "1013914222421341",
-    ];
+  const dispatch = useDispatch();
+  const featured = [
+    '8770856871829324',
+    '9080335340204323',
+    '1937825512645025',
+    '8886915152314413',
+    '1013914222421341',
+  ];
 
-    const featuredCats = featured.map(genes => {
-        const cat = new CatModel({ genes });
-        return (
-            <Div key={genes}>
-                <Cat model={cat} />
-            </Div>
-        )
-    });
-
-    const wallet = useSelector(state => state.wallet);
-    const connectWallet = wallet.account ?
-        null
-        : <h3>
-            <Button size="lg" onClick={() => dispatch(connect())}>
-                Connect to get started
-            </Button>
-        </h3>;
-
+  const featuredCats = featured.map((genes) => {
+    const cat = new CatModel({ genes, });
     return (
-        <div className="d-flex flex-column align-items-center">
-            <div align="center" className="mt-2">
-                <h1>Academy Kitties</h1>
-                <p>Collect and breed furrever freinds!</p>
-            </div>
-            {connectWallet}
-            <Featured>
-                {featuredCats}
-            </Featured>
-        </div>
-    )
+      <Div key={genes}>
+        <Cat model={cat} />
+      </Div>
+    );
+  });
+
+  const wallet = useSelector((state) => state.wallet);
+  const connectWallet = wallet.account
+    ? null
+    : (
+      <h3>
+        <Button size="lg" onClick={() => dispatch(connect())}>
+          Connect to get started
+        </Button>
+      </h3>
+    );
+
+  return (
+    <div className="d-flex flex-column align-items-center">
+      <div align="center" className="mt-2">
+        <h1>Academy Kitties</h1>
+        <p>Collect and breed furrever freinds!</p>
+      </div>
+      {connectWallet}
+      <Featured>
+        {featuredCats}
+      </Featured>
+    </div>
+  );
 }

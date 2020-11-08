@@ -1,27 +1,27 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import styled from 'styled-components';
-
-// const Div = styled.div`
-//     position: absolute;
-//     left: 20px;
-//     bottom: 5px;
-// `;
+import KittyDNA from '../js/dna';
 
 const Span = styled.span`
     margin-left: 0.25rem;
 `;
 
-export default function DnaViewer(props) {
-    return (
-        <div id="catDNA">
-            <b>
-                DNA:
-                {
-                    props.dna.cattributes.map(cattribute =>
-                        <Span key={cattribute.name}>{cattribute.strValue}</Span>
-                    )
-                }
-            </b>
-        </div>
-    )
+export default function DnaViewer({ dna, }) {
+  return (
+    <div id="catDNA">
+      <b>
+        DNA:
+        {
+          dna.cattributes.map((cattribute) => (
+            <Span key={cattribute.name}>{cattribute.strValue}</Span>
+          ))
+        }
+      </b>
+    </div>
+  );
 }
+
+DnaViewer.propTypes = {
+  dna: PropTypes.instanceOf(KittyDNA).isRequired,
+};

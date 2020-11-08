@@ -1,26 +1,25 @@
-import { createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
+/* eslint-disable no-param-reassign */
+import {
+  createAsyncThunk, createEntityAdapter, createSelector, createSlice
+} from '@reduxjs/toolkit';
 import { normalize, schema } from 'normalizr';
-import { offerTypes } from '../js/kittyConstants';
-import { Service } from '../js/service';
 
-// export const OfferStatus = {
-//   active: 'Active',
-//   sold: 'Sold',
-//   cancelled: 'Cancelled'
-// }
+import { offerTypes } from '../js/kittyConstants';
+import Service from '../js/service';
+
 
 const offerAdapter = createEntityAdapter({
-  selectId: offer => offer.tokenId
+  selectId: (offer) => offer.tokenId,
 });
 
 const initialState = offerAdapter.getInitialState({
   event: null,
-  error: null
+  error: null,
 });
 
 // define schema
 export const offerSchema = new schema.Entity(
-  'offers', {}, { idAttribute: 'tokenId' }
+  'offers', {}, { idAttribute: 'tokenId', }
 );
 
 export const offerListSchema = [offerSchema];
@@ -31,47 +30,37 @@ export const offerListSchema = [offerSchema];
 export const getOffers = createAsyncThunk(
   'offers/getOffers',
   async () => {
-    let data = await Service.market.getOffers();
+    const data = await Service.market.getOffers();
     const normalized = normalize(data, offerListSchema);
-    console.log('getOffers: ', normalized);
+    // console.log('getOffers: ', normalized);
     return normalized.entities.offers || [];
   }
-)
+);
 
 export const sellKitty = createAsyncThunk(
   'offers/sellKitty',
-  async ({ kittyId, price }) => {
-    return Service.market.sellKitty(kittyId, price);
-  }
-)
+  async ({ kittyId, price, }) => Service.market.sellKitty(kittyId, price)
+);
 
 export const buyKitty = createAsyncThunk(
   'offers/buyKitty',
-  async ({ offer }) => {
-    return Service.market.buyKitty(offer);
-  }
-)
+  async ({ offer, }) => Service.market.buyKitty(offer)
+);
 
 export const sireKitty = createAsyncThunk(
   'offer/sireKitty',
-  async ({ kittyId, price }) => {
-    return Service.market.setSireOffer(kittyId, price);
-  }
-)
+  async ({ kittyId, price, }) => Service.market.setSireOffer(kittyId, price)
+);
 
 export const buySireRites = createAsyncThunk(
   'offers/buySireRites',
-  async ({ offer, matronId }) => {
-    return Service.market.buySireRites(offer, matronId);
-  }
-)
+  async ({ offer, matronId, }) => Service.market.buySireRites(offer, matronId)
+);
 
 export const removeOffer = createAsyncThunk(
   'offers/removeOffer',
-  async ({ kittyId }) => {
-    return Service.market.removeOffer(kittyId);
-  }
-)
+  async ({ kittyId, }) => Service.market.removeOffer(kittyId)
+);
 
 const offerSlice = createSlice({
   name: 'offers',
@@ -92,11 +81,11 @@ const offerSlice = createSlice({
     },
     offerError: (state, action) => {
       state.error = action.payload;
-    }
+    },
   },
   extraReducers: {
     [getOffers.fulfilled]: offerAdapter.setAll,
-  }
+  },
 });
 
 export const {
@@ -105,7 +94,7 @@ export const {
   offerCancelled,
   offerEventNotify,
   OfferEventDismiss,
-  offerError
+  offerError,
 } = offerSlice.actions;
 
 export default offerSlice.reducer;
@@ -116,15 +105,14 @@ export default offerSlice.reducer;
 export const {
   selectById: selectOfferByKittyId,
   selectAll: selectAllOffers,
-} = offerAdapter.getSelectors(state => state.offers);
+} = offerAdapter.getSelectors((state) => state.offers);
 
 export const selectOfferIdsByType = createSelector(
   [selectAllOffers, (_, offerType) => offerType],
   (offers, offerType) => {
-    console.log('selectOffersByType:: offers: ', offers);
     const isSireOffer = offerType === offerTypes.sire;
-    return offers.filter(offer => offer.isSireOffer === isSireOffer)
-      .map(offer => offer.tokenId);
+    return offers.filter((offer) => offer.isSireOffer === isSireOffer)
+      .map((offer) => offer.tokenId);
   }
 );
 
