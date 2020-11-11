@@ -2,15 +2,29 @@ import {
   take, fork, put, all, call, race
 } from 'redux-saga/effects';
 
-import { breedKitties, createGen0Kitty } from '../cat/catSlice';
+import {
+  breedKitties, createGen0Kitty, fetchKittiesForIds, getKitties
+} from '../cat/catSlice';
 import { RequestStatus } from '../js/utils';
 import {
-  buyKitty, buySireRites, removeOffer, sellKitty, sireKitty
+  buyKitty, buySireRites, getOffers, removeOffer, sellKitty, sireKitty
 } from '../market/offerSlice';
+import { connect, contractInitError } from '../wallet/walletSaga';
 import { approveMarket } from '../wallet/walletSlice';
 import { dismissTransStatus, newTransaction, updateTransStatus } from './transStatusSlice';
 
 const messagesByAction = [
+  {
+    loadAction: connect,
+    fulfilledAction: fetchKittiesForIds.fulfilled,
+    rejectedActions: [
+      contractInitError,
+      fetchKittiesForIds.rejected,
+      getKitties.rejected,
+      getOffers.rejected
+    ],
+    pending: 'Retrieving kitties...',
+  },
   {
     prefix: approveMarket.typePrefix,
     pending: 'Sending market approval...',
@@ -69,13 +83,21 @@ function* onTransaction(id, actionMessage) {
     // with the correct transaction id
     // unless an error occurs
     let resultAction;
+    const fulFilledActionType = actionMessage.prefix
+      ? `${actionMessage.prefix}/pending`
+      : actionMessage.fulfilledAction;
+    const rejectActionType = actionMessage.prefix
+      ? `${actionMessage.prefix}/rejected`
+      : actionMessage.rejectedActions;
+
     do {
       resultAction = yield race({
-        fulfilled: take(`${actionMessage.prefix}/fulfilled`),
-        rejected: take(`${actionMessage.prefix}/rejected`),
+        fulfilled: take(fulFilledActionType),
+        rejected: take(rejectActionType),
       });
       // console.log(resultAction);
     } while (!resultAction.rejected
+      && id !== null
       && resultAction.fulfilled.meta.requestId !== id);
 
     if (resultAction.fulfilled) {
@@ -101,8 +123,14 @@ function* onTransaction(id, actionMessage) {
 function generateTransWatcher(actionMessage) {
   return function* watchForAction() {
     while (true) {
-      const pendingAction = yield take(`${actionMessage.prefix}/pending`);
-      const id = pendingAction.meta.requestId;
+      const actionType = actionMessage.prefix
+        ? `${actionMessage.prefix}/pending`
+        : actionMessage.loadAction;
+
+      const pendingAction = yield take(actionType);
+      const id = pendingAction.meta
+        ? pendingAction.meta.requestId
+        : null;
 
       yield fork(onTransaction, id, actionMessage);
     }
