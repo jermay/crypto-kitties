@@ -116,4 +116,11 @@ export const selectOfferIdsByType = createSelector(
   }
 );
 
+export const selectSireOfferIdsForBreeding = createSelector(
+  [selectAllOffers, (_, user) => user],
+  (offers, user) => offers
+    .filter((offer) => offer.isSireOffer && offer.seller !== user)
+    .map((offer) => offer.tokenId)
+);
+
 export const selectOfferRequestStatus = (state) => state.offers.status;

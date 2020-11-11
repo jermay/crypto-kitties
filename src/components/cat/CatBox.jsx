@@ -18,6 +18,10 @@ const Box = styled(Col)`
 `;
 
 export default function CatBox({ model, }) {
+  if (!model) {
+    return <div />;
+  }
+
   return (
     <Box className="m-2 light-b-shadow">
       <Cat model={model} />

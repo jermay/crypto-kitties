@@ -5,6 +5,7 @@ import { createSlice } from '@reduxjs/toolkit';
 export const ParentType = {
   MUM: 'mum',
   DAD: 'dad',
+  SIRE: 'sire',
 };
 
 export const BreedProgress = {
@@ -37,6 +38,9 @@ const breedSlice = createSlice({
           state.mumId = parentId;
         } else {
           state.dadId = parentId;
+          if (parentType === ParentType.SIRE) {
+            state.sireOfferId = parentId;
+          }
         }
 
         state.error = null;
