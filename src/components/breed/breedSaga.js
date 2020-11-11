@@ -95,15 +95,15 @@ function* onBreed() {
         error: take(breedKitties.rejected),
       });
 
-      if (result.error) {
-        yield put(breedError(result.error.error.message));
-      } else {
+      if (result.breed) {
         // update parent cooldowns after breeding
         yield all([
           put(kittenBredEvent(result.breed.kittenAction.payload.kittyId)),
           put(fetchKitty(mumId)),
           put(fetchKitty(dadId)),
         ]);
+      } else {
+        yield put(breedError(result.error.error.message));
       }
     } catch (err) {
       yield put(breedError(err.message));
@@ -113,29 +113,41 @@ function* onBreed() {
 
 
 function* onSire() {
-  const sireAction = yield take(sire);
-  const { offer, matronId, } = sireAction.payload;
-  const sireId = offer.tokenId;
+  while (true) {
+    try {
+      const sireAction = yield take(sire);
+      const { offer, matronId, } = sireAction.payload;
+      const sireId = offer.tokenId;
 
-  yield fork(
-    dispatchKittenOnBirthEventMatch,
-    (kitten) => kitten.mumId === matronId
-      && kitten.dadId === sireId
-  );
+      // dispatch siring and listen for kitten birth
+      // cancel if an error ocurrs
+      const result = yield race({
+        breed: all({
+          listen: fork(
+            dispatchKittenOnBirthEventMatch,
+            (kitten) => kitten.mumId === matronId
+              && kitten.dadId === sireId
+          ),
+          dispatch: put(buySireRites({ offer, matronId, })),
+          kittenAction: take(kittenBorn),
+        }),
+        error: take(buySireRites.rejected),
+      });
 
-  yield put(buySireRites({ offer, matronId, }));
-
-  const { kittenAction, } = yield all({
-    fulfilled: take(buySireRites.fulfilled),
-    kittenAction: take(kittenBorn),
-  });
-
-  // update parent cooldowns after breeding
-  yield all([
-    put(kittenBredEvent(kittenAction.payload.kittyId)),
-    put(fetchKitty(matronId)),
-    put(fetchKitty(sireId)),
-  ]);
+      if (result.breed) {
+        // update parent cooldowns after breeding
+        yield all([
+          put(kittenBredEvent(result.breed.kittenAction.payload.kittyId)),
+          put(fetchKitty(matronId)),
+          put(fetchKitty(sireId)),
+        ]);
+      } else {
+        yield put(breedError(result.error.error.message));
+      }
+    } catch (err) {
+      yield put(breedError(err.message));
+    }
+  }
 }
 
 

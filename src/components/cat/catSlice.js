@@ -101,3 +101,10 @@ export const selectKittiesByOwner = createSelector(
   [selectAllKitties, (_, owner) => owner],
   (entities, owner) => entities.filter((kitty) => kitty.owner === owner)
 );
+
+export const selectKittyIdsByOwner = createSelector(
+  [selectAllKitties, (_, owner) => owner],
+  (entities, owner) => entities
+    .filter((kitty) => kitty.owner === owner)
+    .map((kitty) => kitty.kittyId)
+);

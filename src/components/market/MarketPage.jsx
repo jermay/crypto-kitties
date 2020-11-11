@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Button, Alert } from 'react-bootstrap';
+import { Button, Alert, ButtonGroup } from 'react-bootstrap';
 
 import Offer from './Offer';
 import { offerTypes } from '../js/kittyConstants';
@@ -75,23 +75,20 @@ export default function MarketPage() {
       <h1>Kitty Marketplace</h1>
       {message}
       {eventAlert}
-      <div>
+      <ButtonGroup className="mb-2">
         <Button
-          className="mr-2"
-          variation="info"
+          variant={currOfferType === offerTypes.sell ? 'primary' : 'light'}
           onClick={() => setCurrOfferType(offerTypes.sell)}
-          active={currOfferType === offerTypes.sell}
         >
           Kitties For Sale
         </Button>
         <Button
-          variation="info"
+          variant={currOfferType === offerTypes.sire ? 'primary' : 'light'}
           onClick={() => setCurrOfferType(offerTypes.sire)}
-          active={currOfferType === offerTypes.sire}
         >
           Sire Offers
         </Button>
-      </div>
+      </ButtonGroup>
       <div className="d-flex flex-wrap">
         {offerBoxes}
       </div>
