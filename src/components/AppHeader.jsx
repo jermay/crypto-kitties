@@ -3,13 +3,15 @@ import { Nav } from 'react-bootstrap';
 import { NavLink } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import Wallet from './wallet/Wallet';
+import { selectOnSupportedNetwork } from './wallet/walletSlice';
 
 export default function AppHeader() {
+  const onSupportedNetwork = useSelector(selectOnSupportedNetwork);
   const account = useSelector((state) => state.wallet.account);
   const isOwner = useSelector((state) => state.wallet.isOwner);
 
   // only show nav links if there is a connected account
-  const links = account
+  const links = account && onSupportedNetwork
     ? (
       <>
         <NavLink to="/kitties" className="btn nav-link">My Kitties</NavLink>

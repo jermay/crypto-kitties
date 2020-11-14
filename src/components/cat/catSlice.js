@@ -71,6 +71,11 @@ const catSlice = createSlice({
     },
     addKitties: catAdapter.upsertMany,
     updateKitty: catAdapter.upsertOne,
+    clearKitties: (state) => {
+      catAdapter.setAll(state, []);
+      state.newKittenId = null;
+      state.error = null;
+    },
   },
   extraReducers: {
     [getKitties.fulfilled]: catAdapter.setAll,
@@ -83,6 +88,7 @@ const catSlice = createSlice({
 
 export const {
   addKitties,
+  clearKitties,
   kittyError,
   kittenBorn,
   newKittenIdClear,

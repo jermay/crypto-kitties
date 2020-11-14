@@ -63,13 +63,21 @@ const oops = 'Opps.. something went wrong';
 const success = 'Success!';
 
 function getErrorMessage(actionRejection) {
-  const errMsg = actionRejection.error.message;
+  // console.log('getErrorMessage::', actionRejection);
+  let errMsg = oops;
+  if (actionRejection.error) {
+    errMsg = actionRejection.error.message;
+  } else if (actionRejection.payload) {
+    errMsg = actionRejection.payload.error
+      ? actionRejection.payload.error.message
+      : actionRejection.payload;
+  }
 
   if (errMsg.match(/user denied transaction/i)) {
     return 'Cancelled by user';
   }
 
-  return oops;
+  return errMsg;
 }
 
 function* onTransaction(id, actionMessage) {
@@ -97,7 +105,7 @@ function* onTransaction(id, actionMessage) {
       });
       // console.log(resultAction);
     } while (!resultAction.rejected
-      && id !== null
+    && id !== null
       && resultAction.fulfilled.meta.requestId !== id);
 
     if (resultAction.fulfilled) {

@@ -7,7 +7,7 @@ import {
   Redirect
 } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { Container } from 'react-bootstrap';
+import { Alert, Container } from 'react-bootstrap';
 
 import AppHeader from './components/AppHeader';
 import AppFooter from './components/AppFooter';
@@ -17,14 +17,38 @@ import Home from './Home';
 import BreedPage from './components/breed/BreedPage';
 import MarketPage from './components/market/MarketPage';
 import TransactionStatusToast from './components/notification/TransactionStatusToast';
+import { selectOnSupportedNetwork, selectSupportedNetworks } from './components/wallet/walletSlice';
 
 
 export default function App() {
   const wallet = useSelector((state) => state.wallet);
+  const onSupportedNetwork = useSelector(selectOnSupportedNetwork);
+  const supportedNetworks = useSelector(selectSupportedNetworks);
+
+  // make sure connected to a supported network
+  let unsupportedNetwork;
+  if (wallet.network) {
+    unsupportedNetwork = onSupportedNetwork
+      ? null
+      : (
+        <Alert variant="danger">
+          Network
+          {' '}
+          {wallet.network.name}
+          {' '}
+          not supported. Please connect to
+          {' '}
+          {supportedNetworks.map((n) => n.name).join(', ')}
+          {' '}
+          to get started.
+        </Alert>
+      );
+  }
 
   // only include feature routes if wallet connected
+  // to a supported network
   let routes = null;
-  if (wallet.account) {
+  if (wallet.account && onSupportedNetwork === true) {
     const factoryRoute = wallet.isOwner
       ? (
         <Route exact path="/factory">
@@ -68,6 +92,7 @@ export default function App() {
         <TransactionStatusToast />
         <Router>
           <AppHeader />
+          {unsupportedNetwork}
           {routes}
         </Router>
         <AppFooter />

@@ -12,11 +12,6 @@ const offerAdapter = createEntityAdapter({
   selectId: (offer) => offer.tokenId,
 });
 
-const initialState = offerAdapter.getInitialState({
-  event: null,
-  error: null,
-});
-
 // define schema
 export const offerSchema = new schema.Entity(
   'offers', {}, { idAttribute: 'tokenId', }
@@ -64,7 +59,10 @@ export const removeOffer = createAsyncThunk(
 
 const offerSlice = createSlice({
   name: 'offers',
-  initialState,
+  initialState: offerAdapter.getInitialState({
+    event: null,
+    error: null,
+  }),
   reducers: {
     offerCreated: offerAdapter.addOne,
     offerPurchased: (state, action) => {
@@ -82,6 +80,11 @@ const offerSlice = createSlice({
     offerError: (state, action) => {
       state.error = action.payload;
     },
+    clearOffers: (state) => {
+      offerAdapter.setAll(state, []);
+      state.event = null;
+      state.error = null;
+    },
   },
   extraReducers: {
     [getOffers.fulfilled]: offerAdapter.setAll,
@@ -89,6 +92,7 @@ const offerSlice = createSlice({
 });
 
 export const {
+  clearOffers,
   offerCreated,
   offerPurchased,
   offerCancelled,

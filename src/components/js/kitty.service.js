@@ -2,28 +2,25 @@ import { abi } from './abi';
 import { kittyCooldowns } from './kittyConstants';
 
 export default class KittyService {
-  // contractAddress = '0xBED527c80830cf4bBd51C6Ec5599424240d946C0';
-  user;
-  contract;
-  contractPromise;
-  kitties = [];
-  birthSubscriptions = [];
+  contractAddress; // address
+  user; // address
+  contract; // Web3.eth.Contract
+  contractPromise; // Promise<Web3.eth.Contract>
+  birthSubscriptions = []; // [func]
 
-  constructor(web3, contractAddress) {
+  constructor(web3) {
     this.web3 = web3;
-    this.contractAddress = contractAddress;
   }
 
-  init = async () => {
+  init = async (contractAddress) => {
+    this.contractAddress = contractAddress;
+    await this.createContractInstance(contractAddress);
     this.subscribeToEvents();
   }
 
-  async getContract() {
-    if (this.contract) {
-      return this.contract;
-    }
-    if (this.contractPromise) {
-      return this.contractPromise;
+  createContractInstance = async () => {
+    if (!this.contractAddress) {
+      throw new Error('No contract address! Attempting to use contract before initialization');
     }
 
     this.contractPromise = this.web3.eth.getAccounts().then((accounts) => {
@@ -39,6 +36,17 @@ export default class KittyService {
     });
 
     return this.contractPromise;
+  }
+
+  async getContract() {
+    if (this.contract) {
+      return this.contract;
+    }
+    if (this.contractPromise) {
+      return this.contractPromise;
+    }
+
+    return this.createContractInstance();
   }
 
   async subscribeToEvents() {
