@@ -2,33 +2,29 @@ import { abi } from './kittyMarketplace.abi';
 
 
 export default class KittyMarketPlaceService {
-  // contractAddress = '0x81287efD83dA314ff7cBD8F5221b909A8b6FF7B3';
-  // user;
-  // _contract;
-  // _contractPromise;
-  // _kittyService;
-  // marketSubscriptions = [];
+  contractAddress; // address
+  user; // address
+  contract; // Web3.eth.Contract
+  contractPromise; // Promise<Web3.eth.Contract>
+  kittyService; // KittyService
+  marketSubscriptions = []; // [func]
 
-  constructor(web3, kittyService, contractAddress) {
+  constructor(web3) {
     this.web3 = web3;
-    this.kittyService = kittyService;
-    this.contractAddress = contractAddress;
-    this.marketSubscriptions = [];
-    this.contract = null;
-    this.contractPromise = null;
-    this.user = null;
   }
 
-  init = async () => {
+  init = async (contractAddress, kittyService) => {
+    this.contractAddress = contractAddress;
+    this.kittyService = kittyService;
+    this.contractPromise = null;
+    this.contract = null;
+    await this.createContractInstance();
     this.subscribeToEvents();
   }
 
-  async getContract() {
-    if (this.contract) {
-      return this.contract;
-    }
-    if (this.contractPromise) {
-      return this.contractPromise;
+  createContractInstance = async () => {
+    if (!this.contractAddress) {
+      throw new Error('No contract address! Attempting to use contract before initialization');
     }
 
     this.contractPromise = this.web3.eth.getAccounts().then((accounts) => {
@@ -44,6 +40,17 @@ export default class KittyMarketPlaceService {
     });
 
     return this.contractPromise;
+  }
+
+  async getContract() {
+    if (this.contract) {
+      return this.contract;
+    }
+    if (this.contractPromise) {
+      return this.contractPromise;
+    }
+
+    return this.createContractInstance();
   }
 
   subscribe = (callback) => {

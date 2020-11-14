@@ -1,17 +1,6 @@
-export const networks = {
-  '0x1': { id: '0x1', num: 1, name: 'Etereum MainNet', },
-  '0x3': { id: '0x3', num: 3, name: 'Ropsten Test', },
-  '0x4': { id: '0x4', num: 4, name: 'Rinkeby Test', },
-  '0x5': { id: '0x5', num: 5, name: 'Goerli Test', },
-  '0x2a': { id: '0x2a', num: 42, name: 'Kovan Test', },
-  '0xNaN': { id: '0xNaN', num: 1337, name: 'Ganache Local', },
-};
-
+import { EthNetworks } from '../wallet/networkSlice';
 
 export default class WalletService {
-  localNetwork = networks['0x539']; // ganache
-  testNetwork = null;
-
   constructor(web3) {
     this.web3 = web3;
     if (window.ethereum) {
@@ -30,13 +19,13 @@ export default class WalletService {
     })
 
   static getNetworkFromHex(hex) {
-    const result = Object.values(networks)
+    const result = Object.values(EthNetworks)
       .find((network) => network.id === hex);
     return result || {};
   }
 
   static getNetworkFromNum(num) {
-    const result = Object.values(networks)
+    const result = Object.values(EthNetworks)
       .find((network) => network.num === num);
     return result || {};
   }
