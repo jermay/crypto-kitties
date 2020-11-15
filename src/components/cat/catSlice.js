@@ -47,6 +47,16 @@ export const createGen0Kitty = createAsyncThunk(
   async (dna) => Service.kitty.createGen0Kitty(dna)
 );
 
+export const getGen0KittyCount = createAsyncThunk(
+  'kitties/getGen0Count',
+  async () => Service.kitty.getGen0Count()
+);
+
+export const getGen0KittyLimit = createAsyncThunk(
+  'kitties/getGen0Limit',
+  async () => Service.kitty.getGen0Limit()
+);
+
 export const breedKitties = createAsyncThunk(
   'kitties/breedKitties',
   ({ mumId, dadId, }) => Service.kitty.breed(mumId, dadId)
@@ -57,6 +67,8 @@ const catSlice = createSlice({
   initialState: catAdapter.getInitialState({
     newKittenId: null,
     error: null,
+    genZeroCount: null,
+    genZeroLimit: null,
   }),
   reducers: {
     kittenBorn: (state, action) => {
@@ -83,6 +95,14 @@ const catSlice = createSlice({
     [fetchKitty.fulfilled]: catAdapter.upsertOne,
 
     [fetchKittiesForIds.fulfilled]: catAdapter.upsertMany,
+
+    [getGen0KittyCount.fulfilled]: (state, action) => {
+      state.genZeroCount = action.payload;
+    },
+
+    [getGen0KittyLimit.fulfilled]: (state, action) => {
+      state.genZeroLimit = action.payload;
+    },
   },
 });
 

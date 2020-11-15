@@ -5,7 +5,9 @@ import {
 } from 'redux-saga/effects';
 
 import Service from '../js/service';
-import { clearKitties, fetchKittiesForIds, getKitties } from '../cat/catSlice';
+import {
+  clearKitties, fetchKittiesForIds, getGen0KittyCount, getGen0KittyLimit, getKitties
+} from '../cat/catSlice';
 import { clearOffers, getOffers } from '../market/offerSlice';
 import {
   selectOnSupportedNetwork, updateAccountNetwork, updateOwnerApproved, walletError
@@ -61,6 +63,8 @@ function* onAccountOrNetworkChange() {
   return yield all({
     isOwner: call(Service.kitty.isUserOwner),
     isApproved: call(Service.market.isApproved),
+    gen0Count: put(getGen0KittyCount()),
+    gen0Limit: put(getGen0KittyLimit()),
   });
 }
 
@@ -121,7 +125,13 @@ function* connectWallet() {
  */
 function createAccountChangedChannel() {
   return eventChannel((emitter) => {
-    const emitAccount = (accounts) => emitter(accounts[0].toLowerCase() || '');
+    const emitAccount = (accounts) => {
+      // console.log('createAccountChangedChannel::event emitted', accounts);
+      const account = accounts.length
+        ? accounts[0].toLowerCase()
+        : '';
+      emitter(account);
+    };
 
     window.ethereum.on('accountsChanged', emitAccount);
 

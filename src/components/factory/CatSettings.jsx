@@ -5,7 +5,6 @@ import styled from 'styled-components';
 
 import '../css/mystyle.css';
 import KittyDNA from '../js/dna';
-import Cattribute from '../js/Cattribute';
 
 const Cattributes = styled(Col)`
   padding: 25px;
@@ -47,6 +46,6 @@ export default function CatSettings({ dna, type, handleDnaChange, }) {
 
 CatSettings.propTypes = {
   dna: PropTypes.instanceOf(KittyDNA).isRequired,
-  type: PropTypes.instanceOf(Cattribute.TYPES).isRequired,
+  type: PropTypes.string.isRequired,
   handleDnaChange: PropTypes.func.isRequired,
 };
