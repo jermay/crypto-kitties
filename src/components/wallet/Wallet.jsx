@@ -7,7 +7,7 @@ import { selectOnSupportedNetwork } from './walletSlice';
 export default function Wallet() {
   const dispatch = useDispatch();
   const {
-    account, network, isApproved,
+    account, network, isApproved, isConnected,
   } = useSelector((state) => state.wallet);
   const isSupportedNetwork = useSelector(selectOnSupportedNetwork);
 
@@ -15,7 +15,7 @@ export default function Wallet() {
     ? <span aria-label="approved" className="ml-1">🗸</span>
     : null;
 
-  const content = account
+  const content = isConnected && account && network
     ? (
       <h6>
         <Badge className="m-2" variant={isSupportedNetwork ? 'secondary' : 'danger'}>

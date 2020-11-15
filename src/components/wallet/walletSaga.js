@@ -1,7 +1,7 @@
 import { createAction } from '@reduxjs/toolkit';
 import { eventChannel } from 'redux-saga';
 import {
-  take, call, put, all, select
+  take, call, put, all, select, race
 } from 'redux-saga/effects';
 
 import Service from '../js/service';
@@ -10,6 +10,8 @@ import {
 } from '../cat/catSlice';
 import { clearOffers, getOffers } from '../market/offerSlice';
 import {
+  connectWallet,
+  selectIsWalletConnected,
   selectOnSupportedNetwork, updateAccountNetwork, updateOwnerApproved, walletError
 } from './walletSlice';
 import WalletService from '../js/walletService';
@@ -74,10 +76,11 @@ function* onAccountOrNetworkChange() {
  * @param {string} chainId network chain ID (i.e. '0x3' for Ropsten)
  */
 function* onNetworkChange(chainId) {
+  const isConnected = yield select(selectIsWalletConnected);
   const isSupportedNetwork = yield select(selectOnSupportedNetwork);
   // console.log('onNetworkChange:: isSupportedNetwork', isSupportedNetwork);
 
-  if (isSupportedNetwork) {
+  if (isConnected && isSupportedNetwork) {
     // refresh contracts
     yield call(initContracts, chainId);
 
@@ -87,7 +90,7 @@ function* onNetworkChange(chainId) {
   } else {
     // unsupported network: reset application state
     yield all([
-      put(contractInitError('Unsupported network')),
+      put(contractInitError('Not wallet not connected or unsupported network')),
       put(clearKitties()),
       put(clearOffers()),
     ]);
@@ -99,20 +102,27 @@ function* onNetworkChange(chainId) {
  * Dispatches 'wallet/connectSuccss' on success then
  * intitializes the application state.
  */
-function* connectWallet() {
+function* onConnectWallet() {
   while (true) {
     try {
       yield take(connect);
 
       // update connected account and network
-      const account = yield call(Service.wallet.connect);
-      yield put(connectSuccess());
+      // const account = yield call(Service.wallet.connect);
+      yield put(connectWallet());
+
+      const result = yield race({
+        fulfilled: take(connectWallet.fulfilled),
+        error: take(connectWallet.rejected),
+      });
 
       const network = yield call(Service.wallet.getNetwork);
-      yield put(updateAccountNetwork(account, network));
+      yield put(updateAccountNetwork(null, network));
 
       // init application state
-      yield call(onNetworkChange, network.id);
+      if (result.fulfilled) {
+        yield call(onNetworkChange, network.id);
+      }
     } catch (err) {
       yield put(walletError(err));
     }
@@ -208,6 +218,6 @@ export function* walletSaga() {
   yield all([
     watchForNetworkChange(),
     watchForAccountChange(),
-    connectWallet(),
+    onConnectWallet(),
   ]);
 }

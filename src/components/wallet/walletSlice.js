@@ -12,6 +12,7 @@ const initialState = walletAdapter.getInitialState({
   account: null,
   error: null,
   isApproved: null,
+  isConnected: false,
   isOwner: false,
   network: null,
   supportedNetworks: ['0x539'],
@@ -21,6 +22,11 @@ const initialState = walletAdapter.getInitialState({
 export const approveMarket = createAsyncThunk(
   'wallet/approveMarket',
   () => Service.market.approve()
+);
+
+export const connectWallet = createAsyncThunk(
+  'wallet/connect',
+  () => Service.wallet.connect()
 );
 
 const walletSlice = createSlice({
@@ -75,6 +81,11 @@ const walletSlice = createSlice({
     [approveMarket.fulfilled]: (state) => {
       state.isApproved = true;
     },
+
+    [connectWallet.fulfilled]: (state, action) => {
+      state.isConnected = true;
+      state.account = action.payload;
+    },
   },
 });
 
@@ -90,6 +101,8 @@ export const {
 /*
  * Selectors
 */
+export const selectIsWalletConnected = (state) => state.wallet.isConnected;
+
 export const selectOnSupportedNetwork = createSelector(
   (state) => state.wallet,
   (wallet) => {

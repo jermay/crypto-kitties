@@ -53,7 +53,7 @@ export default function Home() {
         <p>
           Collect and breed furrever freinds!
           <br />
-          <GenZeroCounter msg="geneneration Zero Kittes already created. Get yours before they're all gone!" />
+          <GenZeroCounter msg="geneneration zero Kittes already created. Get yours before they're all gone!" />
         </p>
       </div>
       {connectWallet}
