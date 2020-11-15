@@ -1,11 +1,13 @@
 import { createAction } from '@reduxjs/toolkit';
 import { eventChannel } from 'redux-saga';
 import {
-  call, put, take, all
+  call, put, take, all, race
 } from 'redux-saga/effects';
 
 import Service from '../js/service';
-import { kittenBorn, createGen0Kitty, kittyError } from './catSlice';
+import {
+  kittenBorn, createGen0Kitty, kittyError, getGen0KittyCount
+} from './catSlice';
 
 export const birthEvent = createAction('kitties/birthEvent');
 
@@ -27,6 +29,8 @@ export function* dispatchKittenOnBirthEventMatch(matchFn) {
     kittenEvent.kittyId
   );
   yield put(kittenBorn(kitten));
+
+  return kitten;
 }
 
 
@@ -38,10 +42,18 @@ function* onGenZeroKitty() {
 
       // listen for birth events until
       // matching kitten is found or an error
-      yield call(
-        dispatchKittenOnBirthEventMatch,
-        (kitten) => kitten.genes === newDna
-      );
+      const result = yield race({
+        birth: call(
+          dispatchKittenOnBirthEventMatch,
+          (kitten) => kitten.genes === newDna
+        ),
+        error: take(createGen0Kitty.rejected),
+      });
+
+      // if successful update the gen 0 count
+      if (result.birth) {
+        yield put(getGen0KittyCount());
+      }
     } catch (error) {
       console.error(error);
       yield put(kittyError(error.message));

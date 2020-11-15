@@ -95,12 +95,52 @@ export default class KittyService {
       .call({ from: this.user, });
   }
 
+  /**
+   * Creates a special new kitten with no parents.
+   * Will have generation zero
+   * @param {string} dna the DNA of the new kitten
+   * @throws if sender is not the contract owner
+   * @returns {Promise<string>} the transaction hash on success
+   */
   createGen0Kitty = async (dna) => {
     const instance = await this.getContract();
     return instance.methods
       .createKittyGen0(dna)
-      .send({ from: this.user, });
+      .send({ from: this.user, })
+      .then((txRecepit) => txRecepit.transactionHash);
   }
+
+  /**
+   * Returns the current number of generation
+   * zero kitties which have been created
+   * @returns {Promise<number>}
+   */
+  getGen0Count = async () => {
+    const instance = await this.getContract();
+    return instance.methods
+      .getGen0Count()
+      .call()
+      .catch((err) => {
+        console.error(err);
+        return err;
+      });
+  };
+
+  /**
+   * Returns the total number of generation zero
+   * kitties which can exist
+   * @returns {Promise<number>}
+   */
+  getGen0Limit = async () => {
+    const instance = await this.getContract();
+    return instance.methods
+      .CREATION_LIMIT_GEN0()
+      .call()
+      .catch((err) => {
+        console.error(err);
+        return err;
+      });
+  };
 
   getKitty = async (id) => {
     const instance = await this.getContract();

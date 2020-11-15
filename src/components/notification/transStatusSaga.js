@@ -92,7 +92,7 @@ function* onTransaction(id, actionMessage) {
     // unless an error occurs
     let resultAction;
     const fulFilledActionType = actionMessage.prefix
-      ? `${actionMessage.prefix}/pending`
+      ? `${actionMessage.prefix}/fulfilled`
       : actionMessage.fulfilledAction;
     const rejectActionType = actionMessage.prefix
       ? `${actionMessage.prefix}/rejected`

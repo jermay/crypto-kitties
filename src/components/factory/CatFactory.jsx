@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
-  Tabs, Tab, Button, Col, Row
+  Tabs, Tab, Button, Col, Row, Badge
 } from 'react-bootstrap';
 
 import { CatModel } from '../js/catFactory';
-import Cattribute from '../js/dna';
+import Cattribute from '../js/Cattribute';
 import CatSettings from './CatSettings';
 import CatBox from '../cat/CatBox';
 import BirthAlert from './BirthAlert';
 import { createGen0Kitty, selectKittyById, newKittenIdClear } from '../cat/catSlice';
+import GenZeroCounter from '../cat/GenZeroCounter';
 
 const initialCatModel = new CatModel();
 
@@ -52,9 +53,25 @@ export default function CatFactory() {
 
   return (
     <>
-      <div align="center">
-        <h1>Kitties-Factory</h1>
-        <p>Create your custom Kitty</p>
+      <div className="p-2">
+        <h1>
+          Kitty Factory
+          {' '}
+          <small>
+            <Badge pill variant="secondary">
+              <GenZeroCounter />
+            </Badge>
+          </small>
+        </h1>
+        <p className="text-justify">
+          Create a custom generation zero Kitty!
+          {' '}
+          <small>
+            Gen zero kitties are special.
+            They have no parents and only a limited number will ever exist!
+            Once the limit is reached no more gen zero kitties can be made.
+          </small>
+        </p>
       </div>
       <Row>
         <Col lg={4}>

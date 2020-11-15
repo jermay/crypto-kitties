@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import Cat from './components/cat/Cat';
 import { CatModel } from './components/js/catFactory';
 import { connect } from './components/wallet/walletSaga';
+import GenZeroCounter from './components/cat/GenZeroCounter';
 
 const Featured = styled(Row)`
     max-width: 40rem;
@@ -49,7 +50,11 @@ export default function Home() {
     <div className="d-flex flex-column align-items-center">
       <div align="center" className="mt-2">
         <h1>Academy Kitties</h1>
-        <p>Collect and breed furrever freinds!</p>
+        <p>
+          Collect and breed furrever freinds!
+          <br />
+          <GenZeroCounter msg="geneneration Zero Kittes already created. Get yours before they're all gone!" />
+        </p>
       </div>
       {connectWallet}
       <Featured>

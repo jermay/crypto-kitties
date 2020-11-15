@@ -39,5 +39,9 @@ BirthAlert.propTypes = {
     mumId: PropTypes.string,
     dadId: PropTypes.string,
     genes: PropTypes.string,
-  }).isRequired,
+  }),
+};
+
+BirthAlert.defaultProps = {
+  event: {},
 };
