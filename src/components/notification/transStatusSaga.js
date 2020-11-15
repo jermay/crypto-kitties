@@ -10,7 +10,7 @@ import {
   buyKitty, buySireRites, getOffers, removeOffer, sellKitty, sireKitty
 } from '../market/offerSlice';
 import { connect, contractInitError } from '../wallet/walletSaga';
-import { approveMarket } from '../wallet/walletSlice';
+import { approveMarket, connectWallet } from '../wallet/walletSlice';
 import { dismissTransStatus, newTransaction, updateTransStatus } from './transStatusSlice';
 
 const messagesByAction = [
@@ -18,6 +18,7 @@ const messagesByAction = [
     loadAction: connect,
     fulfilledAction: fetchKittiesForIds.fulfilled,
     rejectedActions: [
+      connectWallet.rejected,
       contractInitError,
       fetchKittiesForIds.rejected,
       getKitties.rejected,
