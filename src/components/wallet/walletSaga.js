@@ -12,7 +12,8 @@ import { clearOffers, getOffers } from '../market/offerSlice';
 import {
   connectWallet,
   selectIsWalletConnected,
-  selectOnSupportedNetwork, updateAccountNetwork, updateOwnerApproved, walletError
+  selectOnSupportedNetwork, updateAccountNetwork, updateOwnerApproved, walletError,
+  walletDisconnected,
 } from './walletSlice';
 import WalletService from '../js/walletService';
 
@@ -129,6 +130,14 @@ function* onConnectWallet() {
   }
 }
 
+function* onWalletDisconnected() {
+  yield all([
+    put(walletDisconnected()),
+    put(clearKitties()),
+    put(clearOffers()),
+  ]);
+}
+
 /**
  * Creates ReduxSaga channel to listen for
  * changes to the connected wallet account
@@ -160,13 +169,26 @@ function* watchForAccountChange() {
   while (true) {
     try {
       const account = yield take(chanAccountChanged);
-      // console.log('walletSaga:: account changed: ', account);
 
-      const { isOwner, isApproved, } = yield call(onAccountOrNetworkChange);
+      const isConnected = yield select(selectIsWalletConnected);
+      if (!isConnected) {
+        // don't update anything if wallet not connected yet
+        // otherwise will make contract calls before they
+        // are initialized
+        // eslint-disable-next-line no-continue
+        continue;
+      }
 
-      yield put(updateAccountNetwork(
-        account, null, isOwner, isApproved
-      ));
+      if (account) {
+        const { isOwner, isApproved, } = yield call(onAccountOrNetworkChange);
+
+        yield put(updateAccountNetwork(
+          account, null, isOwner, isApproved
+        ));
+      } else {
+        // when the new account is empty the wallet was locked by the user
+        yield call(onWalletDisconnected);
+      }
     } catch (error) {
       yield put(walletError(error));
     }
