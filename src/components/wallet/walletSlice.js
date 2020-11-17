@@ -72,6 +72,12 @@ const walletSlice = createSlice({
         };
       },
     },
+    walletDisconnected: (state) => {
+      state.isConnected = false;
+      state.account = null;
+      state.isOwner = false;
+      state.isApproved = null;
+    },
     walletError: (state, action) => {
       state.error = action.payload;
       console.error('wallet error: ', action.payload);
@@ -95,6 +101,7 @@ const walletSlice = createSlice({
 export const {
   updateAccountNetwork,
   updateOwnerApproved,
+  walletDisconnected,
   walletError,
 } = walletSlice.actions;
 
