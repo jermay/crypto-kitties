@@ -57,7 +57,6 @@ contract('KittyAdmin', (accounts) => {
         contractInstance.addKittyCreator(
           testCreator, { from: accounts[2], }
         ),
-        truffleAssert.ErrorType.REVERT,
         'only owner'
       );
     });
@@ -71,6 +70,24 @@ contract('KittyAdmin', (accounts) => {
         result,
         'KittyCreatorAdded',
         (event) => event.creator === testCreator
+      );
+    });
+
+    it('should REVERT if address is the contract address', async () => {
+      await truffleAssert.reverts(
+        contractInstance.addKittyCreator(
+          contractInstance.address, { from: contractOwner, }
+        ),
+        'contract address'
+      );
+    });
+
+    it('should REVERT if the address is the zero address', async () => {
+      await truffleAssert.reverts(
+        contractInstance.addKittyCreator(
+          zeroAddress, { from: contractOwner, }
+        ),
+        'zero address'
       );
     });
   });
@@ -105,9 +122,8 @@ contract('KittyAdmin', (accounts) => {
     });
 
     it('should REVERT if the sender is not the owner', async () => {
-      truffleAssert.reverts(
+      await truffleAssert.reverts(
         contractInstance.removeKittyCreator(testCreator, { from: accounts[2], }),
-        truffleAssert.ErrorType.REVERT,
         'not owner'
       );
     });

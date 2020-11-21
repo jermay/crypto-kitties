@@ -26,6 +26,9 @@ contract KittyAdmin is Ownable {
     }
 
     function addKittyCreator(address _address) external onlyOwner {
+        require(_address != address(this), "contract address");
+        require(_address != address(0), "zero address");
+
         addressToKittyCreatorId[_address] = kittyCreators.length;
         kittyCreators.push(_address);
 
