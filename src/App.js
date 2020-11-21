@@ -18,6 +18,7 @@ import BreedPage from './components/breed/BreedPage';
 import MarketPage from './components/market/MarketPage';
 import TransactionStatusToast from './components/notification/TransactionStatusToast';
 import { selectOnSupportedNetwork, selectSupportedNetworks } from './components/wallet/walletSlice';
+import AdminPage from './components/admin/AdminPage';
 
 
 export default function App() {
@@ -49,7 +50,7 @@ export default function App() {
   // to a supported network
   let routes = null;
   if (wallet.account && onSupportedNetwork === true) {
-    const factoryRoute = wallet.isOwner
+    const factoryRoute = wallet.isKittyCreator
       ? (
         <Route exact path="/factory">
           <CatFactory />
@@ -57,9 +58,18 @@ export default function App() {
       )
       : null;
 
+    const adminRoute = wallet.isOwner
+      ? (
+        <Route exact path="/admin">
+          <AdminPage />
+        </Route>
+      )
+      : null;
+
     routes = (
       <Switch>
         {factoryRoute}
+        {adminRoute}
         <Route exact path="/breed">
           <BreedPage />
         </Route>

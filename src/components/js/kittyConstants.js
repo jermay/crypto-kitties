@@ -26,3 +26,4 @@ const OFFER_TYPES = {
 
 export const offerTypes = OFFER_TYPES;
 export const kittyCooldowns = KITTY_COOLDOWNS;
+export const zeroAddress = '0x0000000000000000000000000000000000000000';

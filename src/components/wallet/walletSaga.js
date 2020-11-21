@@ -16,6 +16,7 @@ import {
   walletDisconnected,
 } from './walletSlice';
 import WalletService from '../js/walletService';
+import { fetchAllKittyCreators } from '../admin/kittyCreatorSlice';
 
 
 export const connect = createAction('wallet/connect');
@@ -59,13 +60,15 @@ function* onAccountOrNetworkChange() {
   yield all([
     put(getKitties()),
     put(getOffers()),
-    call(getKittesFromOffers)
+    call(getKittesFromOffers),
+    put(fetchAllKittyCreators()),
   ]);
 
   // get updated user state
   return yield all({
     isOwner: call(Service.kitty.isUserOwner),
     isApproved: call(Service.market.isApproved),
+    isKittyCreator: call(Service.kitty.isUserKittyCreator),
     gen0Count: put(getGen0KittyCount()),
     gen0Limit: put(getGen0KittyLimit()),
   });
@@ -86,8 +89,8 @@ function* onNetworkChange(chainId) {
     yield call(initContracts, chainId);
 
     // refresh application state
-    const { isOwner, isApproved, } = yield call(onAccountOrNetworkChange);
-    yield put(updateOwnerApproved(isOwner, isApproved));
+    const { isOwner, isApproved, isKittyCreator, } = yield call(onAccountOrNetworkChange);
+    yield put(updateOwnerApproved(isOwner, isApproved, isKittyCreator));
   } else {
     // unsupported network: reset application state
     yield all([
@@ -180,10 +183,12 @@ function* watchForAccountChange() {
       }
 
       if (account) {
-        const { isOwner, isApproved, } = yield call(onAccountOrNetworkChange);
+        const {
+          isOwner, isApproved, isKittyCreator,
+        } = yield call(onAccountOrNetworkChange);
 
         yield put(updateAccountNetwork(
-          account, null, isOwner, isApproved
+          account, null, isOwner, isApproved, isKittyCreator
         ));
       } else {
         // when the new account is empty the wallet was locked by the user

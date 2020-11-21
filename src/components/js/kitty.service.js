@@ -1,5 +1,5 @@
 import { abi } from './abi';
-import { kittyCooldowns } from './kittyConstants';
+import { kittyCooldowns, zeroAddress } from './kittyConstants';
 
 export default class KittyService {
   contractAddress; // address
@@ -88,12 +88,66 @@ export default class KittyService {
     this.birthSubscriptions.forEach((sub) => sub(cleanedEvent));
   }
 
+  /**
+   * Return true if the current user is the contract owner
+   * @returns {Promise<boolean>}
+   */
   isUserOwner = async () => {
     const instance = await this.getContract();
     return instance.methods
       .isOwner()
       .call({ from: this.user, });
   }
+
+  /**
+   * Returns true if the current user is allowed
+   * to create generation zero kitties
+   * @returns {Promise<boolean>}
+   */
+  isUserKittyCreator = async () => {
+    const instance = await this.getContract();
+    return instance.methods
+      .isKittyCreator(this.user)
+      .call({ from: this.user, });
+  }
+
+  /**
+   * Returns a list of all the Kitty Creator addresses
+   * @returns {Promise<string[]>}
+   */
+  getAllKittyCreators = async () => {
+    const instance = await this.getContract();
+    return instance.methods
+      .getKittyCreators()
+      .call({ from: this.user, })
+      .then((creators) => creators.filter((c) => c !== zeroAddress));
+  }
+
+  /**
+   * Adds a new Kitty Creator permission for the given address
+   * @param {string} address address to add
+   * @returns {Promise<string>} the transaction hash
+   */
+  addKittyCreator = async (address) => {
+    const instance = await this.getContract();
+    return instance.methods
+      .addKittyCreator(address)
+      .send({ from: this.user, })
+      .then((txRecepit) => txRecepit.transactionHash);
+  };
+
+  /**
+   * Removes the Kitty Creator permission for the given address
+   * @param {string} address address to remove
+   * @returns {Promise<string>} the transaction hash
+   */
+  removeKittyCreator = async (address) => {
+    const instance = await this.getContract();
+    return instance.methods
+      .removeKittyCreator(address)
+      .send({ from: this.user, })
+      .then((txRecepit) => txRecepit.transactionHash);
+  };
 
   /**
    * Creates a special new kitten with no parents.
