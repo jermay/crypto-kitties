@@ -10,10 +10,10 @@ contract KittyAdmin is Ownable {
 
     constructor() public {
         // placeholder to reserve ID zero as an invalid value
-        kittyCreators.push(address(0));
+        _addKittyCreator(address(0));
 
         // the owner should be allowed to create kitties
-        kittyCreators.push(owner());
+        _addKittyCreator(owner());
     }
 
     modifier onlyKittyCreator() {
@@ -29,6 +29,10 @@ contract KittyAdmin is Ownable {
         require(_address != address(this), "contract address");
         require(_address != address(0), "zero address");
 
+        _addKittyCreator(_address);
+    }
+
+    function _addKittyCreator(address _address) internal {
         addressToKittyCreatorId[_address] = kittyCreators.length;
         kittyCreators.push(_address);
 

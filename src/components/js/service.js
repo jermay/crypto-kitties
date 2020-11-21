@@ -9,8 +9,8 @@ export default class Service {
     // '0x3': // Ropsten Test'
     '0x539': {
       // Ganache Local
-      kitty: '0xBED527c80830cf4bBd51C6Ec5599424240d946C0',
-      market: '0x81287efD83dA314ff7cBD8F5221b909A8b6FF7B3',
+      kitty: '0x9312e2681EC932ab10a8733F4Ff60B4068D32B6F',
+      market: '0xe59ff6CF2f513Ea166D6af2226D78705906EA6bB',
     },
   };
 
