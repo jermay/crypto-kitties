@@ -1,14 +1,14 @@
 pragma solidity >=0.5.0 <0.6.0;
 
-import "./Ownable.sol";
 import "./SafeMath.sol";
 import "./KittyContract.sol";
+import "./KittyAdmin.sol";
 
-contract KittyFactory is Ownable, KittyContract {
+contract KittyFactory is KittyContract, KittyAdmin {
     using SafeMath32 for uint32;
     using SafeMath16 for uint16;
 
-    uint256 public constant CREATION_LIMIT_GEN0 = 100;
+    uint256 public constant CREATION_LIMIT_GEN0 = 65535;
     uint256 public constant NUM_CATTRIBUTES = 10;
     uint256 public constant DNA_LENGTH = 16;
     uint256 public constant RANDOM_DNA_THRESHOLD = 7;
@@ -25,12 +25,7 @@ contract KittyFactory is Ownable, KittyContract {
         uint256 genes
     );
 
-    /// @dev A lookup table indicating the cooldown duration after any successful
-    ///  breeding action, called "pregnancy time" for matrons and "siring cooldown"
-    ///  for sires. Designed such that the cooldown roughly doubles each time a cat
-    ///  is bred, encouraging owners not to just keep breeding the same cat over
-    ///  and over again. Caps out at one week (a cat can breed an unbounded number
-    ///  of times, and the maximum cooldown is always seven days).
+    /// @dev cooldown duration after breeding
     uint32[14] public cooldowns = [
         uint32(1 minutes),
         uint32(2 minutes),
@@ -77,7 +72,7 @@ contract KittyFactory is Ownable, KittyContract {
 
     function createKittyGen0(uint256 _genes)
         public
-        onlyOwner
+        onlyKittyCreator
         returns (uint256)
     {
         require(_gen0Counter < CREATION_LIMIT_GEN0, "gen0 limit exceeded");

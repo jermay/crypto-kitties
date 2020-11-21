@@ -1,6 +1,7 @@
 /* eslint-env node, mocha */
 const { expect, } = require('chai');
 const truffleAssert = require('truffle-assertions');
+const { zeroAddress, } = require('./kittyUtils');
 
 const { BN, } = web3.utils;
 const TestKittyContract = artifacts.require('TestKittyContract');
@@ -9,7 +10,6 @@ const TestBadNFTReceiver = artifacts.require('TestBadNFTReceiver');
 
 
 contract('KittyContract', (accounts) => {
-  const zeroAddress = '0x0000000000000000000000000000000000000000';
   let contract;
   let kittyOwner;
   let kitty;
