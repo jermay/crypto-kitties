@@ -1,4 +1,5 @@
 import { all } from 'redux-saga/effects';
+import kittyCreatorSaga from '../components/admin/kittyCreatorSaga';
 import { breedSaga } from '../components/breed/breedSaga';
 import { catSaga } from '../components/cat/catSaga';
 import { offerSaga } from '../components/market/offerSaga';
@@ -10,6 +11,7 @@ export default function* rootSaga() {
     walletSaga(),
     catSaga(),
     breedSaga(),
+    kittyCreatorSaga(),
     offerSaga(),
     transStatusSaga(),
   ]);

@@ -37,7 +37,7 @@ const walletSlice = createSlice({
     updateAccountNetwork: {
       reducer(state, action) {
         const {
-          account, network, isOwner, isApproved, isKittyCreator
+          account, network, isOwner, isApproved, isKittyCreator,
         } = action.payload;
 
         if (account) {
@@ -76,6 +76,9 @@ const walletSlice = createSlice({
         };
       },
     },
+    updateIsKittyCreator: (state, action) => {
+      state.isKittyCreator = action.payload;
+    },
     walletDisconnected: (state) => {
       state.isConnected = false;
       state.account = null;
@@ -104,6 +107,7 @@ const walletSlice = createSlice({
 */
 export const {
   updateAccountNetwork,
+  updateIsKittyCreator,
   updateOwnerApproved,
   walletDisconnected,
   walletError,
@@ -132,5 +136,7 @@ export const selectSupportedNetworks = createSelector(
     (network) => supported.find((s) => s === network.id)
   )
 );
+
+export const selectUser = (state) => state.wallet.account;
 
 export default walletSlice.reducer;

@@ -6,23 +6,44 @@ import {
 
 import Service from '../js/service';
 import {
-  clearKitties, fetchKittiesForIds, getGen0KittyCount, getGen0KittyLimit, getKitties
+  clearKitties, fetchKittiesForIds, getGen0KittyCount, getGen0KittyLimit,
+  getKitties
 } from '../cat/catSlice';
 import { clearOffers, getOffers } from '../market/offerSlice';
 import {
-  connectWallet,
-  selectIsWalletConnected,
-  selectOnSupportedNetwork, updateAccountNetwork, updateOwnerApproved, walletError,
-  walletDisconnected,
+  connectWallet, selectIsWalletConnected, selectOnSupportedNetwork,
+  updateAccountNetwork, updateOwnerApproved, walletError, updateIsKittyCreator,
+  walletDisconnected, selectUser,
 } from './walletSlice';
 import WalletService from '../js/walletService';
-import { fetchAllKittyCreators } from '../admin/kittyCreatorSlice';
+import {
+  fetchAllKittyCreators, isUserKittyCreator, kittyCreatorAdded,
+  kittyCreatorRemoved,
+} from '../admin/kittyCreatorSlice';
 
 
 export const connect = createAction('wallet/connect');
 export const connectSuccess = createAction('wallet/connect/success');
 export const contractInitSuccess = createAction('wallet/contractInit/success');
 export const contractInitError = createAction('wallet/contractInit/error');
+
+/**
+ * Update the isKittyCreator status when the list
+ * of Kitty Creators changes
+ */
+function* watchForKittyCreatorchange() {
+  while (true) {
+    try {
+      yield take([kittyCreatorAdded, kittyCreatorRemoved]);
+
+      const user = yield select(selectUser);
+      const result = yield select(isUserKittyCreator, user);
+      yield put(updateIsKittyCreator(result));
+    } catch (error) {
+      yield put(walletError(error.message));
+    }
+  }
+}
 
 /**
  * Calls Service to initialize the contract instances
@@ -245,6 +266,7 @@ export function* walletSaga() {
   yield all([
     watchForNetworkChange(),
     watchForAccountChange(),
+    watchForKittyCreatorchange(),
     onConnectWallet(),
   ]);
 }

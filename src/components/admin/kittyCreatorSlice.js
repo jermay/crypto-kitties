@@ -1,5 +1,7 @@
 /* eslint-disable no-param-reassign */
-import { createAsyncThunk, createEntityAdapter, createSlice } from '@reduxjs/toolkit';
+import {
+  createAsyncThunk, createEntityAdapter, createSelector, createSlice
+} from '@reduxjs/toolkit';
 import Service from '../js/service';
 
 const kittyCreatorAdapter = createEntityAdapter({
@@ -24,12 +26,16 @@ export const removeKittyCreator = createAsyncThunk(
 const kittyCreatorSlice = createSlice({
   name: 'kittyCreators',
   initialState: kittyCreatorAdapter.getInitialState(),
-  reducers: {},
+  reducers: {
+    kittyCreatorAdded: kittyCreatorAdapter.addOne,
+    kittyCreatorRemoved: kittyCreatorAdapter.removeOne,
+  },
   extraReducers: {
     [fetchAllKittyCreators.fulfilled]: kittyCreatorAdapter.setAll,
 
     [addKittyCreator.fulfilled]: (state, action) => {
-      const toAdd = action.meta.arg;
+      // remove checksum capitalization for comparison consistancy
+      const toAdd = action.meta.arg.toLowerCase();
       kittyCreatorAdapter.addOne(state, toAdd);
     },
 
@@ -41,7 +47,23 @@ const kittyCreatorSlice = createSlice({
 });
 
 export const {
+  kittyCreatorAdded,
+  kittyCreatorRemoved,
+} = kittyCreatorSlice.actions;
+
+export const {
   selectAll: selectAllKittyCreators,
 } = kittyCreatorAdapter.getSelectors((state) => state.kittyCreators);
+
+/**
+ * Returns true if the user is a Kitty Creator
+ * @param {state} state redux state
+ * @param {string} user user account
+ * @returns {boolean}
+ */
+export const isUserKittyCreator = createSelector(
+  [selectAllKittyCreators, (_, user) => user],
+  (creators, user) => creators.some((c) => c === user)
+);
 
 export default kittyCreatorSlice.reducer;
