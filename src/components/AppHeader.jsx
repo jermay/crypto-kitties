@@ -9,6 +9,7 @@ export default function AppHeader() {
   const onSupportedNetwork = useSelector(selectOnSupportedNetwork);
   const account = useSelector((state) => state.wallet.account);
   const isOwner = useSelector((state) => state.wallet.isOwner);
+  const isKittyCreator = useSelector((state) => state.wallet.isKittyCreator);
 
   // only show nav links if there is a connected account
   const links = account && onSupportedNetwork
@@ -21,9 +22,13 @@ export default function AppHeader() {
     )
     : null;
 
-  // only the owner can create gen zero kitties
-  const factory = isOwner
+  // only Kitty Creators can create gen zero kitties
+  const factory = isKittyCreator
     ? <NavLink to="/factory" className="btn nav-link">Factory</NavLink>
+    : null;
+
+  const admin = isOwner
+    ? <NavLink to="/admin" className="btn nav-link">Admin</NavLink>
     : null;
 
   return (
@@ -39,6 +44,7 @@ export default function AppHeader() {
       </NavLink>
       {links}
       {factory}
+      {admin}
       <Wallet />
     </Nav>
   );

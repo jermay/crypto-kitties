@@ -20,3 +20,5 @@ exports.getEventFromResult = (result, eventName) => {
   const event = result.logs.find((log) => log.event === eventName);
   return event.args;
 };
+
+exports.zeroAddress = '0x0000000000000000000000000000000000000000';

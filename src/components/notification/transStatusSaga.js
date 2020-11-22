@@ -1,6 +1,7 @@
 import {
   take, fork, put, all, call, race
 } from 'redux-saga/effects';
+import { addKittyCreator, removeKittyCreator } from '../admin/kittyCreatorSlice';
 
 import {
   breedKitties, createGen0Kitty, fetchKittiesForIds, getKitties
@@ -57,6 +58,14 @@ const messagesByAction = [
   {
     prefix: removeOffer.typePrefix,
     pending: 'Cancelling offer...',
+  },
+  {
+    prefix: addKittyCreator.typePrefix,
+    pending: 'Adding new Kitty Creator...',
+  },
+  {
+    prefix: removeKittyCreator.typePrefix,
+    pending: 'Removing Kitty Creator...',
   }
 ];
 

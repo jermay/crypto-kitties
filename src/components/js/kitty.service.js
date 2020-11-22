@@ -1,14 +1,21 @@
+import EventEmitter from 'events';
 import { abi } from './abi';
-import { kittyCooldowns } from './kittyConstants';
+import { kittyCooldowns, zeroAddress } from './kittyConstants';
 
-export default class KittyService {
+export default class KittyService extends EventEmitter {
+  static eventNames = {
+    Birth: 'Birth',
+    KittyCreatorAdded: 'KittyCreatorAdded',
+    KittyCreatorRemoved: 'KittyCreatorRemoved',
+  };
+
   contractAddress; // address
   user; // address
   contract; // Web3.eth.Contract
   contractPromise; // Promise<Web3.eth.Contract>
-  birthSubscriptions = []; // [func]
 
   constructor(web3) {
+    super();
     this.web3 = web3;
   }
 
@@ -49,6 +56,10 @@ export default class KittyService {
     return this.createContractInstance();
   }
 
+  /**
+   * Initializes the contract event subscriptions
+   * so they can be re-emitted and/or handled
+   */
   async subscribeToEvents() {
     window.ethereum.on(
       'accountsChanged',
@@ -57,43 +68,146 @@ export default class KittyService {
 
     const instance = await this.getContract();
     instance.events.Birth()
-      .on('data', this.onBirth)
+      .on('data', this.onContractEvent)
+      .on('error', console.error);
+
+    instance.events.KittyCreatorAdded()
+      .on('data', this.onContractEvent)
+      .on('error', console.error);
+
+    instance.events.KittyCreatorRemoved()
+      .on('data', this.onContractEvent)
       .on('error', console.error);
   }
 
-  subscribeToBirthEvent = (callback) => {
-    this.birthSubscriptions.push(callback);
-  }
+  /**
+   * Extracts data for the Brith event
+   * @param {*} values web3 event return values
+   */
+  getBirthEventData = (values) => ({
+    // remove checksum capitalization for comparison consistancy
+    owner: values.owner.toLowerCase(),
+    kittyId: values.kittyId,
+    mumId: values.mumId,
+    dadId: values.dadId,
+    genes: values.genes,
+  });
 
-  unSubscribeToBirthEvent = (callback) => {
-    const i = this.birthSubscriptions.indexOf(callback);
-    if (i >= 0) {
-      this.birthSubscriptions.splice(i, 1);
+  /**
+   * Extacts the event data for the
+   * KittyCreatorAdded and KittyCreatorRemoved events
+   * as both events have the same params
+   * @param {*} values web3 event return values
+   */
+  getKittyCreatorEventData = (values) => ({
+    // remove checksum capitalization for comparison consistancy
+    creator: values.creator.toLowerCase(),
+  });
+
+  /**
+   * Extracts a sanitized version of the event return values.
+   * Uses the event name to call the appropriate extractor
+   * @param {string} eventName contract event name
+   * @param {*} values web3 event return values
+   */
+  getContractEventData = (eventName, values) => {
+    // remove the extra stuff added by web3.js
+    let data = {};
+    switch (eventName) {
+      case KittyService.eventNames.Birth:
+        data = this.getBirthEventData(values);
+        break;
+
+      case KittyService.eventNames.KittyCreatorAdded:
+      case KittyService.eventNames.KittyCreatorRemoved:
+        data = this.getKittyCreatorEventData(values);
+        break;
+
+      default:
+        break;
     }
+
+    return data;
+  };
+
+  /**
+   * Handles events coming from the contract
+   * Extracts sanitizes the event data and re-emits the event
+   * to subscribers of the service
+   * @param {*} eventArgs the web3.js event
+   */
+  onContractEvent = (eventArgs) => {
+    const values = eventArgs.returnValues;
+    const eventName = eventArgs.event;
+
+    const data = this.getContractEventData(eventName, values);
+    this.emit(eventName, data);
+    // console.log('KittyService::onContractEvent: ', eventName, data);
   }
 
-  onBirth = (event) => {
-    const birth = event.returnValues;
-    // console.log('Birth event: ', birth);
-
-    const cleanedEvent = {
-      owner: birth.owner.toLowerCase(),
-      kittyId: birth.kittyId,
-      mumId: birth.mumId,
-      dadId: birth.dadId,
-      genes: birth.genes,
-    };
-
-    // emit event
-    this.birthSubscriptions.forEach((sub) => sub(cleanedEvent));
-  }
-
+  /**
+   * Return true if the current user is the contract owner
+   * @returns {Promise<boolean>}
+   */
   isUserOwner = async () => {
     const instance = await this.getContract();
     return instance.methods
       .isOwner()
       .call({ from: this.user, });
   }
+
+  /**
+   * Returns true if the current user is allowed
+   * to create generation zero kitties
+   * @returns {Promise<boolean>}
+   */
+  isUserKittyCreator = async () => {
+    const instance = await this.getContract();
+    return instance.methods
+      .isKittyCreator(this.user)
+      .call({ from: this.user, });
+  }
+
+  /**
+   * Returns a list of all the Kitty Creator addresses
+   * @returns {Promise<string[]>}
+   */
+  getAllKittyCreators = async () => {
+    const instance = await this.getContract();
+    return instance.methods
+      .getKittyCreators()
+      .call({ from: this.user, })
+      .then((creators) => creators
+        .filter((c) => c !== zeroAddress)
+        // remove checksum capitalization for comparison consistancy
+        .map((c) => c.toLowerCase()));
+  }
+
+  /**
+   * Adds a new Kitty Creator permission for the given address
+   * @param {string} address address to add
+   * @returns {Promise<string>} the transaction hash
+   */
+  addKittyCreator = async (address) => {
+    const instance = await this.getContract();
+    return instance.methods
+      .addKittyCreator(address)
+      .send({ from: this.user, })
+      .then((txRecepit) => txRecepit.transactionHash);
+  };
+
+  /**
+   * Removes the Kitty Creator permission for the given address
+   * @param {string} address address to remove
+   * @returns {Promise<string>} the transaction hash
+   */
+  removeKittyCreator = async (address) => {
+    const instance = await this.getContract();
+    return instance.methods
+      .removeKittyCreator(address)
+      .send({ from: this.user, })
+      .then((txRecepit) => txRecepit.transactionHash);
+  };
 
   /**
    * Creates a special new kitten with no parents.

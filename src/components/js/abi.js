@@ -92,6 +92,32 @@ exports.abi = [
     "anonymous": false,
     "inputs": [
       {
+        "indexed": false,
+        "internalType": "address",
+        "name": "creator",
+        "type": "address",
+      }
+    ],
+    "name": "KittyCreatorAdded",
+    "type": "event",
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "creator",
+        "type": "address",
+      }
+    ],
+    "name": "KittyCreatorRemoved",
+    "type": "event",
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
         "indexed": true,
         "internalType": "address",
         "name": "previousOwner",
@@ -190,6 +216,21 @@ exports.abi = [
     ],
     "payable": false,
     "stateMutability": "view",
+    "type": "function",
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_address",
+        "type": "address",
+      }
+    ],
+    "name": "addKittyCreator",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
     "type": "function",
   },
   {
@@ -338,6 +379,21 @@ exports.abi = [
   },
   {
     "constant": true,
+    "inputs": [],
+    "name": "getKittyCreators",
+    "outputs": [
+      {
+        "internalType": "address[]",
+        "name": "",
+        "type": "address[]",
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function",
+  },
+  {
+    "constant": true,
     "inputs": [
       {
         "internalType": "uint256",
@@ -393,6 +449,27 @@ exports.abi = [
       }
     ],
     "name": "isApprovedOperatorOf",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool",
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function",
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_address",
+        "type": "address",
+      }
+    ],
+    "name": "isKittyCreator",
     "outputs": [
       {
         "internalType": "bool",
@@ -510,6 +587,21 @@ exports.abi = [
     ],
     "payable": false,
     "stateMutability": "view",
+    "type": "function",
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_address",
+        "type": "address",
+      }
+    ],
+    "name": "removeKittyCreator",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
     "type": "function",
   },
   {

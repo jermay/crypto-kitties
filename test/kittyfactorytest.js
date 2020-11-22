@@ -84,16 +84,20 @@ contract('KittyFactory', async (accounts) => {
   describe('Create Gen 0 Kitty', () => {
     let expKitty;
     let transaction;
+    let testKittyCreator;
     beforeEach(async () => {
+      testKittyCreator = accounts[3];
       expKitty = {
         mumId: new BN('0'),
         dadId: new BN('0'),
         generation: new BN('0'),
         cooldownIndex: new BN('0'),
         genes: new BN('1234567812345678'),
-        owner: contractOwner,
+        owner: testKittyCreator,
       };
-      transaction = await addGen0Kitty(expKitty.genes);
+      await kittyFactory.addKittyCreator(testKittyCreator);
+
+      transaction = await addGen0Kitty(expKitty.genes, testKittyCreator);
     });
 
     it('should store the new kitty', async () => {
@@ -110,11 +114,11 @@ contract('KittyFactory', async (accounts) => {
 
     it('should record the ownership of the new kitty', async () => {
       const kittyOwer = await kittyFactory.ownerOf(1);
-      expect(kittyOwer).to.equal(contractOwner);
+      expect(kittyOwer).to.equal(testKittyCreator);
     });
 
     it('should update the owner count', async () => {
-      const result = await kittyFactory.balanceOf(contractOwner);
+      const result = await kittyFactory.balanceOf(testKittyCreator);
       expect(result.toString(10)).to.equal('1');
     });
 
@@ -146,11 +150,11 @@ contract('KittyFactory', async (accounts) => {
       );
     });
 
-    it('should REVERT if the sender is NOT the owner', async () => {
+    it('should REVERT if the sender is NOT a KittyCreator', async () => {
       await truffleAssert.reverts(
         addGen0Kitty(expKitty.genes, testAccount),
-        truffleAssert.ErrorType.REVERT,
-        'owner'
+        'must be a kitty creator',
+        'kitty creator'
       );
     });
   });

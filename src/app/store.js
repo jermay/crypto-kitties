@@ -8,6 +8,7 @@ import offerReducer from '../components/market/offerSlice';
 import transStatusReducer from '../components/notification/transStatusSlice';
 import walletReducer from '../components/wallet/walletSlice';
 import networkReducer from '../components/wallet/networkSlice';
+import kittyCreatorReducer from '../components/admin/kittyCreatorSlice';
 
 const sagaMiddleware = createSagaMidleware();
 
@@ -19,6 +20,7 @@ export default configureStore({
     wallet: walletReducer,
     transStatus: transStatusReducer,
     networks: networkReducer,
+    kittyCreators: kittyCreatorReducer,
   },
   middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(sagaMiddleware),
 });

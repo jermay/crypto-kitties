@@ -13,6 +13,7 @@ const initialState = walletAdapter.getInitialState({
   error: null,
   isApproved: null,
   isConnected: false,
+  isKittyCreator: false,
   isOwner: false,
   network: null,
   supportedNetworks: ['0x539'],
@@ -36,7 +37,7 @@ const walletSlice = createSlice({
     updateAccountNetwork: {
       reducer(state, action) {
         const {
-          account, network, isOwner, isApproved,
+          account, network, isOwner, isApproved, isKittyCreator,
         } = action.payload;
 
         if (account) {
@@ -48,29 +49,35 @@ const walletSlice = createSlice({
 
         state.isOwner = isOwner || false;
         state.isApproved = isApproved || false;
+        state.isKittyCreator = isKittyCreator || false;
       },
-      prepare(account, network, isOwner, isApproved) {
+      prepare(account, network, isOwner, isApproved, isKittyCreator) {
         return {
           payload: {
             account,
             network,
             isOwner,
             isApproved,
+            isKittyCreator,
           },
         };
       },
     },
     updateOwnerApproved: {
       reducer(state, action) {
-        const { isOwner, isApproved, } = action.payload;
+        const { isOwner, isApproved, isKittyCreator, } = action.payload;
         state.isOwner = isOwner;
         state.isApproved = isApproved;
+        state.isKittyCreator = isKittyCreator;
       },
-      prepare(isOwner, isApproved) {
+      prepare(isOwner, isApproved, isKittyCreator) {
         return {
-          payload: { isOwner, isApproved, },
+          payload: { isOwner, isApproved, isKittyCreator, },
         };
       },
+    },
+    updateIsKittyCreator: (state, action) => {
+      state.isKittyCreator = action.payload;
     },
     walletDisconnected: (state) => {
       state.isConnected = false;
@@ -100,6 +107,7 @@ const walletSlice = createSlice({
 */
 export const {
   updateAccountNetwork,
+  updateIsKittyCreator,
   updateOwnerApproved,
   walletDisconnected,
   walletError,
@@ -128,5 +136,7 @@ export const selectSupportedNetworks = createSelector(
     (network) => supported.find((s) => s === network.id)
   )
 );
+
+export const selectUser = (state) => state.wallet.account;
 
 export default walletSlice.reducer;

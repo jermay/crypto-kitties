@@ -3,6 +3,7 @@ import { eventChannel } from 'redux-saga';
 import {
   call, put, take, all, race
 } from 'redux-saga/effects';
+import KittyService from '../js/kitty.service';
 
 import Service from '../js/service';
 import {
@@ -69,9 +70,9 @@ function createBirthEventChannel() {
       emitter(e);
     };
 
-    Service.kitty.subscribeToBirthEvent(onEvent);
+    Service.kitty.on(KittyService.eventNames.Birth, onEvent);
 
-    return () => Service.kitty.unSubscribeToBirthEvent(onEvent);
+    return () => Service.kitty.off(KittyService.eventNames.Birth, onEvent);
   });
 }
 
@@ -94,6 +95,6 @@ function* dispatchBirthEvent() {
 export function* catSaga() {
   yield all([
     dispatchBirthEvent(),
-    call(onGenZeroKitty),
+    onGenZeroKitty(),
   ]);
 }
