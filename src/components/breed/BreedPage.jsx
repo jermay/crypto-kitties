@@ -47,6 +47,7 @@ export default function BreedPage() {
   const [listType, setListType] = useState(BreedListType.user);
 
   useEffect(() => {
+    // update breed list contents when selected list type changes
     if (listType === BreedListType.user) {
       setList(kittyList);
     } else {
