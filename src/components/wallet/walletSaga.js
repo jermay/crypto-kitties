@@ -13,7 +13,7 @@ import { clearOffers, getOffers } from '../market/offerSlice';
 import {
   connectWallet, selectIsWalletConnected, selectOnSupportedNetwork,
   updateAccountNetwork, updateOwnerApproved, walletError, updateIsKittyCreator,
-  walletDisconnected, selectUser,
+  walletDisconnected, selectUser, fetchWeb3ProviderIsAvailable, selectIsWeb3ProviderAvailable,
 } from './walletSlice';
 import WalletService from '../js/walletService';
 import {
@@ -26,6 +26,7 @@ export const connect = createAction('wallet/connect');
 export const connectSuccess = createAction('wallet/connect/success');
 export const contractInitSuccess = createAction('wallet/contractInit/success');
 export const contractInitError = createAction('wallet/contractInit/error');
+export const web3InitSuccess = createAction('wallet/web3Init/success');
 
 /**
  * Update the isKittyCreator status when the list
@@ -115,7 +116,7 @@ function* onNetworkChange(chainId) {
   } else {
     // unsupported network: reset application state
     yield all([
-      put(contractInitError('Not wallet not connected or unsupported network')),
+      put(contractInitError('Wallet not connected or unsupported network')),
       put(clearKitties()),
       put(clearOffers()),
     ]);
@@ -131,6 +132,15 @@ function* onConnectWallet() {
   while (true) {
     try {
       yield take(connect);
+
+      const providerAvailable = yield select(selectIsWeb3ProviderAvailable);
+      if (!providerAvailable) {
+        // cannot connect wallet if no web 3 provider
+        yield put(walletError('No web 3 provider. Intstall Metamask'));
+
+        // eslint-disable-next-line no-continue
+        continue;
+      }
 
       // update connected account and network
       // const account = yield call(Service.wallet.connect);
@@ -188,6 +198,9 @@ function createAccountChangedChannel() {
  * refreshes the application state
  */
 function* watchForAccountChange() {
+  // can only watch for account change if web3 provider available
+  yield take(web3InitSuccess);
+
   const chanAccountChanged = yield call(createAccountChangedChannel);
 
   while (true) {
@@ -245,6 +258,9 @@ function createNetworkChangedChannel() {
  * and refreshes the application state
  */
 function* watchForNetworkChange() {
+  // can only watch for network change if web3 provider available
+  yield take(web3InitSuccess);
+
   const chanNetworkChanged = yield call(createNetworkChangedChannel);
 
   while (true) {
@@ -261,9 +277,32 @@ function* watchForNetworkChange() {
   }
 }
 
+function* detectWeb3Provider() {
+  try {
+    yield put((fetchWeb3ProviderIsAvailable()));
+    const resultAction = yield take([
+      fetchWeb3ProviderIsAvailable.fulfilled,
+      fetchWeb3ProviderIsAvailable.rejected,
+    ]);
+
+    if (fetchWeb3ProviderIsAvailable.fulfilled.match(resultAction)
+      && resultAction.payload
+    ) {
+      Service.initServices();
+      yield put(web3InitSuccess());
+    } else {
+      yield put(walletError('No web 3 provider. Please install Metamask'));
+    }
+  } catch (error) {
+    console.error(error);
+    yield put(walletError(error.message));
+  }
+}
+
 
 export function* walletSaga() {
   yield all([
+    detectWeb3Provider(),
     watchForNetworkChange(),
     watchForAccountChange(),
     watchForKittyCreatorchange(),

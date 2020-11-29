@@ -1,6 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Button, Col, Row } from 'react-bootstrap';
+import {
+  Alert, Button, Col, Row
+} from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 
 import Cat from './components/cat/Cat';
@@ -18,6 +20,8 @@ const Div = styled(Col)`
 
 export default function Home() {
   const dispatch = useDispatch();
+  const wallet = useSelector((state) => state.wallet);
+
   const featured = [
     '8770856871829324',
     '9080335340204323',
@@ -35,17 +39,6 @@ export default function Home() {
     );
   });
 
-  const wallet = useSelector((state) => state.wallet);
-  const connectWallet = wallet.account
-    ? null
-    : (
-      <h3>
-        <Button size="lg" onClick={() => dispatch(connect())}>
-          Connect to get started
-        </Button>
-      </h3>
-    );
-
   return (
     <div className="d-flex flex-column align-items-center">
       <div align="center" className="mt-2">
@@ -56,7 +49,36 @@ export default function Home() {
           <GenZeroCounter msg="geneneration zero Kittes already created. Get yours before they're all gone!" />
         </p>
       </div>
-      {connectWallet}
+      {
+        !wallet.isConnected && wallet.web3ProviderAvailable
+          ? (
+            <h3>
+              <Button size="lg" onClick={() => dispatch(connect())}>
+                Connect to get started
+              </Button>
+            </h3>
+          )
+          : null
+      }
+      {
+        !wallet.web3ProviderAvailable
+          ? (
+            <Alert variant="danger">
+              Web 3 provider not detected.
+              {' '}
+              <a
+                href="https://metamask.io"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Please install Metamask
+              </a>
+              {' '}
+              to get started.
+            </Alert>
+          )
+          : null
+      }
       <Featured>
         {featuredCats}
       </Featured>

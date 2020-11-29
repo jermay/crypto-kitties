@@ -14,10 +14,23 @@ export default class Service {
     },
   };
 
-  static web3 = new Web3(Web3.givenProvider);
-  static kitty = new KittyService(Service.web3);
-  static market = new KittyMarketPlaceService(Service.web3);
-  static wallet = new WalletService(Service.web3);
+  static web3;
+  static kitty;
+  static market;
+  static wallet;
+
+  static web3ProviderAvailable = () => Boolean(Web3.givenProvider);
+
+  static initServices = () => {
+    if (!Service.web3ProviderAvailable()) {
+      throw new Error('No web 3 provider available. Please install Metamask');
+    }
+
+    this.web3 = new Web3(Web3.givenProvider);
+    this.kitty = new KittyService(Service.web3);
+    this.market = new KittyMarketPlaceService(Service.web3);
+    this.wallet = new WalletService(Service.web3);
+  }
 
   static initContracts = async (chainId) => {
     const contractAddresses = this.chainIdToAddress[chainId];

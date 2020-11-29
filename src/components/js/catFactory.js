@@ -168,7 +168,10 @@ export class CatEyePart extends CatPart {
         height: '42px',
         margin: '16px',
         position: 'relative',
-        border: '2px solid #4e4d4d',
+        borderTop: '2px solid #4e4d4d',
+        borderLeft: '2px solid #4e4d4d',
+        borderRight: '2px solid #4e4d4d',
+        borderBottom: '2px solid #4e4d4d',
       },
       childParts: [
         new CatPupilPart({ dna: props.dna, type: props.type, })
@@ -571,7 +574,7 @@ export class CatLegPart extends CatPart {
     switch (patternNum) {
       // Pin Stripes
       case 1:
-        this.styles.background = `repeating-linear-gradient(
+        this.styles.backgroundImage = `repeating-linear-gradient(
                     to bottom,
                     ${this.color},
                     ${this.color} 15px,
@@ -663,7 +666,7 @@ export class CatBodyPart extends CatPart {
     switch (patternNum) {
       // Pin Stripes
       case 1:
-        this.styles.background = `repeating-linear-gradient(
+        this.styles.backgroundImage = `repeating-linear-gradient(
                     to bottom,
                     ${this.color},
                     ${this.color} 15px,
