@@ -7,7 +7,7 @@ import { selectOnSupportedNetwork } from './walletSlice';
 export default function Wallet() {
   const dispatch = useDispatch();
   const {
-    account, network, isApproved, isConnected,
+    account, network, isApproved, isConnected, web3ProviderAvailable,
   } = useSelector((state) => state.wallet);
   const isSupportedNetwork = useSelector(selectOnSupportedNetwork);
 
@@ -15,8 +15,9 @@ export default function Wallet() {
     ? <span aria-label="approved" className="ml-1">🗸</span>
     : null;
 
-  const content = isConnected && account && network
-    ? (
+  let content;
+  if (isConnected && account && network) {
+    content = (
       <h6>
         <Badge className="m-2" variant={isSupportedNetwork ? 'secondary' : 'danger'}>
           {account.substring(0, 4)}
@@ -27,12 +28,14 @@ export default function Wallet() {
           {network.name}
         </Badge>
       </h6>
-    )
-    : (
+    );
+  } else if (web3ProviderAvailable) {
+    content = (
       <Button onClick={() => dispatch(connect())}>
         Connect
       </Button>
     );
+  }
 
   return (
     <div>{content}</div>

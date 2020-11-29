@@ -17,8 +17,13 @@ const initialState = walletAdapter.getInitialState({
   isOwner: false,
   network: null,
   supportedNetworks: ['0x539'],
+  web3ProviderAvailable: null,
 });
 
+export const fetchWeb3ProviderIsAvailable = createAsyncThunk(
+  'wallet/fetchWeb3ProviderIsAvailable',
+  () => Service.web3ProviderAvailable()
+);
 
 export const approveMarket = createAsyncThunk(
   'wallet/approveMarket',
@@ -99,6 +104,14 @@ const walletSlice = createSlice({
       state.isConnected = true;
       state.account = action.payload;
     },
+
+    [fetchWeb3ProviderIsAvailable.fulfilled]: (state, action) => {
+      state.web3ProviderAvailable = action.payload;
+    },
+    [fetchWeb3ProviderIsAvailable.rejected]: (state) => {
+      state.web3ProviderAvailable = false;
+    },
+
   },
 });
 
@@ -117,6 +130,8 @@ export const {
  * Selectors
 */
 export const selectIsWalletConnected = (state) => state.wallet.isConnected;
+
+export const selectIsWeb3ProviderAvailable = (state) => state.wallet.web3ProviderAvailable;
 
 export const selectOnSupportedNetwork = createSelector(
   (state) => state.wallet,

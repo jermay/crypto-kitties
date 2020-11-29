@@ -7,6 +7,7 @@ import KittyService from '../js/kitty.service';
 import Service from '../js/service';
 import { kittyError } from '../cat/catSlice';
 import { kittyCreatorAdded, kittyCreatorRemoved } from './kittyCreatorSlice';
+import { contractInitSuccess } from '../wallet/walletSaga';
 
 function createCreatorAddedEventChannel() {
   return eventChannel((emitter) => {
@@ -49,6 +50,9 @@ function* dispatchKittyCreatorEvent(channel, updateAction) {
 
 
 export default function* kittyCreatorSaga() {
+  // watch for Kitty Creator events once kitty contract is initialized
+  yield take(contractInitSuccess);
+
   yield all([
     dispatchKittyCreatorEvent(
       createCreatorAddedEventChannel(),

@@ -6,6 +6,7 @@ import {
 import { addKitties, updateKitty } from '../cat/catSlice';
 
 import Service from '../js/service';
+import { contractInitSuccess } from '../wallet/walletSaga';
 import {
   offerError, offerCreated, offerPurchased, offerCancelled, buyKitty, offerEventNotify, removeOffer
 } from './offerSlice';
@@ -125,6 +126,9 @@ function* onMarketEvent(eventData) {
 }
 
 function* watchMarketChannel() {
+  // watch for market events once market contract is initialized
+  yield take(contractInitSuccess);
+
   const chanMarket = yield call(createMarketEventChannel);
 
   while (true) {
