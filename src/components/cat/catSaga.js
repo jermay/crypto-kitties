@@ -3,9 +3,10 @@ import { eventChannel } from 'redux-saga';
 import {
   call, put, take, all, race
 } from 'redux-saga/effects';
-import KittyService from '../js/kitty.service';
 
+import KittyService from '../js/kitty.service';
 import Service from '../js/service';
+import { contractInitSuccess } from '../wallet/walletSaga';
 import {
   kittenBorn, createGen0Kitty, kittyError, getGen0KittyCount
 } from './catSlice';
@@ -78,6 +79,9 @@ function createBirthEventChannel() {
 
 
 function* dispatchBirthEvent() {
+  // watch for Birth event once kitty contract is initialized
+  yield take(contractInitSuccess);
+
   const birthChan = yield call(createBirthEventChannel);
 
   while (true) {
