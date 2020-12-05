@@ -129,8 +129,8 @@ export const {
 /*
  * Selectors
 */
+export const selectIsApproved = (state) => state.wallet.isApproved;
 export const selectIsWalletConnected = (state) => state.wallet.isConnected;
-
 export const selectIsWeb3ProviderAvailable = (state) => state.wallet.web3ProviderAvailable;
 
 export const selectOnSupportedNetwork = createSelector(
