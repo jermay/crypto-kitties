@@ -5,41 +5,13 @@ import { Button, Alert, ButtonGroup } from 'react-bootstrap';
 import Offer from './Offer';
 import { offerTypes } from '../js/kittyConstants';
 import { OfferEventDismiss, selectOfferIdsByType } from './offerSlice';
-import { approveMarket } from '../wallet/walletSlice';
 import { MarketTransType } from './offerSaga';
 
 
-// const emptyEventMessage = {
-//     text: '',
-//     type: 'info'
-// }
-
 export default function MarketPage() {
   const dispatch = useDispatch();
-
   const [currOfferType, setCurrOfferType] = useState(offerTypes.sell);
-  // const [eventMessage, setEventMessage] = useState(emptyEventMessage);
-
-  const isApproved = useSelector((state) => state.wallet.isApproved);
   const offerIds = useSelector((state) => selectOfferIdsByType(state, currOfferType));
-
-  const onGiveApprovalClicked = async () => {
-    dispatch(approveMarket());
-  };
-
-  const message = isApproved
-    ? <p>Buy and sell kitties!</p>
-    : (
-      <Alert variant="info" className="p-2">
-        <p>You need to give the market permission to transfer your kitties</p>
-        <Button onClick={onGiveApprovalClicked}>
-          Yes, it
-          {'\''}
-          s OK!
-        </Button>
-      </Alert>
-    );
-
 
   const eventData = useSelector((state) => state.offers.event);
   let eventAlert = null;
@@ -69,11 +41,10 @@ export default function MarketPage() {
 
   const offerBoxes = offerIds.map((id) => <Offer key={id} tokenId={id} />);
 
-
   return (
     <div>
       <h1>Kitty Marketplace</h1>
-      {message}
+      <p>Buy and sell kitties!</p>
       {eventAlert}
       <ButtonGroup className="mb-2">
         <Button

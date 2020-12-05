@@ -8,7 +8,6 @@ import { NavLink } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
 import Service from '../js/service';
-import { approveMarket } from '../wallet/walletSlice';
 import { selectOfferByKittyId } from '../market/offerSlice';
 import { sireOfferSelected } from '../breed/breedSlice';
 
@@ -47,7 +46,6 @@ export default function CatAction(props) {
 
   const dispatch = useDispatch();
 
-  const isApproved = useSelector((state) => state.wallet.isApproved);
   const user = useSelector((state) => state.wallet.account);
   const offer = useSelector((state) => selectOfferByKittyId(state, kittyId));
   const [sellStatus, setSellStatus] = useState(SELL_STATUS.notForSale);
@@ -56,28 +54,15 @@ export default function CatAction(props) {
   useEffect(() => {
     setMessage(emptyMessage);
 
-    if (!isApproved) {
-      setSellStatus(SELL_STATUS.approvalRequired);
-      setMessage({
-        text: 'In order to sell your kitties you need to give the Marketplace permission to transfer your kitties on your behalf. This is required so the buyer and sellers do not need to be online at the same time.',
-        type: 'info',
-      });
-      return;
-    }
-
     if (offer) {
       setSellStatus(SELL_STATUS.offerCreated);
     } else {
       setSellStatus(SELL_STATUS.setPrice);
     }
-  }, [isApproved, offer]);
+  }, [offer]);
 
   const [price, setPrice] = useState(undefined);
   const onPriceChange = (e) => setPrice(e.target.value);
-
-  const onApproveClicked = () => {
-    dispatch(approveMarket());
-  };
 
   const onCreateOfferClicked = (event) => {
     event.preventDefault();
@@ -91,14 +76,6 @@ export default function CatAction(props) {
 
   let sellDisplay = null;
   switch (sellStatus) {
-    case SELL_STATUS.approvalRequired: {
-      sellDisplay = (
-        <Button onClick={onApproveClicked}>
-          YES. It&apos;s OK. You are approved!
-        </Button>
-      );
-      break;
-    }
     case SELL_STATUS.setPrice: {
       sellDisplay = (
         <Form inline onSubmit={onCreateOfferClicked}>
