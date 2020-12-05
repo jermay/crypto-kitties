@@ -57,3 +57,15 @@ https://guide.cryptokitties.co/guide/cat-features/cooldown-speed
 | 22, 23 | sluggish | 2 days |
 | 24, 25 | sluggish | 4 days |
 | 26+ | catatonic | 1 week |
+
+## Config
+
+This project uses `dotenv` and a `.env` config file which expects the following entries:
+
+```
+# 12 word seed phrase for the test net HD wallet provider
+MNEMONIC=
+
+# Infura project ID for the hosted ETH node
+INFURA_PROJECT_ID=
+```
