@@ -55,6 +55,7 @@ function* watchForKittyCreatorchange() {
 function* initContracts(chainId) {
   try {
     yield call(Service.initContracts, chainId);
+    yield put(contractInitSuccess());
   } catch (err) {
     console.error(err);
     yield put(contractInitError(err.message));
@@ -143,7 +144,6 @@ function* onConnectWallet() {
       }
 
       // update connected account and network
-      // const account = yield call(Service.wallet.connect);
       yield put(connectWallet());
 
       const result = yield race({
@@ -156,6 +156,7 @@ function* onConnectWallet() {
 
       // init application state
       if (result.fulfilled) {
+        yield put(connectSuccess());
         yield call(onNetworkChange, network.id);
       }
     } catch (err) {
@@ -266,7 +267,6 @@ function* watchForNetworkChange() {
   while (true) {
     try {
       const network = yield take(chanNetworkChanged);
-      // console.log('walletSaga:: network changed: ', network);
 
       yield put(updateAccountNetwork(null, network, null, null));
 

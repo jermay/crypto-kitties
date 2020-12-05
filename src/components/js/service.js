@@ -6,7 +6,11 @@ import WalletService from './walletService';
 export default class Service {
   static chainIdToAddress = {
     // '0x1': // Etereum MainNet
-    // '0x3': // Ropsten Test'
+    '0x3': {
+      // Ropsten Test'
+      kitty: '0xD4Bcc3f1C483Ea10fDb97523357CA660E6B3c71E',
+      market: '0xa67e70910341DDF96537F005280a4417b5B29578',
+    },
     '0x539': {
       // Ganache Local
       kitty: '0x9312e2681EC932ab10a8733F4Ff60B4068D32B6F',
