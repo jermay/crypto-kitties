@@ -48,7 +48,9 @@ export default function CatFeatures({ model, }) {
   });
 
   if (!cat.kittyId) {
-    return null;
+    return (
+      <DnaViewer dna={dna} />
+    );
   }
 
   const cattributes = dna.cattributes
