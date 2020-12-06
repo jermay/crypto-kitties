@@ -575,11 +575,11 @@ export class CatLegPart extends CatPart {
       // Pin Stripes
       case 1:
         this.styles.backgroundImage = `repeating-linear-gradient(
-                    to bottom,
-                    ${this.color},
-                    ${this.color} 15px,
-                    ${decorationColor} 10px,
-                    ${decorationColor} 20px)`;
+          to bottom,
+          ${this.color},
+          ${this.color} 15px,
+          ${decorationColor} 10px,
+          ${decorationColor} 20px)`;
         break;
 
       // Spots
