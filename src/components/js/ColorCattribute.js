@@ -1,5 +1,5 @@
 import Cattribute from './Cattribute';
-import { colors } from './colors';
+import { colorObj } from './colors';
 
 
 export default class ColorCattribute extends Cattribute {
@@ -16,7 +16,7 @@ export default class ColorCattribute extends Cattribute {
     super({
       defaultValue: 10,
       minValue: 10,
-      maxValue: 98,
+      maxValue: 99,
       digits: 2,
       ...props,
     });
@@ -24,6 +24,10 @@ export default class ColorCattribute extends Cattribute {
 
   // returns the hex color value
   getCssColor() {
-    return `#${colors[this.value]}`;
+    return colorObj[this.value].color;
+  }
+
+  get valueName() {
+    return colorObj[this.value].name;
   }
 }

@@ -5,6 +5,8 @@ import styled from 'styled-components';
 
 import '../css/mystyle.css';
 import KittyDNA from '../js/dna';
+import CatColorBar from './CatColorBar';
+import ColorCattribute from '../js/ColorCattribute';
 
 const Cattributes = styled(Col)`
   padding: 25px;
@@ -27,6 +29,7 @@ export default function CatSettings({ dna, type, handleDnaChange, }) {
                     {cattribute.valueName}
                   </Badge>
                 </label>
+                <CatColorBar show={cattribute instanceof ColorCattribute} />
                 <input
                   type="range"
                   className="form-control-range"

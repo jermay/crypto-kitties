@@ -23,11 +23,11 @@ export default function Home() {
   const wallet = useSelector((state) => state.wallet);
 
   const featured = [
-    '8770856871829324',
-    '9080335340204323',
-    '1937825512645025',
-    '8886915152314413',
-    '1013914222421341',
+    '3840837671829324',
+    '9092334640245223',
+    '1929825512645025',
+    '4485804221431312',
+    '1013934222421341',
   ];
 
   const featuredCats = featured.map((genes) => {
