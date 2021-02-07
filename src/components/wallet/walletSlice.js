@@ -16,7 +16,8 @@ const initialState = walletAdapter.getInitialState({
   isKittyCreator: false,
   isOwner: false,
   network: null,
-  supportedNetworks: ['0x3', '0x539'],
+  // ropsten, ganache, matic mumbai testnet
+  supportedNetworks: ['0x3', '0x539', '0x13881'],
   web3ProviderAvailable: null,
 });
 

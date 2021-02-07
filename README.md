@@ -87,7 +87,7 @@ https://guide.cryptokitties.co/guide/cat-features/cooldown-speed
 
 ## Deploy to Test Net
 
-Deploying the project contracts to a test net requires a `.env` config file which expects the following entries. You can get a free Infura API key by creating an account at their website <a href="https://infura.io/" target="_blank">here</a>.
+Deploying the project contracts to a test net requires a `.env` config file which expects the following entries. You can get a free Infura API key by creating an account at their website <a href="https://infura.io/" target="_blank">here</a>. For Matic, get a free Matic Vigil account <a href="https://rpc.maticvigil.com/" target="_blank">here</a>.
 
 ```
 # 12 word seed phrase for the test net HD wallet provider
@@ -95,6 +95,9 @@ MNEMONIC=
 
 # Infura project ID for the hosted ETH node
 INFURA_PROJECT_ID=
+
+# Matic Mumbai hosted node
+MATIC_VIGIL_APP_ID=
 ```
 
 Follow the local deployment instructions above except use `truffle console --network ropsten` (or your test network of choice).

@@ -52,13 +52,24 @@ exports.networks = {
   ropsten: {
     provider: () => new HDWalletProvider(
       process.env.MNEMONIC,
-      `https://ropsten.infura.io/v3/${process.env.INFURA_PROJECT_ID}`
+      `wss://ropsten.infura.io/ws/v3/${process.env.INFURA_PROJECT_ID}`
     ),
     network_id: 3,
     gas: 5500000,
     confirmations: 2,
     timeoutBlocks: 200,
     skipDryRun: true,
+    websockets: true,
+  },
+
+  matic: {
+    provider: () => new HDWalletProvider(process.env.MNEMONIC, `wss://rpc-mumbai.maticvigil.com/ws/v1/${process.env.MATIC_VIGIL_APP_ID}`),
+    network_id: 80001,
+    confirmations: 2,
+    gasPrice: 1e9,
+    timeoutBlocks: 200,
+    skipDryRun: true,
+    websockets: true,
   },
 };
 exports.mocha = {

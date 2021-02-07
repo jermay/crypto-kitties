@@ -31,7 +31,7 @@ contract('KittyAdmin', (accounts) => {
       expect(result).to.equal(zeroAddress);
     });
 
-    it.only('should add the contract owner at index 1', async () => {
+    it('should add the contract owner at index 1', async () => {
       const result = await contractInstance.test_getKittyCreatorFromArray(1);
       expect(result).to.equal(contractOwner);
 

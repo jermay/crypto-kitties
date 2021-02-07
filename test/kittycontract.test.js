@@ -9,7 +9,7 @@ const TestERC721Receiver = artifacts.require('TestERC721Receiver');
 const TestBadNFTReceiver = artifacts.require('TestBadNFTReceiver');
 
 
-contract('KittyContract', (accounts) => {
+contract.only('KittyContract', (accounts) => {
   let contract;
   let kittyOwner;
   let kitty;
