@@ -1,5 +1,5 @@
 pragma solidity ^0.5.12;
-import "../KittyMarketplace.sol";
+import "../KittyMarketPlace.sol";
 
 contract TestKittyMarketPlace is KittyMarketPlace {
     constructor(address _kittyContractAddress)
